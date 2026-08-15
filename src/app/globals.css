@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: the toggle adds/removes .dark on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: var(--font-app-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: #ffffff;
+  --color-fg: #0b0d12;
+  --color-muted: #5c6473;
+  --color-card: #ffffff;
+  --color-border: #e4e7ec;
+  --color-accent: #3b5bdb;
+  --color-accent-fg: #ffffff;
+  --color-danger: #d64545;
+  --color-success: #2f9e5f;
+}
+
+.dark {
+  --color-bg: #0b0d12;
+  --color-fg: #eef1f6;
+  --color-muted: #98a1b3;
+  --color-card: #131722;
+  --color-border: #262c3a;
+  --color-accent: #7d94ff;
+  --color-accent-fg: #0b0d12;
+  --color-danger: #ff7a7a;
+  --color-success: #55c98a;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+}
+
+/* RTL: flip the few things logical properties do not cover. */
+[dir="rtl"] .flip-rtl {
+  transform: scaleX(-1);
+}
