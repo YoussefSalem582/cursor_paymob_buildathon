@@ -12,11 +12,11 @@ export default async function CommissionPage({
   const t = await getTranslations("commission");
 
   return (
-    <main className="mx-auto grid w-full max-w-5xl gap-12 px-6 py-8 sm:px-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-      <div className="lg:sticky lg:top-8">
-        <EscrowdLogo size={96} className="mb-6 size-16" alt="" />
+    <main className="mx-auto grid w-full max-w-5xl gap-8 px-4 py-6 sm:gap-12 sm:px-10 sm:py-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+      <div className="lg:sticky lg:top-24">
+        <EscrowdLogo size={96} className="mb-4 size-12 sm:mb-6 sm:size-16" alt="" />
         <p className="text-[12px] uppercase tracking-[0.28em] text-clay">{t("kicker")}</p>
-        <h2 className="mt-3 font-display text-5xl leading-none">{t("title")}</h2>
+        <h2 className="mt-3 font-display text-4xl leading-none sm:text-5xl">{t("title")}</h2>
         <p className="mt-5 leading-relaxed text-muted">{t("subtitle")}</p>
       </div>
       <CommissionForm />

@@ -65,7 +65,7 @@ export function PayButton({
 
   return (
     <div className="grid gap-3">
-      <Button type="button" variant="clay" loading={busy} onClick={pay}>
+      <Button type="button" variant="clay" loading={busy} className="w-full" onClick={pay}>
         {busy ? t("opening") : label}
       </Button>
       {error ? <FieldError>{error}</FieldError> : null}
@@ -168,29 +168,33 @@ export function OrderPanel({
   const waiting = returning && awaitingPayment(order);
 
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-8 sm:px-10 lg:grid-cols-[1.1fr_0.9fr]">
-      <div>
+    <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-6 sm:gap-10 sm:px-10 sm:py-8 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="order-2 min-w-0 lg:order-1">
         {order.preview_url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={order.preview_url} alt="" className="w-full object-cover" />
+          <img
+            src={order.preview_url}
+            alt=""
+            className="max-h-[50vh] w-full object-cover lg:max-h-none"
+          />
         ) : (
-          <div className="aspect-[4/5] bg-gradient-to-br from-sage to-ink" />
+          <div className="aspect-[4/5] max-h-[50vh] bg-gradient-to-br from-sage to-ink lg:max-h-none" />
         )}
       </div>
-      <div>
+      <div className="order-1 min-w-0 lg:order-2">
         <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
           {waiting ? t("confirming") : t(statusKey(order.status))}
         </p>
-        <h2 className="mt-3 font-display text-5xl leading-none">{t("frozen")}</h2>
+        <h2 className="mt-3 font-display text-4xl leading-none sm:text-5xl">{t("frozen")}</h2>
         {waiting ? <p className="mt-4 text-muted">{t("confirmingBody")}</p> : null}
         {trouble ? <p className="mt-4 text-sm text-clay-deep">{t("trouble")}</p> : null}
 
         <Timeline current={order.status} />
 
         <dl className="mt-8 grid gap-3 border-t border-line pt-6 text-sm">
-          <div className="flex justify-between gap-4">
+          <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
             <dt className="text-muted">{tb(brief.type)}</dt>
-            <dd>
+            <dd className="min-w-0 sm:text-end">
               {brief.subjects} · {tb(brief.detail_level)} · {tb(brief.background)}
             </dd>
           </div>
@@ -200,11 +204,11 @@ export function OrderPanel({
           </div>
         </dl>
 
-        <p className="mt-8 font-display text-4xl">
+        <p className="mt-8 font-display text-3xl sm:text-4xl">
           <Price piastres={order.price_total} />
         </p>
-        <p className="mt-2 text-sm text-muted">
-          <span className="me-3">
+        <p className="mt-2 flex flex-col gap-1 text-sm text-muted sm:flex-row sm:gap-0">
+          <span className="sm:me-3">
             {t("deposit")}: <Price piastres={order.price_deposit} />
           </span>
           <span>
@@ -227,7 +231,7 @@ export function OrderPanel({
 
         {order.status === "delivered" && order.final_url ? (
           <a
-            className={cn(buttonBase, buttonVariants.primary, "mt-8")}
+            className={cn(buttonBase, buttonVariants.primary, "mt-8 w-full sm:w-auto")}
             href={order.final_url}
           >
             {t("download")}

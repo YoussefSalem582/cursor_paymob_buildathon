@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
 import { FileField } from "@/components/ui/file-field";
 import { NOUR_TRANSITIONS, type Order } from "@/lib/orders";
+import { parseDeliveryFile, type DeliveryFileError } from "@/lib/validate";
+
+const FILE_I18N: Record<DeliveryFileError, "missingFile" | "invalidFileType" | "fileTooLarge"> = {
+  missing_file: "missingFile",
+  invalid_file_type: "invalidFileType",
+  file_too_large: "fileTooLarge",
+};
 
 export function StudioActions({ order }: { order: Order }) {
   const t = useTranslations("dashboard");
@@ -23,11 +30,18 @@ export function StudioActions({ order }: { order: Order }) {
   return (
     <form
       className="grid gap-4"
+      noValidate
       onSubmit={async (event) => {
         event.preventDefault();
         setBusy(true);
         setError(null);
         const form = new FormData(event.currentTarget);
+        const parsed = parseDeliveryFile(form.get("file"));
+        if (!parsed.ok) {
+          setBusy(false);
+          setError(t(FILE_I18N[parsed.error]));
+          return;
+        }
         const upload = await fetch(`/api/dashboard/orders/${order.id}/${kind}`, {
           method: "POST",
           body: form,
@@ -37,7 +51,12 @@ export function StudioActions({ order }: { order: Order }) {
         };
         if (!upload.ok) {
           setBusy(false);
-          setError(uploadData.error ?? t("uploadError"));
+          const code = uploadData.error;
+          setError(
+            code && code in FILE_I18N
+              ? t(FILE_I18N[code as DeliveryFileError])
+              : (code ?? t("uploadError")),
+          );
           return;
         }
         const patch = await fetch(`/api/dashboard/orders/${order.id}`, {
@@ -61,7 +80,7 @@ export function StudioActions({ order }: { order: Order }) {
         label={kind === "preview" ? t("previewFile") : t("finalFile")}
         hint={t("fileHint")}
         name="file"
-        accept="image/*"
+        accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
         required
       />
       {error ? <FieldError>{error}</FieldError> : null}

@@ -22,9 +22,9 @@ export function Stepper({
 }) {
   return (
     <div>
-      <div className="flex items-center justify-between gap-4">
-        <p className={labelClass}>{label}</p>
-        <div className="flex items-stretch border border-line">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className={`${labelClass} min-w-0 flex-1`}>{label}</p>
+        <div className="flex shrink-0 items-stretch border border-line">
           <button
             type="button"
             aria-label={decreaseLabel}

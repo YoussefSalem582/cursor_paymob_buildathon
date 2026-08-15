@@ -40,14 +40,14 @@ export function StatusPipeline({
           ),
         )}
       </div>
-      <ul className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+      <ul className="mt-3 grid gap-2 text-sm">
         {segments.map((row) => (
-          <li key={row.status} className="flex items-center justify-between gap-3">
-            <span className="flex items-center gap-2 text-muted">
-              <span className={cn("size-2 shrink-0", STATUS_TONE[row.status])} />
-              {labels[row.status]}
+          <li key={row.status} className="flex items-start justify-between gap-3">
+            <span className="flex min-w-0 items-start gap-2 text-muted">
+              <span className={cn("mt-1.5 size-2 shrink-0", STATUS_TONE[row.status])} />
+              <span className="leading-snug">{labels[row.status]}</span>
             </span>
-            <span className="tabular-nums">{row.count}</span>
+            <span className="shrink-0 tabular-nums">{row.count}</span>
           </li>
         ))}
       </ul>
@@ -82,8 +82,9 @@ export function ActivityChart({
   });
 
   return (
-    <figure>
-      <div dir="ltr" className="flex h-40 items-end gap-1">
+    <figure className="min-w-0">
+      <div className="-mx-1 overflow-x-auto overscroll-x-contain">
+        <div dir="ltr" className="flex h-40 min-w-[32rem] items-end gap-1 sm:min-w-0 sm:w-full">
         {days.map((day) => (
           <div key={day.date} className="flex min-w-0 flex-1 items-end justify-center gap-px">
             <span
@@ -103,6 +104,7 @@ export function ActivityChart({
             />
           </div>
         ))}
+        </div>
       </div>
       <div dir="ltr" className="mt-2 flex justify-between text-[11px] text-muted">
         <span>{tick.format(new Date(`${days[0]?.date ?? ""}T12:00:00Z`))}</span>
@@ -144,7 +146,7 @@ export function TypeMix({
       <ul className="grid gap-3">
         {rows.map((row) => (
           <li key={row.type}>
-            <div className="mb-1 flex justify-between gap-3 text-sm">
+            <div className="mb-1 flex flex-wrap justify-between gap-x-3 gap-y-1 text-sm">
               <span>
                 {labels[row.type] ?? row.type}
                 <span className="text-muted"> · {row.count}</span>

@@ -36,7 +36,7 @@ export function FileField({
         aria-invalid={error ? true : undefined}
         className={cn(
           controlClass,
-          "cursor-pointer py-1.5 file:me-3 file:min-h-8 file:cursor-pointer file:border-0 file:bg-ink file:px-3 file:text-sm file:text-paper",
+          "max-w-full cursor-pointer py-1.5 file:me-3 file:min-h-8 file:max-w-[50%] file:cursor-pointer file:border-0 file:bg-ink file:px-3 file:text-sm file:text-paper sm:file:max-w-none",
           error && "border-clay-deep",
           className,
         )}

@@ -15,7 +15,12 @@ export default async function StudioLayout({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const user = await requireNour();
+  let user = null;
+  try {
+    user = await requireNour();
+  } catch (error) {
+    console.error("[escrowd] studio auth", error);
+  }
   if (!user) {
     redirect({ href: "/sign-in", locale });
   } else {

@@ -1,6 +1,6 @@
 /** Shared chrome for text fields, file pickers, and similar controls. */
 export const controlClass = [
-  "w-full min-h-11 border border-line bg-paper px-3 text-sm text-ink",
+  "w-full min-h-11 min-w-0 max-w-full border border-line bg-paper px-3 text-base text-ink sm:text-sm",
   "placeholder:text-muted",
   "transition-[border-color] duration-150",
   "hover:border-muted",

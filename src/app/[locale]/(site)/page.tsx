@@ -65,49 +65,49 @@ export default async function HomePage({
 
   return (
     <main>
-      <section className="mx-auto grid w-full max-w-6xl gap-10 px-6 pb-16 pt-4 sm:px-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <section className="mx-auto grid w-full max-w-6xl gap-8 px-4 pb-12 pt-2 sm:gap-10 sm:px-10 sm:pb-16 sm:pt-4 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         <div>
           <p className="text-[12px] uppercase tracking-[0.32em] text-clay">
             {t("kicker")}
           </p>
-          <h1 className="mt-4 max-w-xl font-display text-5xl leading-[0.95] tracking-tight sm:text-7xl">
+          <h1 className="mt-4 max-w-xl font-display text-4xl leading-[0.95] tracking-tight sm:text-7xl">
             {t("title")}
           </h1>
-          <p className="mt-6 max-w-md text-lg leading-relaxed text-muted">
+          <p className="mt-6 max-w-md text-base leading-relaxed text-muted sm:text-lg">
             {t("subtitle")}
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
               href="/commission"
-              className={cn(buttonBase, buttonVariants.primary)}
+              className={cn(buttonBase, buttonVariants.primary, "w-full sm:w-auto")}
             >
               {t("cta")}
             </Link>
             <Link
               href="/#work"
-              className={cn(buttonBase, buttonVariants.secondary)}
+              className={cn(buttonBase, buttonVariants.secondary, "w-full sm:w-auto")}
             >
               {t("seeWork")}
             </Link>
           </div>
         </div>
-        <figure>
+        <figure className="min-w-0">
           <div className="border border-line bg-paper p-2 sm:p-3">
             <div className="aspect-[4/5] bg-gradient-to-br from-[#c45c3e] via-[#9a3d26] to-[#1c1915]" />
           </div>
-          <figcaption className="mt-4 flex items-baseline justify-between gap-4">
-            <p className="font-display text-2xl">{t("heroCaption")}</p>
+          <figcaption className="mt-4 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+            <p className="font-display text-xl sm:text-2xl">{t("heroCaption")}</p>
             <p className="text-sm text-muted">{t("heroMeta")}</p>
           </figcaption>
         </figure>
       </section>
 
       <section className="border-t border-line">
-        <div className="mx-auto w-full max-w-6xl px-6 py-14 sm:px-10">
+        <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-10 sm:py-14">
           <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
             {t("stepsKicker")}
           </p>
-          <h2 className="mt-3 max-w-lg font-display text-4xl leading-none">
+          <h2 className="mt-3 max-w-lg font-display text-3xl leading-none sm:text-4xl">
             {t("stepsTitle")}
           </h2>
           <ol className="mt-10 grid gap-4 lg:grid-cols-3">
@@ -126,8 +126,47 @@ export default async function HomePage({
         </div>
       </section>
 
-      <section id="work" className="scroll-mt-24 border-t border-line">
-        <div className="mx-auto w-full max-w-6xl px-6 py-14 sm:px-10">
+      <section id="about" className="scroll-mt-32 border-t border-line lg:scroll-mt-24">
+        <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 sm:px-10 sm:py-14 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+          <div>
+            <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
+              {t("aboutKicker")}
+            </p>
+            <h2 className="mt-3 max-w-lg font-display text-3xl leading-none sm:text-4xl">
+              {t("aboutTitle")}
+            </h2>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-ink sm:text-lg">
+              {t("aboutLead")}
+            </p>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted sm:text-base">
+              {t("aboutBody")}
+            </p>
+          </div>
+          <dl className="grid gap-4 border border-line p-5 sm:p-6">
+            <div>
+              <dt className="text-[12px] uppercase tracking-[0.28em] text-muted">
+                {t("aboutWhereLabel")}
+              </dt>
+              <dd className="mt-1 font-display text-2xl">{t("aboutWhere")}</dd>
+            </div>
+            <div>
+              <dt className="text-[12px] uppercase tracking-[0.28em] text-muted">
+                {t("aboutPayLabel")}
+              </dt>
+              <dd className="mt-1 font-display text-2xl">{t("aboutPay")}</dd>
+            </div>
+            <div>
+              <dt className="text-[12px] uppercase tracking-[0.28em] text-muted">
+                {t("aboutLockLabel")}
+              </dt>
+              <dd className="mt-1 font-display text-2xl">{t("aboutLock")}</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section id="work" className="scroll-mt-32 border-t border-line lg:scroll-mt-24">
+        <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-10 sm:py-14">
           <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <h2 className="font-display text-3xl">{t("workTitle")}</h2>
             <p className="max-w-sm text-sm text-muted">{t("workNote")}</p>
@@ -158,16 +197,16 @@ export default async function HomePage({
       </section>
 
       <section className="border-t border-line">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-6 px-6 py-16 sm:px-10 lg:flex-row lg:items-end lg:justify-between">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-stretch gap-6 px-4 py-12 sm:px-10 sm:py-16 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h2 className="font-display text-4xl leading-none">{t("closeTitle")}</h2>
+            <h2 className="font-display text-3xl leading-none sm:text-4xl">{t("closeTitle")}</h2>
             <p className="mt-3 max-w-md leading-relaxed text-muted">
               {t("closeBody")}
             </p>
           </div>
           <Link
             href="/commission"
-            className={cn(buttonBase, buttonVariants.clay)}
+            className={cn(buttonBase, buttonVariants.clay, "w-full sm:w-auto")}
           >
             {t("cta")}
           </Link>

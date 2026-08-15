@@ -11,11 +11,11 @@ export function StudioNav() {
   const onBoard = pathname.startsWith("/dashboard/");
 
   return (
-    <nav className="flex gap-1 lg:flex-col">
+    <nav className="flex min-w-0 flex-1 gap-1 lg:flex-none lg:flex-col">
       <Link
         href="/dashboard"
         className={cn(
-          "inline-flex min-h-11 items-center px-3 text-sm",
+          "inline-flex min-h-11 flex-1 items-center justify-center px-3 text-sm lg:flex-none lg:justify-start",
           onOverview ? "bg-ink text-paper" : "text-muted hover:text-ink",
         )}
       >
@@ -24,7 +24,7 @@ export function StudioNav() {
       <Link
         href="/dashboard/orders"
         className={cn(
-          "inline-flex min-h-11 items-center px-3 text-sm",
+          "inline-flex min-h-11 flex-1 items-center justify-center px-3 text-sm lg:flex-none lg:justify-start",
           onBoard ? "bg-ink text-paper" : "text-muted hover:text-ink",
         )}
       >

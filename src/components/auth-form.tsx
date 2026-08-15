@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 type AuthAction = (
   prevState: string | null,
@@ -38,6 +39,7 @@ export function AuthForm({
     submit: string;
   };
 }) {
+  const t = useTranslations("auth");
   const [error, formAction] = useActionState<string | null, FormData>(
     async (prev, formData) => (await action(prev, formData)) ?? null,
     null,
@@ -69,7 +71,7 @@ export function AuthForm({
         hint={labels.passwordHint}
       />
 
-      {error ? <FieldError>{error}</FieldError> : null}
+      {error ? <FieldError>{error === "invalid" ? t("invalid") : error}</FieldError> : null}
 
       <SubmitButton label={labels.submit} />
     </form>

@@ -17,6 +17,20 @@ import {
   type Brief,
 } from "@/lib/pricing";
 import { piastresToEgp } from "@/lib/paymob";
+import {
+  EMAIL_MAX,
+  NAME_MAX,
+  parseContact,
+  type ContactError,
+  type ContactField,
+} from "@/lib/validate";
+
+const CONTACT_I18N = {
+  invalid_name: "invalidName",
+  invalid_email: "invalidEmail",
+  invalid_phone: "invalidPhone",
+  invalid_brief: "invalidBrief",
+} as const;
 
 function money(locale: string, egp: number) {
   return new Intl.NumberFormat(locale === "ar" ? "ar-EG" : "en-EG", {
@@ -33,6 +47,7 @@ export function CommissionForm() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<ContactField, string>>>({});
   const [brief, setBrief] = useState<Brief>({
     type: "portrait",
     subjects: 1,
@@ -44,25 +59,63 @@ export function CommissionForm() {
 
   const priced = useMemo(() => priceBrief(brief), [brief]);
 
+  function contactMessage(code: string) {
+    if (code in CONTACT_I18N) {
+      return t(CONTACT_I18N[code as ContactError | "invalid_brief"]);
+    }
+    return t("error");
+  }
+
+  function clearField(field: ContactField) {
+    setFieldErrors((current) => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  }
+
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
     setError(null);
+    setFieldErrors({});
     const form = new FormData(event.currentTarget);
+    const contact = parseContact({
+      name: form.get("name"),
+      email: form.get("email"),
+      phone: form.get("phone"),
+    });
+    if (!contact.ok) {
+      setBusy(false);
+      const message = contactMessage(contact.error);
+      setFieldErrors({ [contact.field!]: message });
+      setError(message);
+      return;
+    }
+
     const res = await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: form.get("name"),
-        email: form.get("email"),
-        phone: form.get("phone"),
+        name: contact.value.name,
+        email: contact.value.email,
+        phone: contact.value.phone,
         brief,
       }),
     });
-    const data = (await res.json()) as { token?: string; error?: string };
+    const data = (await res.json()) as {
+      token?: string;
+      error?: string;
+      field?: ContactField | "brief";
+    };
     if (!res.ok || !data.token) {
       setBusy(false);
-      setError(data.error ?? t("error"));
+      const message = data.error ? contactMessage(data.error) : t("error");
+      if (data.field && data.field !== "brief") {
+        setFieldErrors({ [data.field]: message });
+      }
+      setError(message);
       return;
     }
 
@@ -81,7 +134,12 @@ export function CommissionForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-8" aria-busy={busy || undefined}>
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      className="grid gap-8 max-lg:pb-52"
+      aria-busy={busy || undefined}
+    >
       <fieldset className="grid min-w-0 gap-5">
         <legend className="float-none w-full font-display text-2xl">{t("contactSection")}</legend>
         <Input
@@ -90,7 +148,10 @@ export function CommissionForm() {
           required
           autoComplete="name"
           autoCapitalize="words"
+          maxLength={NAME_MAX}
           placeholder={t("namePlaceholder")}
+          error={fieldErrors.name}
+          onChange={() => clearField("name")}
         />
         <div className="grid gap-5 sm:grid-cols-2">
           <Input
@@ -102,7 +163,10 @@ export function CommissionForm() {
             inputMode="email"
             spellCheck={false}
             dir="ltr"
+            maxLength={EMAIL_MAX}
             placeholder={t("emailPlaceholder")}
+            error={fieldErrors.email}
+            onChange={() => clearField("email")}
           />
           <Input
             label={t("phone")}
@@ -112,8 +176,11 @@ export function CommissionForm() {
             autoComplete="tel"
             inputMode="tel"
             dir="ltr"
+            maxLength={16}
             placeholder={t("phonePlaceholder")}
             hint={t("phoneHint")}
+            error={fieldErrors.phone}
+            onChange={() => clearField("phone")}
           />
         </div>
       </fieldset>
@@ -174,40 +241,100 @@ export function CommissionForm() {
         />
       </fieldset>
 
-      <div className="sticky bottom-0 z-10 border border-line bg-paper/95 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-sm lg:static lg:pb-4 lg:backdrop-blur-none">
-        <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
-          {t("priceLive")}
-        </p>
-        <p className="mt-2 font-display text-3xl" aria-live="polite">
-          {money(locale, priced.totalEgp)}
-        </p>
-        <dl className="mt-3 grid gap-1 text-sm text-muted">
-          <div className="flex justify-between gap-4">
-            <dt>{t("deposit")}</dt>
-            <dd className="text-ink tabular-nums">
-              {money(locale, piastresToEgp(priced.depositPiastres))}
-            </dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt>{t("balance")}</dt>
-            <dd className="text-ink tabular-nums">
-              {money(locale, piastresToEgp(priced.balancePiastres))}
-            </dd>
-          </div>
-        </dl>
-        <p className="mt-3 text-xs leading-relaxed text-muted">{t("priceNote")}</p>
-        {brief.usage === "commercial" ? (
+      <PriceSummary
+        locale={locale}
+        total={priced.totalEgp}
+        deposit={piastresToEgp(priced.depositPiastres)}
+        balance={piastresToEgp(priced.balancePiastres)}
+        commercial={brief.usage === "commercial"}
+        error={error}
+        busy={busy}
+        className="hidden lg:block"
+      />
+      <PriceSummary
+        locale={locale}
+        total={priced.totalEgp}
+        deposit={piastresToEgp(priced.depositPiastres)}
+        balance={piastresToEgp(priced.balancePiastres)}
+        commercial={brief.usage === "commercial"}
+        error={error}
+        busy={busy}
+        compact
+        className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-paper/95 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] backdrop-blur-sm lg:hidden"
+      />
+    </form>
+  );
+}
+
+function PriceSummary({
+  locale,
+  total,
+  deposit,
+  balance,
+  commercial,
+  error,
+  busy,
+  compact = false,
+  className,
+}: {
+  locale: string;
+  total: number;
+  deposit: number;
+  balance: number;
+  commercial: boolean;
+  error: string | null;
+  busy: boolean;
+  compact?: boolean;
+  className?: string;
+}) {
+  const t = useTranslations("commission");
+  return (
+    <div className={className}>
+      <div className={compact ? undefined : "border border-line p-4"}>
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-clay sm:text-[12px]">
+            {t("priceLive")}
+          </p>
+          <p
+            className={compact ? "font-display text-2xl" : "font-display text-3xl"}
+            aria-live="polite"
+          >
+            {money(locale, total)}
+          </p>
+        </div>
+        {compact ? (
+          <p className="mt-1 text-xs text-muted">
+            {t("deposit")} {money(locale, deposit)}
+            <span className="mx-2 text-line">·</span>
+            {t("balance")} {money(locale, balance)}
+          </p>
+        ) : (
+          <dl className="mt-3 grid gap-1 text-sm text-muted">
+            <div className="flex justify-between gap-4">
+              <dt>{t("deposit")}</dt>
+              <dd className="text-ink tabular-nums">{money(locale, deposit)}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt>{t("balance")}</dt>
+              <dd className="text-ink tabular-nums">{money(locale, balance)}</dd>
+            </div>
+          </dl>
+        )}
+        {compact ? null : (
+          <p className="mt-3 text-xs leading-relaxed text-muted">{t("priceNote")}</p>
+        )}
+        {commercial ? (
           <p className="mt-2 text-sm text-clay-deep">{t("commercialNote")}</p>
         ) : null}
         {error ? (
-          <div className="mt-4">
+          <div className="mt-3">
             <FieldError>{error}</FieldError>
           </div>
         ) : null}
-        <Button type="submit" loading={busy} className="mt-4 w-full">
+        <Button type="submit" loading={busy} className="mt-3 w-full">
           {busy ? t("submitting") : t("submit")}
         </Button>
       </div>
-    </form>
+    </div>
   );
 }

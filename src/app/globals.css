@@ -42,7 +42,16 @@
 
 html {
   background: var(--paper);
-  scroll-padding-top: 5.5rem;
+  overflow-x: clip;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  scroll-padding-top: 7.5rem;
+}
+
+@media (min-width: 1024px) {
+  html {
+    scroll-padding-top: 5.5rem;
+  }
 }
 
 body {
@@ -69,6 +78,11 @@ a:focus-visible,
 button:focus-visible {
   outline: 2px solid var(--clay);
   outline-offset: 3px;
+}
+
+a,
+button {
+  touch-action: manipulation;
 }
 
 input,

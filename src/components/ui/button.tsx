@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Spinner } from "./spinner";
 
 export const buttonBase =
-  "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 px-6 text-sm transition-opacity disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 px-4 text-center text-sm whitespace-normal transition-opacity disabled:cursor-not-allowed disabled:opacity-60 sm:px-6";
 
 export const buttonVariants = {
   primary: "bg-ink text-paper hover:opacity-90",
