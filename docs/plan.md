@@ -226,7 +226,7 @@ Copy from the starter, then add the inquiry key if you use fallback.
 ```
 NEXT_PUBLIC_SITE_URL          # Vercel/ngrok origin, no trailing slash
 NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY  # sb_publishable_… (anon key still accepted)
 SUPABASE_SERVICE_ROLE_KEY     # server only, bypasses RLS
 PAYMOB_SECRET_KEY             # egy_sk_test_…  server only
 PAYMOB_PUBLIC_KEY             # egy_pk_test_…  safe in checkout URL

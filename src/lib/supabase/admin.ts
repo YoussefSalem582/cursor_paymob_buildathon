@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { supabaseUrl } from "@/lib/supabase/env";
 
 /**
  * Service-role client. Bypasses RLS — server-only, never import from a
@@ -6,7 +7,7 @@ import { createClient } from "@supabase/supabase-js";
  * must not depend on a user session.
  */
 export function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const url = supabaseUrl();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !serviceRoleKey) {
     throw new Error(

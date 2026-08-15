@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ## Unreleased
 
+### Added
+
+- `.env.example` and gitignored `.env.local` for the Escrowd Supabase project.
+- `src/lib/supabase/env.ts` reads `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (falls back to `NEXT_PUBLIC_SUPABASE_ANON_KEY`). Browser, server, and `proxy.ts` session refresh all use it.
+- Supabase agent skills under `.agents/skills/` (`npx skills add supabase/agent-skills`).
+
 ### Planned
 
 - Replace the demo `orders` table with the Escrowd schema (`token`, frozen `brief`, deposit/balance amounts and Paymob ids).

@@ -49,7 +49,7 @@ npm run dev
 
 1. Create a Supabase project → https://supabase.com/dashboard
 2. Run the **Escrowd** migration (replace the demo `orders` table in [`supabase/migrations/0001_orders.sql`](supabase/migrations/0001_orders.sql) — shape is in `docs/plan.md`)
-3. Fill `.env.local`
+3. Fill `.env.local` (copy from `.env.example`). Project URL and publishable key can live there; **service role and Paymob keys stay server-only and must not be committed**.
 4. Deploy or ngrok so Paymob can hit `/api/paymob/webhook`
 5. Brief → deposit checkout → webhook sets `deposit_paid_at`
 
@@ -65,7 +65,7 @@ The leftover demo (`/demo`, sign-up to pay 100 EGP) is **not** the product. Clie
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` locally. **Ngrok or Vercel origin for webhooks**, no trailing slash |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Same screen → `anon` / publishable key |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Same screen → publishable key (`sb_publishable_…`). Older name: `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Same screen → `service_role`. **Server only.** Bypasses RLS |
 | `PAYMOB_SECRET_KEY` | Paymob → Settings → Account Info → API Keys → Secret Key (`egy_sk_test_…`). **Server only** |
 | `PAYMOB_PUBLIC_KEY` | Same screen → Public Key (`egy_pk_test_…`). Safe in the checkout URL |

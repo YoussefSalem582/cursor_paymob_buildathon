@@ -2,6 +2,7 @@ import createIntlMiddleware from "next-intl/middleware";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
+import { supabasePublishableKey, supabaseUrl } from "@/lib/supabase/env";
 
 /**
  * Next.js 16 renamed `middleware` to `proxy`. Same job: runs before every
@@ -18,8 +19,8 @@ export async function proxy(request: NextRequest) {
   const response = handleI18n(request);
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl(),
+    supabasePublishableKey(),
     {
       cookies: {
         getAll() {
