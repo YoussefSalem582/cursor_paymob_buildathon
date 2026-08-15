@@ -12,8 +12,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 - Remove `@next/swc-darwin-arm64` from `package.json`. It is a Mac-only optional binary; listing it as a required dependency made Vercel (`linux/x64`) fail `npm install` with `EBADPLATFORM`. Next installs the correct `@next/swc-*` package for the build machine.
 - Stop 500 Internal Server Error on Vercel when Supabase env vars are unset (`.env.local` is not deployed). `proxy.ts` and the header skip session refresh instead of throwing. Add a root `src/app/layout.tsx` so a missed locale rewrite cannot crash `/`.
 
+### Changed
+
+- Favicon is a tight crop of the lock mark (`favicon.ico`, `icon.png`, `apple-icon.png`) so the clay shackle reads in the tab. Linked from the locale layout.
+
 ### Added
 
+- Production origin is `https://cursor-paymob-buildathon-five.vercel.app`. `NEXT_PUBLIC_SITE_URL` is set to that (Vercel Production/Preview + `.env.local`). Intention `notification_url` / `redirection_url` now point at a host Paymob can reach.
+- Dark mode: `html.dark` class, blocking theme script, header toggle. Remembers light/dark; otherwise follows `prefers-color-scheme`.
+- Checkout persists last `paymob_{kind}_reference` (`{token}:{kind}:{attemptId}`). `/o/[token]` poll calls `GET /api/orders/:token?reconcile=1` so Transaction Inquiry can recover a missed webhook.
+- Brief submit starts deposit checkout immediately. Resume-from-link if Intention fails.
+- Five-step status timeline on `/o/[token]`. Poll stops when status moves; after ~30s shows a trouble message.
+- Dashboard: truncated brief on the list; localized status, full brief, and `*_paid_at` on detail. Upload/PATCH errors are visible.
+- `supabase/migrations/0003_escrowd_orders_replace.sql` applied on the hosted project — leftover Scope Guard `orders` (and sibling tables) replaced with the Escrowd shape, including reference columns.
+- Brand mark: lock whose shackle is a clay brush stroke, portrait held until the keyhole opens. PNG (`public/brand/`) in the header, footer, home, commission, studio login, empty artwork slots, and Open Graph.
 - `.env.example` and gitignored `.env.local` for the Escrowd Supabase project.
 - `src/lib/supabase/env.ts` reads `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (falls back to `NEXT_PUBLIC_SUPABASE_ANON_KEY`). Browser, server, and `proxy.ts` session refresh all use it.
 - Admin client prefers `SUPABASE_SECRET_KEY` (`sb_secret_…`) and still accepts legacy `SUPABASE_SERVICE_ROLE_KEY`.
@@ -23,11 +35,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 - Paymob sandbox Secret/Public/HMAC/API keys plus card Integration ID `5240449` in gitignored `.env.local` and Vercel (Production/Preview/Development). Values are not in git.
 - Supabase agent skills under `.agents/skills/` (`npx skills add supabase/agent-skills`).
 - Escrowd product surface from the teammate storefront (paper/ink/clay chrome) with this repo’s payment model: one `orders` table, live brief price, `/o/[token]`, Nour dashboard, deposit then balance. HMAC in `src/lib/paymob.ts` is unchanged. Did **not** port Scope Guard, lead score, AI quotes, or change-order payments.
-- `supabase/migrations/0002_escrowd_orders.sql` applied on the hosted project (replaces the demo `user_id` / `pending|paid|failed` table). Storage bucket `deliveries` for preview + final.
+- `supabase/migrations/0002_escrowd_orders.sql` is the canonical create (including `paymob_{kind}_reference`). Hosted project needed `0003` because a prior `escrowd_orders` migration left the Scope Guard column set in place.
+
+### Changed
+
+- Public `/sign-up` redirects to `/sign-in`. Nour already has an account.
 
 ### Planned
 
-- Register the webhook on card **and** wallet integrations.
+- Register `https://cursor-paymob-buildathon-five.vercel.app/api/paymob/webhook` on card **and** wallet integrations.
 
 ### Not planned (today)
 

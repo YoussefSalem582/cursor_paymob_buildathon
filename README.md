@@ -1,5 +1,9 @@
 # Escrowd
 
+<p align="center">
+  <img src="public/brand/escrowd-lockup.png" alt="Escrowd — deposit starts work; balance unlocks the file" width="420" />
+</p>
+
 Escrow for illustration commissions. Nour puts one link in her Instagram bio. A client fills a brief, pays a deposit, and gets a page they can return to. Nour gets a dashboard. Payment is the gate at both ends — no deposit, no work; no final payment, no file.
 
 **One mechanism, five problems — not five features.** Spec: [`docs/plan.md`](docs/plan.md). Problem analysis: [`docs/problem-analysis-bilingual.pdf`](docs/problem-analysis-bilingual.pdf).
@@ -51,12 +55,12 @@ npm run dev
 ```
 
 1. Create a Supabase project → https://supabase.com/dashboard
-2. Apply [`supabase/migrations/0002_escrowd_orders.sql`](supabase/migrations/0002_escrowd_orders.sql) (already applied on the hosted project)
+2. Apply [`supabase/migrations/0002_escrowd_orders.sql`](supabase/migrations/0002_escrowd_orders.sql) on a fresh project. The hosted project needed [`0003_escrowd_orders_replace.sql`](supabase/migrations/0003_escrowd_orders_replace.sql) (already applied) because leftover Scope Guard columns were still on `orders`.
 3. Fill `.env.local` (copy from `.env.example`). Project URL and publishable key can live there; **service role and Paymob keys stay server-only and must not be committed**.
 4. Deploy or ngrok so Paymob can hit `/api/paymob/webhook`
 5. Open `/ar/commission` → deposit checkout → webhook sets `deposit_paid_at`
 
-`/` redirects to `/ar`. Arabic is the default locale. Nour signs in at `/ar/sign-in` for `/dashboard`. Clients have no account — they use `/o/[token]`.
+`/` redirects to `/ar`. Arabic is the default locale. Nour signs in at `/ar/sign-in` for `/dashboard`. Public `/sign-up` is closed. Clients have no account — they use `/o/[token]`. Header toggle switches light/dark (saved in `localStorage`).
 
 ---
 
@@ -64,7 +68,7 @@ npm run dev
 
 | Variable | Where to get it |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` locally. **Ngrok or Vercel origin for webhooks**, no trailing slash |
+| `NEXT_PUBLIC_SITE_URL` | Production: `https://cursor-paymob-buildathon-five.vercel.app` (no trailing slash). Local UI can stay this so Paymob callbacks hit Vercel, not localhost |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API → Project URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | API Keys → Publishable key (`sb_publishable_…`). Safe in the browser if RLS is on. Older name: `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
 | `SUPABASE_SECRET_KEY` | API Keys → Secret keys (`sb_secret_…`). **Server only.** Bypasses RLS. Legacy alias: `SUPABASE_SERVICE_ROLE_KEY` |
@@ -198,7 +202,7 @@ npx vercel --prod
 
 Add every env var for Production (Vercel → Project → Settings → Environment Variables). `.env.local` is gitignored and **does not deploy**. Missing `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` used to 500 every page (proxy + header). The site now renders without them; auth and checkout still need those keys plus `SUPABASE_SECRET_KEY` on Vercel.
 
-`NEXT_PUBLIC_SITE_URL` = `https://your-app.vercel.app` (no trailing slash). Redeploy after adding vars. Register that origin’s `/api/paymob/webhook` in Paymob.
+`NEXT_PUBLIC_SITE_URL` = `https://cursor-paymob-buildathon-five.vercel.app` (no trailing slash). Redeploy after adding vars. Register `https://cursor-paymob-buildathon-five.vercel.app/api/paymob/webhook` in Paymob (card **and** wallet).
 
 Do not add `@next/swc-darwin-*` (or any platform SWC package) to `dependencies`. Next already pulls the right optional binary; a Darwin-only required dep makes Linux Vercel builds fail with `EBADPLATFORM`.
 
@@ -209,6 +213,7 @@ Hour 0 of the build: this URL must exist.
 ## Layout
 
 ```
+public/brand/                     Logo mark and lockup (PNG)
 src/lib/paymob.ts                 HMAC, Intention, billing_data "NA", Inquiry
 src/lib/apply-paymob-transaction.ts  deposit/balance persist after HMAC or Inquiry
 src/lib/pricing.ts                live UI + server amount

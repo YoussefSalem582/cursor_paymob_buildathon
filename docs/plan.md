@@ -84,6 +84,8 @@ orders
     -- | awaiting_balance | delivered
 
   deposit_paid_at, balance_paid_at            timestamptz
+  paymob_deposit_reference, paymob_balance_reference  text
+    -- last {token}:{kind}:{attemptId} so Inquiry can look up a stuck checkout
   paymob_deposit_order_id, paymob_balance_order_id          text
   paymob_deposit_transaction_id, paymob_balance_transaction_id  text
 
@@ -208,8 +210,8 @@ Intention `notification_url` is documented as card Integration IDs only. The dem
 If the row is still `awaiting_deposit` / `awaiting_balance` after checkout return, the server may pull Paymob:
 
 - Auth: `PAYMOB_API_KEY` → short-lived token (`POST /api/auth/tokens`) — different from the Intention Secret Key
-- Lookup by `merchant_order_id` (`POST /api/ecommerce/orders/transaction_inquiry`)
-- App route: `POST /api/paymob/inquiry` with `{ orderId }`, `{ paymobOrderId }`, or `{ transactionId }`
+- Lookup by `merchant_order_id` (`POST /api/ecommerce/orders/transaction_inquiry`) using the last stored `paymob_{kind}_reference`
+- App route: `GET /api/orders/:token?reconcile=1` (poll) or `POST /api/paymob/inquiry` with `{ orderId }`, `{ paymobOrderId }`, or `{ transactionId }`
 - Apply the same `isPaid` + kind rules as the webhook. Still never trust the redirect.
 
 Confirm the exact inquiry path against the event Postman collection if it 404s.
@@ -314,7 +316,7 @@ Last beat is the unlock. Brief is frozen at deposit, so scope is a record, not a
 | Method | Path | Who | Does |
 | --- | --- | --- | --- |
 | POST | `/api/orders` | client | Create `awaiting_deposit`. Server prices. Returns `{ token }`. |
-| GET | `/api/orders/:token` | client | Order for `/o/[token]`. Strip `final_url` unless balance paid. |
+| GET | `/api/orders/:token` | client | Order for `/o/[token]`. Strip `final_url` unless balance paid. `?reconcile=1` runs Transaction Inquiry then returns. |
 | POST | `/api/checkout` | client | Body `{ token, kind: "deposit" \| "balance" }`. Server amount. Returns `{ checkoutUrl }`. |
 | POST | `/api/paymob/webhook` | Paymob | HMAC, then paid fields. |
 | GET | `/api/dashboard/orders` | Nour | List + status filter. |
@@ -362,8 +364,8 @@ Paste `.cursor/rules` is already in the repo — read it before generating code.
 
 **Screens:**
 
-1. **Brief (landing)** — editorial, illustration-forward, Arabic-first RTL. Fields: name, email, phone, type, subjects, detail, background, usage. Live price from the shared calculator. Submit → `POST /api/orders` → deposit checkout. Loading state on submit.
-2. **`/o/[token]`** — frozen brief + price breakdown, status timeline, preview when set. After Paymob return: “confirming payment…” and poll. Pay-balance only in `awaiting_balance`. Download final only when `balance_paid_at` is set. Resume later from the same link if they abandoned checkout.
+1. **Brief (landing)** — editorial, illustration-forward, Arabic-first RTL. Fields: name, email, phone, type, subjects, detail, background, usage. Live price from the shared calculator. Submit → `POST /api/orders` → `POST /api/checkout` deposit → hosted Paymob. If checkout fails after the row exists, land on `/o/[token]` (resume-from-link). Loading state on submit.
+2. **`/o/[token]`** — frozen brief + price breakdown, five-step status timeline, preview when set. After Paymob return: “confirming payment…” and poll `GET /api/orders/:token` (first and last ticks use `?reconcile=1`). Pay-balance only in `awaiting_balance`. Download final only when `balance_paid_at` is set. Resume later from the same link if they abandoned checkout.
 
 **Edge cases:** poll retries then “having trouble loading status”; empty token 404; never show paid/unlocked from `?success=` query params.
 
