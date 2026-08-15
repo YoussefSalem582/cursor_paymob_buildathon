@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
+import { FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
 type AuthAction = (
@@ -29,7 +30,13 @@ export function AuthForm({
   action: AuthAction;
   locale: string;
   next?: string;
-  labels: { email: string; password: string; submit: string };
+  labels: {
+    email: string;
+    emailPlaceholder: string;
+    password: string;
+    passwordHint: string;
+    submit: string;
+  };
 }) {
   const [error, formAction] = useActionState<string | null, FormData>(
     async (prev, formData) => (await action(prev, formData)) ?? null,
@@ -37,7 +44,7 @@ export function AuthForm({
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form action={formAction} className="flex flex-col gap-5">
       <input type="hidden" name="locale" value={locale} />
       {next && <input type="hidden" name="next" value={next} />}
 
@@ -46,7 +53,11 @@ export function AuthForm({
         name="email"
         type="email"
         autoComplete="email"
+        inputMode="email"
+        spellCheck={false}
+        dir="ltr"
         required
+        placeholder={labels.emailPlaceholder}
       />
       <Input
         label={labels.password}
@@ -55,9 +66,10 @@ export function AuthForm({
         autoComplete="current-password"
         minLength={6}
         required
+        hint={labels.passwordHint}
       />
 
-      {error && <p className="text-sm text-clay-deep">{error}</p>}
+      {error ? <FieldError>{error}</FieldError> : null}
 
       <SubmitButton label={labels.submit} />
     </form>

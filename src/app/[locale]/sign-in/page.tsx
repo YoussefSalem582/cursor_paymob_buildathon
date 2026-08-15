@@ -26,7 +26,7 @@ export default async function SignInPage({
         </div>
 
         {checkEmail && (
-          <p className="border border-line px-3 py-2 text-sm">
+          <p className="border border-sage/40 bg-sage/10 px-3 py-2 text-sm">
             {t("auth.checkEmail")}
           </p>
         )}
@@ -37,7 +37,9 @@ export default async function SignInPage({
           next={typeof next === "string" ? next : undefined}
           labels={{
             email: t("auth.email"),
+            emailPlaceholder: t("auth.emailPlaceholder"),
             password: t("auth.password"),
+            passwordHint: t("auth.passwordHint"),
             submit: t("auth.signInAction"),
           }}
         />

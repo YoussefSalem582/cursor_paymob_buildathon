@@ -61,7 +61,7 @@ export default async function DashboardPage({
                     <li key={order.id}>
                       <Link
                         href={`/dashboard/${order.id}`}
-                        className="block border border-line p-3"
+                        className="block border border-line p-3 transition-colors hover:border-ink"
                       >
                         {order.preview_url ? (
                           // eslint-disable-next-line @next/next/no-img-element

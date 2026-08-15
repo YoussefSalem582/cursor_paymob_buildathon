@@ -47,8 +47,11 @@ export default async function DashboardOrderPage({
         )}
       </div>
       <div>
-        <Link href="/dashboard" className="text-sm text-muted">
-          ← {t("dashboard.back")}
+        <Link href="/dashboard" className="text-sm text-muted hover:text-ink">
+          <span aria-hidden="true" className="me-1 inline-block ltr:rotate-180">
+            →
+          </span>
+          {t("dashboard.back")}
         </Link>
         <p className="mt-4 text-[12px] uppercase tracking-[0.28em] text-clay">
           {t(STATUS_I18N[order.status])}
@@ -87,7 +90,9 @@ export default async function DashboardOrderPage({
           <Price piastres={order.price_total} />
         </p>
         <p className="mt-2 text-sm text-muted">
-          <Price piastres={order.price_deposit} /> / <Price piastres={order.price_balance} />
+          {t("commission.deposit")}: <Price piastres={order.price_deposit} />
+          <span className="mx-2 text-line">·</span>
+          {t("commission.balance")}: <Price piastres={order.price_balance} />
         </p>
         <p className="mt-4 text-sm text-muted">
           {t("dashboard.depositPaid")}: {paidAt(order.deposit_paid_at, locale)}

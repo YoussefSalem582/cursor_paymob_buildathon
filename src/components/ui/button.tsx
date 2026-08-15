@@ -2,15 +2,19 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 import { Spinner } from "./spinner";
 
-type ButtonProps = ComponentProps<"button"> & {
-  variant?: "primary" | "secondary" | "ghost";
-  loading?: boolean;
-};
+export const buttonBase =
+  "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 px-6 text-sm transition-opacity disabled:cursor-not-allowed disabled:opacity-60";
 
-const variants = {
+export const buttonVariants = {
   primary: "bg-ink text-paper hover:opacity-90",
-  secondary: "bg-paper text-ink border border-ink hover:bg-line/40",
+  secondary: "border border-ink bg-paper text-ink hover:bg-line/40",
   ghost: "bg-transparent text-ink hover:bg-line/40",
+  clay: "bg-clay text-paper hover:opacity-90",
+} as const;
+
+type ButtonProps = ComponentProps<"button"> & {
+  variant?: keyof typeof buttonVariants;
+  loading?: boolean;
 };
 
 export function Button({
@@ -23,13 +27,9 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={cn(
-        "inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm",
-        "disabled:cursor-not-allowed disabled:opacity-60",
-        variants[variant],
-        className,
-      )}
+      className={cn(buttonBase, buttonVariants[variant], className)}
       disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
     >
       {loading && <Spinner className="size-4" />}

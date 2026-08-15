@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { Button, buttonBase, buttonVariants } from "@/components/ui/button";
+import { FieldError } from "@/components/ui/field";
 import { Price } from "@/components/price";
 import {
   STATUS_ORDER,
@@ -11,6 +13,7 @@ import {
 } from "@/lib/orders";
 import type { CheckoutKind } from "@/lib/paymob";
 import type { Brief } from "@/lib/pricing";
+import { cn } from "@/lib/utils";
 
 const MAX_POLLS = 15;
 
@@ -54,23 +57,18 @@ export function PayButton({
     const data = (await res.json()) as { checkoutUrl?: string; error?: string };
     if (!res.ok || !data.checkoutUrl) {
       setBusy(false);
-      setError(data.error ?? "Paymob checkout failed.");
+      setError(data.error ?? t("payError"));
       return;
     }
     window.location.href = data.checkoutUrl;
   }
 
   return (
-    <div>
-      <button
-        type="button"
-        onClick={pay}
-        disabled={busy}
-        className="min-h-11 bg-clay px-6 text-sm text-paper disabled:opacity-60"
-      >
+    <div className="grid gap-3">
+      <Button type="button" variant="clay" loading={busy} onClick={pay}>
         {busy ? t("opening") : label}
-      </button>
-      {error ? <p className="mt-2 text-sm text-clay-deep">{error}</p> : null}
+      </Button>
+      {error ? <FieldError>{error}</FieldError> : null}
     </div>
   );
 }
@@ -86,11 +84,21 @@ function Timeline({ current }: { current: OrderStatus }) {
         return (
           <li
             key={status}
-            className={
+            className={`flex items-center gap-3 ${
               active ? "text-clay" : done ? "text-ink" : "text-muted"
-            }
+            }`}
           >
-            <span className="ms-0 me-2 tabular-nums">{index + 1}.</span>
+            <span
+              className={`flex size-6 shrink-0 items-center justify-center text-[11px] tabular-nums ${
+                active
+                  ? "bg-clay text-paper"
+                  : done
+                    ? "bg-ink text-paper"
+                    : "border border-line"
+              }`}
+            >
+              {index + 1}
+            </span>
             {t(statusKey(status))}
           </li>
         );
@@ -115,7 +123,6 @@ export function OrderPanel({
     if (!returning) return;
     let cancelled = false;
     let ticks = 0;
-    let interval: ReturnType<typeof setInterval> | undefined;
 
     async function poll(reconcile: boolean) {
       try {
@@ -137,11 +144,10 @@ export function OrderPanel({
       }
     }
 
-    poll(true);
-    interval = setInterval(async () => {
+    const interval = setInterval(async () => {
       ticks += 1;
       if (ticks >= MAX_POLLS) {
-        if (interval) clearInterval(interval);
+        clearInterval(interval);
         const latest = await poll(true);
         if (!cancelled && (!latest || awaitingPayment(latest))) {
           setTrouble(true);
@@ -150,10 +156,11 @@ export function OrderPanel({
       }
       await poll(false);
     }, 2000);
+    poll(true);
 
     return () => {
       cancelled = true;
-      if (interval) clearInterval(interval);
+      clearInterval(interval);
     };
   }, [returning, initial.token]);
 
@@ -197,7 +204,12 @@ export function OrderPanel({
           <Price piastres={order.price_total} />
         </p>
         <p className="mt-2 text-sm text-muted">
-          <Price piastres={order.price_deposit} /> / <Price piastres={order.price_balance} />
+          <span className="me-3">
+            {t("deposit")}: <Price piastres={order.price_deposit} />
+          </span>
+          <span>
+            {t("balance")}: <Price piastres={order.price_balance} />
+          </span>
         </p>
 
         {order.status === "awaiting_deposit" && !waiting ? (
@@ -214,7 +226,10 @@ export function OrderPanel({
         ) : null}
 
         {order.status === "delivered" && order.final_url ? (
-          <a className="mt-8 inline-block underline" href={order.final_url}>
+          <a
+            className={cn(buttonBase, buttonVariants.primary, "mt-8")}
+            href={order.final_url}
+          >
             {t("download")}
           </a>
         ) : null}

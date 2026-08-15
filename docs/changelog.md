@@ -9,17 +9,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 ### Fixed
 
 - Intention 404 “Integration ID/Name does not exist”: `PAYMOB_INTEGRATION_IDS` was a card ID from a different Paymob account. This merchant’s test online card ID is `5853667` (same Test status as `egy_sk_test_…`).
+- Production `next build` typecheck: `order-panel` used an undeclared `Brief` name. `Order.brief` is already that type, so the cast is gone.
 - Stop the Vercel Turbopack build from treating `site-chrome` as a Client Component. `order-panel` imported `Price` from that file, which also uses `next/headers` for Nour’s session — so production `next build` failed. `Price` now lives in `src/components/price.tsx`.
 - Remove `@next/swc-darwin-arm64` from `package.json`. It is a Mac-only optional binary; listing it as a required dependency made Vercel (`linux/x64`) fail `npm install` with `EBADPLATFORM`. Next installs the correct `@next/swc-*` package for the build machine.
 - Stop 500 Internal Server Error on Vercel when Supabase env vars are unset (`.env.local` is not deployed). `proxy.ts` and the header skip session refresh instead of throwing. Add a root `src/app/layout.tsx` so a missed locale rewrite cannot crash `/`.
 
 ### Changed
 
-- Brand PNGs are transparent. `public/brand/escrowd-mark.png` and `escrowd-lockup.png` no longer carry the baked cream plate, so the mark stops drawing a light rectangle over `bg-paper` in dark mode. The cream background was unmixed into alpha (not keyed out), keeping the anti-aliased stroke edges; palette quantization drops the pair from 1.6 MB to 41 KB. Originals kept as `escrowd-{mark,lockup}-on-paper.png`, and the README banner points at the on-paper lockup because the black wordmark would vanish on GitHub's dark theme.
+- Brand PNGs are transparent and trimmed to the artwork: `escrowd-mark.png` (815², kept square so `EscrowdLogo`'s `size` still holds) and `escrowd-lockup.png` (1381×481). The cream plate was unmixed into alpha rather than keyed out, so the anti-aliased stroke edges survive; stroke interiors are forced opaque so the ink does not go translucent off-paper. Palette quantization keeps all four brand PNGs near 71 KB total. Originals kept as `escrowd-{mark,lockup}-on-paper.png`, and the README banner points at the on-paper lockup because the black wordmark would vanish on GitHub's dark theme.
+- `favicon.ico` (16/32/48, both copies) and `icon.png` are transparent, regenerated from the trimmed mark with a premultiplied resize so no cream fringe survives at 16px. `apple-icon.png` stays opaque — iOS composites touch icons onto black.
 - Favicon is a tight crop of the lock mark (`favicon.ico`, `icon.png`, `apple-icon.png`) so the clay shackle reads in the tab. Linked from the locale layout.
+- Form chrome: shared field/button primitives (`src/components/ui/`), labels with hints and errors, placeholders, LTR email/phone in Arabic, choice chips and steppers on the commission brief, sticky live price next to the deposit CTA, and a styled file picker in the studio.
 
 ### Added
 
+- Dark-mode logo variants `public/brand/escrowd-{mark,lockup}-dark.png`: the near-black ink is repainted `--ink` cream and the clay shackle is left alone (split on lightness, ink ≤0.26 and clay ≥0.42). `EscrowdLogo` and `EscrowdLogoFrame` render both and swap with `dark:hidden` / `hidden dark:block`, so exactly one variant is in the layout and the accessibility tree.
 - Production origin is `https://cursor-paymob-buildathon-five.vercel.app`. `NEXT_PUBLIC_SITE_URL` is set to that (Vercel Production/Preview + `.env.local`). Intention `notification_url` / `redirection_url` now point at a host Paymob can reach.
 - Dark mode: `html.dark` class, blocking theme script, header toggle. Remembers light/dark; otherwise follows `prefers-color-scheme`.
 - Checkout persists last `paymob_{kind}_reference` (`{token}:{kind}:{attemptId}`). `/o/[token]` poll calls `GET /api/orders/:token?reconcile=1` so Transaction Inquiry can recover a missed webhook.

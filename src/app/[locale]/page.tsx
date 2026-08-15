@@ -1,6 +1,8 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { EscrowdLogoFrame } from "@/components/escrowd-logo";
+import { buttonBase, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const pieces = [
   { title: "Date seller, Khan el-Khalili", tone: "from-[#c45c3e] to-[#1c1915]", year: "2025" },
@@ -33,13 +35,13 @@ export default async function HomePage({
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/commission"
-              className="inline-flex min-h-11 items-center bg-ink px-6 text-sm text-paper"
+              className={cn(buttonBase, buttonVariants.primary)}
             >
               {t("cta")}
             </Link>
             <Link
               href="/#work"
-              className="inline-flex min-h-11 items-center border border-ink px-6 text-sm"
+              className={cn(buttonBase, buttonVariants.secondary)}
             >
               {t("seeWork")}
             </Link>

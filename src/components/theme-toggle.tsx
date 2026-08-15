@@ -31,7 +31,7 @@ export function ThemeToggle({ label }: { label: string }) {
       onClick={toggle}
       aria-label={label}
       title={label}
-      className="border border-line px-2.5 py-1.5 text-sm hover:text-ink"
+      className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center border border-line px-3 text-sm hover:border-ink hover:text-ink"
     >
       <span className="dark:hidden">☾</span>
       <span className="hidden dark:inline">☀︎</span>

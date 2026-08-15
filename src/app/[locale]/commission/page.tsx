@@ -12,8 +12,8 @@ export default async function CommissionPage({
   const t = await getTranslations("commission");
 
   return (
-    <main className="mx-auto grid w-full max-w-5xl gap-12 px-6 py-8 sm:px-10 lg:grid-cols-[0.9fr_1.1fr]">
-      <div>
+    <main className="mx-auto grid w-full max-w-5xl gap-12 px-6 py-8 sm:px-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+      <div className="lg:sticky lg:top-8">
         <EscrowdLogo size={96} className="mb-6 size-16" alt="" />
         <p className="text-[12px] uppercase tracking-[0.28em] text-clay">{t("kicker")}</p>
         <h2 className="mt-3 font-display text-5xl leading-none">{t("title")}</h2>

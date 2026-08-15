@@ -213,7 +213,7 @@ Hour 0 of the build: this URL must exist.
 ## Layout
 
 ```
-public/brand/                     Logo mark and lockup (transparent PNG; *-on-paper for cream-backed)
+public/brand/                     Mark and lockup: transparent, *-dark for dark mode, *-on-paper cream-backed
 src/lib/paymob.ts                 HMAC, Intention, billing_data "NA", Inquiry
 src/lib/apply-paymob-transaction.ts  deposit/balance persist after HMAC or Inquiry
 src/lib/pricing.ts                live UI + server amount

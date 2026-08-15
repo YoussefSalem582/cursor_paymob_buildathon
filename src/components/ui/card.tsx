@@ -4,10 +4,7 @@ import { cn } from "@/lib/utils";
 export function Card({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
-      className={cn(
-        "border border-line bg-paper p-6",
-        className,
-      )}
+      className={cn("border border-line bg-paper p-6 sm:p-7", className)}
       {...props}
     />
   );

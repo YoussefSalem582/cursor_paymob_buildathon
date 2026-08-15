@@ -43,27 +43,27 @@ export async function SiteHeader() {
           </h1>
         </span>
       </Link>
-      <nav className="flex flex-wrap items-center gap-5 text-sm text-muted">
-        <Link href="/#work" className="hover:text-ink">
+      <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted">
+        <Link href="/#work" className="inline-flex min-h-11 items-center hover:text-ink">
           {t("nav.work")}
         </Link>
-        <Link href="/commission" className="hover:text-ink">
+        <Link href="/commission" className="inline-flex min-h-11 items-center hover:text-ink">
           {t("nav.commission")}
         </Link>
         {signedIn ? (
           <>
-            <Link href="/dashboard" className="hover:text-ink">
+            <Link href="/dashboard" className="inline-flex min-h-11 items-center hover:text-ink">
               {t("nav.dashboard")}
             </Link>
             <form action={signOut}>
               <input type="hidden" name="locale" value={locale} />
-              <button type="submit" className="hover:text-ink">
+              <button type="submit" className="inline-flex min-h-11 cursor-pointer items-center hover:text-ink">
                 {t("nav.signOut")}
               </button>
             </form>
           </>
         ) : (
-          <Link href="/sign-in" className="hover:text-ink">
+          <Link href="/sign-in" className="inline-flex min-h-11 items-center hover:text-ink">
             {t("nav.studio")}
           </Link>
         )}

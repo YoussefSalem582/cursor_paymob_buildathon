@@ -3,6 +3,9 @@
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { FieldError } from "@/components/ui/field";
+import { FileField } from "@/components/ui/file-field";
 import { NOUR_TRANSITIONS, type Order } from "@/lib/orders";
 
 export function StudioActions({ order }: { order: Order }) {
@@ -19,7 +22,7 @@ export function StudioActions({ order }: { order: Order }) {
 
   return (
     <form
-      className="grid gap-3"
+      className="grid gap-4"
       onSubmit={async (event) => {
         event.preventDefault();
         setBusy(true);
@@ -54,24 +57,17 @@ export function StudioActions({ order }: { order: Order }) {
         router.refresh();
       }}
     >
-      <label className="text-sm">
-        {label}
-        <input
-          className="mt-2 w-full border border-line bg-paper px-3 py-3"
-          type="file"
-          name="file"
-          accept="image/*"
-          required
-        />
-      </label>
-      {error ? <p className="text-sm text-clay-deep">{error}</p> : null}
-      <button
-        type="submit"
-        disabled={busy}
-        className="min-h-11 bg-ink text-sm text-paper disabled:opacity-60"
-      >
+      <FileField
+        label={kind === "preview" ? t("previewFile") : t("finalFile")}
+        hint={t("fileHint")}
+        name="file"
+        accept="image/*"
+        required
+      />
+      {error ? <FieldError>{error}</FieldError> : null}
+      <Button type="submit" loading={busy} className="w-full">
         {busy ? t("uploading") : label}
-      </button>
+      </Button>
     </form>
   );
 }

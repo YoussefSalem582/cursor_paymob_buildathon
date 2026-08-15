@@ -3,6 +3,11 @@
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { Button } from "@/components/ui/button";
+import { ChoiceGroup } from "@/components/ui/choice-group";
+import { FieldError } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Stepper } from "@/components/ui/stepper";
 import {
   BACKGROUNDS,
   BRIEF_TYPES,
@@ -13,7 +18,13 @@ import {
 } from "@/lib/pricing";
 import { piastresToEgp } from "@/lib/paymob";
 
-const field = "mt-2 w-full border border-line bg-paper px-3 py-3 text-ink";
+function money(locale: string, egp: number) {
+  return new Intl.NumberFormat(locale === "ar" ? "ar-EG" : "en-EG", {
+    style: "currency",
+    currency: "EGP",
+    maximumFractionDigits: 0,
+  }).format(egp);
+}
 
 export function CommissionForm() {
   const t = useTranslations("commission");
@@ -70,149 +81,133 @@ export function CommissionForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-5">
-      <label className="block text-sm">
-        {t("name")}
-        <input className={field} name="name" required autoComplete="name" />
-      </label>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <label className="block text-sm">
-          {t("email")}
-          <input className={field} name="email" type="email" required autoComplete="email" />
-        </label>
-        <label className="block text-sm">
-          {t("phone")}
-          <input className={field} name="phone" type="tel" required autoComplete="tel" />
-        </label>
-      </div>
+    <form onSubmit={onSubmit} className="grid gap-8" aria-busy={busy || undefined}>
+      <fieldset className="grid min-w-0 gap-5">
+        <legend className="float-none w-full font-display text-2xl">{t("contactSection")}</legend>
+        <Input
+          label={t("name")}
+          name="name"
+          required
+          autoComplete="name"
+          autoCapitalize="words"
+          placeholder={t("namePlaceholder")}
+        />
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Input
+            label={t("email")}
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            inputMode="email"
+            spellCheck={false}
+            dir="ltr"
+            placeholder={t("emailPlaceholder")}
+          />
+          <Input
+            label={t("phone")}
+            name="phone"
+            type="tel"
+            required
+            autoComplete="tel"
+            inputMode="tel"
+            dir="ltr"
+            placeholder={t("phonePlaceholder")}
+            hint={t("phoneHint")}
+          />
+        </div>
+      </fieldset>
 
-      <label className="block text-sm">
-        {t("type")}
-        <select
-          className={field}
+      <fieldset className="grid min-w-0 gap-5">
+        <legend className="float-none w-full font-display text-2xl">{t("briefSection")}</legend>
+        <ChoiceGroup
+          legend={t("type")}
+          columns={4}
           value={brief.type}
-          onChange={(e) =>
-            setBrief((b) => ({ ...b, type: e.target.value as Brief["type"] }))
-          }
-        >
-          {BRIEF_TYPES.map((value) => (
-            <option key={value} value={value}>
-              {tb(value)}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="block text-sm">
-        {t("subjects")}
-        <input
-          className={field}
-          type="number"
+          onChange={(type) => setBrief((b) => ({ ...b, type }))}
+          options={BRIEF_TYPES.map((value) => ({ value, label: tb(value) }))}
+        />
+        <Stepper
+          label={t("subjects")}
+          hint={t("subjectsHint")}
+          value={brief.subjects}
           min={1}
           max={8}
-          value={brief.subjects}
-          onChange={(e) =>
-            setBrief((b) => ({ ...b, subjects: Number(e.target.value) }))
-          }
+          onChange={(subjects) => setBrief((b) => ({ ...b, subjects }))}
+          decreaseLabel={t("decrease")}
+          increaseLabel={t("increase")}
         />
-      </label>
-
-      <label className="block text-sm">
-        {t("detail")}
-        <select
-          className={field}
+        <ChoiceGroup
+          legend={t("detail")}
+          columns={3}
           value={brief.detail_level}
-          onChange={(e) =>
-            setBrief((b) => ({
-              ...b,
-              detail_level: e.target.value as Brief["detail_level"],
-            }))
-          }
-        >
-          {DETAIL_LEVELS.map((value) => (
-            <option key={value} value={value}>
-              {tb(value)}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="block text-sm">
-        {t("background")}
-        <select
-          className={field}
+          onChange={(detail_level) => setBrief((b) => ({ ...b, detail_level }))}
+          options={DETAIL_LEVELS.map((value) => ({ value, label: tb(value) }))}
+        />
+        <ChoiceGroup
+          legend={t("background")}
+          columns={3}
           value={brief.background}
-          onChange={(e) =>
-            setBrief((b) => ({
-              ...b,
-              background: e.target.value as Brief["background"],
-            }))
-          }
-        >
-          {BACKGROUNDS.map((value) => (
-            <option key={value} value={value}>
-              {tb(value)}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="block text-sm">
-        {t("usage")}
-        <select
-          className={field}
+          onChange={(background) => setBrief((b) => ({ ...b, background }))}
+          options={BACKGROUNDS.map((value) => ({ value, label: tb(value) }))}
+        />
+        <ChoiceGroup
+          legend={t("usage")}
+          columns={2}
           value={brief.usage}
-          onChange={(e) =>
-            setBrief((b) => ({ ...b, usage: e.target.value as Brief["usage"] }))
-          }
-        >
-          {USAGES.map((value) => (
-            <option key={value} value={value}>
-              {tb(value)}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="block text-sm">
-        {t("revisions")}
-        <input
-          className={field}
-          type="number"
+          onChange={(usage) => setBrief((b) => ({ ...b, usage }))}
+          options={USAGES.map((value) => ({
+            value,
+            label: tb(value),
+            accent: value === "commercial",
+          }))}
+        />
+        <Stepper
+          label={t("revisions")}
+          hint={t("revisionsHint")}
+          value={brief.revisions}
           min={0}
           max={6}
-          value={brief.revisions}
-          onChange={(e) =>
-            setBrief((b) => ({ ...b, revisions: Number(e.target.value) }))
-          }
+          onChange={(revisions) => setBrief((b) => ({ ...b, revisions }))}
+          decreaseLabel={t("decrease")}
+          increaseLabel={t("increase")}
         />
-      </label>
+      </fieldset>
 
-      <div className="border border-line p-4">
-        <p className="font-display text-3xl">
-          {new Intl.NumberFormat(locale === "ar" ? "ar-EG" : "en-EG", {
-            style: "currency",
-            currency: "EGP",
-            maximumFractionDigits: 0,
-          }).format(priced.totalEgp)}
+      <div className="sticky bottom-0 z-10 border border-line bg-paper/95 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-sm lg:static lg:pb-4 lg:backdrop-blur-none">
+        <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
+          {t("priceLive")}
         </p>
-        <p className="mt-2 text-sm text-muted">
-          {t("deposit")}: {piastresToEgp(priced.depositPiastres)} · {t("balance")}:{" "}
-          {piastresToEgp(priced.balancePiastres)}
+        <p className="mt-2 font-display text-3xl" aria-live="polite">
+          {money(locale, priced.totalEgp)}
         </p>
+        <dl className="mt-3 grid gap-1 text-sm text-muted">
+          <div className="flex justify-between gap-4">
+            <dt>{t("deposit")}</dt>
+            <dd className="text-ink tabular-nums">
+              {money(locale, piastresToEgp(priced.depositPiastres))}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt>{t("balance")}</dt>
+            <dd className="text-ink tabular-nums">
+              {money(locale, piastresToEgp(priced.balancePiastres))}
+            </dd>
+          </div>
+        </dl>
+        <p className="mt-3 text-xs leading-relaxed text-muted">{t("priceNote")}</p>
         {brief.usage === "commercial" ? (
           <p className="mt-2 text-sm text-clay-deep">{t("commercialNote")}</p>
         ) : null}
+        {error ? (
+          <div className="mt-4">
+            <FieldError>{error}</FieldError>
+          </div>
+        ) : null}
+        <Button type="submit" loading={busy} className="mt-4 w-full">
+          {busy ? t("submitting") : t("submit")}
+        </Button>
       </div>
-
-      {error ? <p className="text-sm text-clay-deep">{error}</p> : null}
-      <button
-        type="submit"
-        disabled={busy}
-        className="min-h-11 bg-ink px-6 text-sm text-paper disabled:opacity-60"
-      >
-        {busy ? t("submitting") : t("submit")}
-      </button>
     </form>
   );
 }
