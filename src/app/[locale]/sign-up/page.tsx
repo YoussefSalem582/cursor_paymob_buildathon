@@ -1,8 +1,5 @@
-import { setRequestLocale, getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
-import { Card, CardTitle, CardDescription } from "@/components/ui/card";
-import { AuthForm } from "@/components/auth-form";
-import { signUp } from "@/lib/auth-actions";
+import { setRequestLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 
 export default async function SignUpPage({
   params,
@@ -11,33 +8,5 @@ export default async function SignUpPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations();
-
-  return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-4 px-6 py-16">
-      <Card className="flex flex-col gap-5">
-        <div className="flex flex-col gap-1">
-          <CardTitle>{t("auth.signUpTitle")}</CardTitle>
-          <CardDescription>{t("auth.signUpSubtitle")}</CardDescription>
-        </div>
-
-        <AuthForm
-          action={signUp}
-          locale={locale}
-          labels={{
-            email: t("auth.email"),
-            password: t("auth.password"),
-            submit: t("auth.signUpAction"),
-          }}
-        />
-
-        <CardDescription>
-          {t("auth.haveAccount")}{" "}
-          <Link href="/sign-in" className="underline">
-            {t("nav.signIn")}
-          </Link>
-        </CardDescription>
-      </Card>
-    </div>
-  );
+  redirect({ href: "/sign-in", locale });
 }
