@@ -35,7 +35,7 @@ Two human surfaces, one money rail:
 
 1. **No client accounts.** Order page is `/o/[token]`. The starter’s “must be signed in to pay” path is leftover.
 2. **Two payments, one integration.** Same `createIntention()` for `kind=deposit` and `kind=balance`. New Intention every click (`client_secret` is single-use).
-3. **Webhook is the only paid signal.** Redirect query params and dashboard PATCH cannot set `*_paid_at` or jump to `in_progress` / `delivered`.
+3. **Webhook is the only paid signal.** Redirect query params, dashboard PATCH, and Paymob MCP `get_*` results cannot set `*_paid_at` or jump to `in_progress` / `delivered`. MCP is live account ops only ([`.cursor/mcp.json`](../.cursor/mcp.json)).
 4. **Price is a server function.** The live calculator is display. Intention `amount` is recomputed from `brief`.
 5. **One `orders` table.** No `clients`, `payments`, or `change_orders` tables today.
 6. **Arabic-first RTL** via next-intl (`/` → `/ar`). Tailwind logical utilities, not a fake `dir` on a Latin layout.
@@ -168,7 +168,8 @@ One function, client (live UI) and server (Intention amount):
 
 | Path | Role |
 | --- | --- |
-| [`src/lib/paymob.ts`](../src/lib/paymob.ts) | Intention, checkout URL, HMAC, `isPaid` — **keep** |
+| [`src/lib/paymob.ts`](../src/lib/paymob.ts) | Intention, checkout URL, HMAC, `isPaid` — **keep**. Field order: [`.agents/skills/paymob-integration/references/hmac-verification.md`](../.agents/skills/paymob-integration/references/hmac-verification.md) |
+| [`.cursor/mcp.json`](../.cursor/mcp.json) / [`.mcp.json`](../.mcp.json) | Paymob MCP URL only. Credentials via `set_api_credentials` in-session, never in git |
 | [`src/app/api/paymob/webhook/route.ts`](../src/app/api/paymob/webhook/route.ts) | Callback — extend for deposit vs balance |
 | [`src/app/api/checkout/route.ts`](../src/app/api/checkout/route.ts) | Replace: `{ token, kind }`, no login, server price |
 | [`src/lib/supabase/`](../src/lib/supabase/) | Browser, cookie, and admin clients; `env.ts` for publishable key |

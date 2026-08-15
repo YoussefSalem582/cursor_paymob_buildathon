@@ -4,7 +4,7 @@
 
 Product: **Escrowd** (escrow for illustration commissions). Deposit starts work; balance unlocks the file. Do not build Scope Guard or AI pricing.
 
-Read in this order: [`AGENTS.md`](AGENTS.md) (below the Next.js block) → [`docs/plan.md`](docs/plan.md) → [`docs/Architecture.md`](docs/Architecture.md). History: [`docs/changelog.md`](docs/changelog.md). Cursor rules: [`.cursor/rules/`](.cursor/rules/).
+Read in this order: [`AGENTS.md`](AGENTS.md) (below the Next.js block) → [`docs/plan.md`](docs/plan.md) → [`docs/Architecture.md`](docs/Architecture.md). Official Paymob skill: [`.agents/skills/paymob-integration/SKILL.md`](.agents/skills/paymob-integration/SKILL.md). MCP: [`.mcp.json`](.mcp.json) (`https://mcp.paymob.com/mcp`, not the paid signal). History: [`docs/changelog.md`](docs/changelog.md). Cursor rules: [`.cursor/rules/`](.cursor/rules/).
 
 ## Always update docs
 

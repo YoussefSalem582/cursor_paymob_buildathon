@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "paymob-integration": {
+      "source": "PaymobAccept/Paymob-AI-Integration-Skill",
+      "sourceType": "github",
+      "skillPath": "skills/paymob-integration/SKILL.md",
+      "computedHash": "502a69dfc338917da2c0f944ab22d291a2fa9912de8ddc4994c763d978521124"
+    },
     "supabase": {
       "source": "supabase/agent-skills",
       "sourceType": "github",

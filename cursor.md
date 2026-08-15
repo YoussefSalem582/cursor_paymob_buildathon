@@ -6,7 +6,7 @@ Product: **Escrowd** (escrow for illustration commissions). Deposit starts work;
 
 This file is for Cursor agents (including Composer). Canonical agent text is [`AGENTS.md`](AGENTS.md) **below** the Next.js `BEGIN`/`END` block — do not delete that block; `next dev` will put it back.
 
-Then read [`docs/plan.md`](docs/plan.md), [`docs/Architecture.md`](docs/Architecture.md), and [`.cursor/rules/`](.cursor/rules/) (`escrowd.mdc`, `schema-status.mdc`, `paymob.mdc`, `pricing.mdc`, `docs-sync.mdc`). Changelog: [`docs/changelog.md`](docs/changelog.md).
+Then read [`docs/plan.md`](docs/plan.md), [`docs/Architecture.md`](docs/Architecture.md), and [`.cursor/rules/`](.cursor/rules/) (`escrowd.mdc`, `schema-status.mdc`, `paymob.mdc`, `pricing.mdc`, `docs-sync.mdc`). Official Paymob skill: [`.agents/skills/paymob-integration/SKILL.md`](.agents/skills/paymob-integration/SKILL.md). MCP: [`.cursor/mcp.json`](.cursor/mcp.json) (`https://mcp.paymob.com/mcp`, not the paid signal). Commands in [`.cursor/commands/`](.cursor/commands/). Changelog: [`docs/changelog.md`](docs/changelog.md).
 
 Keep [`CLAUDE.md`](CLAUDE.md) and [`grok.md`](grok.md) in lockstep with this file when agent instructions change.
 

@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Paymob
 
-Reuse `src/lib/paymob.ts`. Do not invent HMAC field order or a custom card form.
+Reuse `src/lib/paymob.ts`. Do not invent HMAC field order or a custom card form. For API shapes and HMAC concat, read `.agents/skills/paymob-integration/references/` (official skill) before guessing.
 
 - Intention: `POST https://accept.paymob.com/v1/intention/` with `Authorization: Token <PAYMOB_SECRET_KEY>`
 - Amounts: integer piastres. `sum(items.amount * quantity) === amount`
@@ -18,3 +18,5 @@ Reuse `src/lib/paymob.ts`. Do not invent HMAC field order or a custom card form.
 Webhook (`/api/paymob/webhook`): verify HMAC with `verifyTransactionHmac` **before** any UPDATE. Ignore `type !== "TRANSACTION"`. Match `obj.order.merchant_order_id`. Use `isPaid()`. Never mark paid on HMAC mismatch (401) and never skip verify — fallback is Transaction Inquiry by `merchant_order_id`, not trusting the redirect.
 
 Register the same webhook URL on card **and** wallet integrations in the Paymob dashboard. After redirect, the client polls `/o/[token]`; query params are not proof of payment.
+
+Official Paymob MCP (`https://mcp.paymob.com/mcp`, project `.cursor/mcp.json`) is for live account ops (test intentions, list transactions, balances). It does **not** replace HMAC. Do not write `*_paid_at` or flip status from MCP output. Confirm with the user before any write; use `is_live: false` until they say otherwise. Never put API keys in mcp.json.

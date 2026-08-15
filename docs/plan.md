@@ -213,6 +213,10 @@ If the row is still `awaiting_deposit` / `awaiting_balance` after checkout retur
 
 Confirm the exact inquiry path against the event Postman collection if it 404s.
 
+### Paymob MCP (not the paid signal)
+
+Official MCP: `https://mcp.paymob.com/mcp` ([`.cursor/mcp.json`](../.cursor/mcp.json), [`.mcp.json`](../.mcp.json)). Use it to create **test** intentions, list transactions, and check balances. Credentials go in-session (`set_api_credentials`); never commit keys. Start with `is_live: false`. MCP output does **not** write `*_paid_at` — HMAC webhook (Inquiry fallback) remains the only paid signal.
+
 ### Redirect
 
 `redirection_url` is UX only. Send the browser to `/o/[token]?checkout=returning`. The page says “confirming payment…” and polls. Anyone can type a success URL; that must not unlock the file.

@@ -35,6 +35,9 @@ Kill switches: **2:30** no verified checkout → drop everything until one test-
 | [`cursor.md`](cursor.md) | Cursor — points at AGENTS.md and `.cursor/rules` |
 | [`grok.md`](grok.md) | Grok — same lock as Cursor/Claude |
 | [`.cursor/rules/`](.cursor/rules/) | Always-on Cursor rules (product, schema, Paymob, pricing, docs-sync) |
+| [`.agents/skills/paymob-integration/`](.agents/skills/paymob-integration/) | Official Paymob AI skill (HMAC, Intention, test cards) |
+| [`.cursor/mcp.json`](.cursor/mcp.json) / [`.mcp.json`](.mcp.json) | Paymob MCP (`https://mcp.paymob.com/mcp`) — live account ops only; not the paid signal |
+| [`.cursor/commands/`](.cursor/commands/) | `/paymob-test-cards`, `/paymob-explain-error`, `/paymob-check-hmac` |
 | [`docs/problem_to_solve_and_build.md`](docs/problem_to_solve_and_build.md) | Origin note — do not implement against it |
 
 ---
@@ -74,6 +77,12 @@ The leftover demo (`/demo`, sign-up to pay 100 EGP) is **not** the product. Clie
 | `PAYMOB_API_KEY` | Same API Keys screen. Transaction Inquiry fallback only |
 
 Test/Live of Secret Key, HMAC, and Integration IDs must match or Intention returns 404.
+
+### Paymob MCP (optional)
+
+Cursor/Claude can talk to Paymob’s hosted MCP at `https://mcp.paymob.com/mcp` (see [`.cursor/mcp.json`](.cursor/mcp.json)). Enable **paymob** in Cursor Settings → MCP, then in chat the agent calls `set_api_credentials` with **test** API key + secret key. Never put keys in those JSON files.
+
+MCP is for listing transactions and creating test intentions. **HMAC webhook is still the only paid signal** — do not mark an Escrowd order paid from MCP output.
 
 ### Test cards (sandbox keys only)
 

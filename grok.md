@@ -4,7 +4,7 @@
 
 Product: **Escrowd** (escrow for illustration commissions). Deposit starts work; balance unlocks the file. Do not build Scope Guard or AI pricing.
 
-You are Grok in this repo (Cursor Grok or otherwise). Follow [`AGENTS.md`](AGENTS.md) after the Next.js generated block. Spec: [`docs/plan.md`](docs/plan.md). System: [`docs/Architecture.md`](docs/Architecture.md). History: [`docs/changelog.md`](docs/changelog.md). Rules: [`.cursor/rules/`](.cursor/rules/).
+You are Grok in this repo (Cursor Grok or otherwise). Follow [`AGENTS.md`](AGENTS.md) after the Next.js generated block. Spec: [`docs/plan.md`](docs/plan.md). System: [`docs/Architecture.md`](docs/Architecture.md). Official Paymob skill: [`.agents/skills/paymob-integration/SKILL.md`](.agents/skills/paymob-integration/SKILL.md). MCP: [`.cursor/mcp.json`](.cursor/mcp.json) (`https://mcp.paymob.com/mcp`, not the paid signal). History: [`docs/changelog.md`](docs/changelog.md). Rules: [`.cursor/rules/`](.cursor/rules/).
 
 Same lock as [`CLAUDE.md`](CLAUDE.md) and [`cursor.md`](cursor.md) — update all four plus `AGENTS.md` together if instructions change.
 

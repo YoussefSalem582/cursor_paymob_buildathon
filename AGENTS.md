@@ -70,6 +70,17 @@ Nour PATCH may only walk `in_progress → ready_for_review → awaiting_balance`
 - Webhook: `verifyTransactionHmac` **before** UPDATE. Never skip HMAC. Fallback is Transaction Inquiry, not trusting the payload
 - Register `/api/paymob/webhook` on card **and** wallet integrations; `/o/[token]` polls after redirect
 
+## Official Paymob agent skill (v3.3.0)
+
+Installed from https://github.com/PaymobAccept/Paymob-AI-Integration-Skill (docs: https://developers.paymob.com/paymob-docs/ai-solutions/ai-agent-skill).
+
+- Skill: [`.agents/skills/paymob-integration/SKILL.md`](.agents/skills/paymob-integration/SKILL.md) and `references/`
+- Release ZIP: [`.agents/paymob-integration.zip`](.agents/paymob-integration.zip)
+- Cursor commands: `.cursor/commands/paymob-test-cards.md`, `paymob-explain-error.md`, `paymob-check-hmac.md`
+- Live MCP: `https://mcp.paymob.com/mcp` in [`.cursor/mcp.json`](.cursor/mcp.json) and [`.mcp.json`](.mcp.json). In-session credentials via `set_api_credentials` (test keys first). Does **not** replace the HMAC webhook; never mark `*_paid_at` from MCP results.
+
+Authority: live Paymob docs win on field names; the skill wins on workflow; Escrowd `docs/plan.md` wins on deposit/balance product rules. Intention API only. HMAC SHA-512. Amounts in piastres. `Authorization: Token {secret_key}`.
+
 ## Pricing
 
 One shared function (see `.cursor/rules/pricing.mdc`). Browser must not send the amount Paymob charges. `deposit = round(totalPiastres / 2)`, `balance = total - deposit`.
