@@ -15,7 +15,9 @@ Reuse `src/lib/paymob.ts`. Do not invent HMAC field order or a custom card form.
 - `special_reference` = `{token}:{kind}:{attemptId}` where `kind` is `deposit` | `balance`. Also `extras: { token, kind, attemptId }`
 - Checkout `kind=deposit` only from `awaiting_deposit`; `kind=balance` only from `awaiting_balance`. Amount from server price, never the body.
 
-Webhook (`/api/paymob/webhook`): verify HMAC with `verifyTransactionHmac` **before** any UPDATE. Ignore `type !== "TRANSACTION"`. Match `obj.order.merchant_order_id`. Use `isPaid()`. Never mark paid on HMAC mismatch (401) and never skip verify — fallback is Transaction Inquiry by `merchant_order_id`, not trusting the redirect.
+Webhook (`/api/paymob/webhook`): verify HMAC with `verifyTransactionHmac` **before** any UPDATE. Ignore `type !== "TRANSACTION"`. Match `obj.order.merchant_order_id`. Use `isPaid()`. Never mark paid on HMAC mismatch (401) and never skip verify — fallback is `POST /api/paymob/inquiry` (Transaction Inquiry by `merchant_order_id`), not trusting the redirect.
+
+Official skill: `.cursor/skills/paymob-integration`.
 
 Register the same webhook URL on card **and** wallet integrations in the Paymob dashboard. After redirect, the client polls `/o/[token]`; query params are not proof of payment.
 

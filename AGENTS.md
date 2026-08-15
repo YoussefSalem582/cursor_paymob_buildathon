@@ -62,12 +62,14 @@ Nour PATCH may only walk `in_progress → ready_for_review → awaiting_balance`
 
 ## Paymob
 
+Official skill: [`.cursor/skills/paymob-integration`](.cursor/skills/paymob-integration). Read `references/intention-api.md`, `hmac-verification.md`, and `transaction-inquiry.md` before changing Paymob code.
+
 - Intention: `POST https://accept.paymob.com/v1/intention/`, header `Authorization: Token <PAYMOB_SECRET_KEY>`
 - Amount from the **server** pricing function, integer piastres, `sum(items) === amount`
 - `special_reference` = `{token}:{kind}:{attemptId}` (`deposit` | `balance`), plus `extras: { token, kind, attemptId }`
 - New Intention every pay click (`client_secret` is single-use)
 - Checkout `kind=deposit` only from `awaiting_deposit`; `kind=balance` only from `awaiting_balance`
-- Webhook: `verifyTransactionHmac` **before** UPDATE. Never skip HMAC. Fallback is Transaction Inquiry, not trusting the payload
+- Webhook: `verifyTransactionHmac` **before** UPDATE. Never skip HMAC. Fallback is `POST /api/paymob/inquiry` (Transaction Inquiry), not trusting the payload
 - Register `/api/paymob/webhook` on card **and** wallet integrations; `/o/[token]` polls after redirect
 
 ## Official Paymob agent skill (v3.3.0)

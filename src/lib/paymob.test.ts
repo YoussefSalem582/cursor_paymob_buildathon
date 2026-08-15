@@ -8,6 +8,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import {
+  asPaymobTransaction,
   buildBillingData,
   egpToPiastres,
   isPaid,
@@ -102,4 +103,13 @@ test("isPaid only accepts a settled successful transaction", () => {
   assert.equal(isPaid({ ...transaction, is_refunded: true }), false);
   assert.equal(isPaid({ ...transaction, pending: true }), false);
   assert.equal(isPaid({ ...transaction, success: false }), false);
+});
+
+test("asPaymobTransaction unwraps inquiry envelopes", () => {
+  assert.equal(asPaymobTransaction(transaction).id, 987654);
+  assert.equal(asPaymobTransaction({ obj: transaction }).id, 987654);
+  assert.equal(
+    asPaymobTransaction({ transactions: [transaction] }).id,
+    987654,
+  );
 });

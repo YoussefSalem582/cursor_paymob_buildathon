@@ -209,6 +209,7 @@ If the row is still `awaiting_deposit` / `awaiting_balance` after checkout retur
 
 - Auth: `PAYMOB_API_KEY` → short-lived token (`POST /api/auth/tokens`) — different from the Intention Secret Key
 - Lookup by `merchant_order_id` (`POST /api/ecommerce/orders/transaction_inquiry`)
+- App route: `POST /api/paymob/inquiry` with `{ orderId }`, `{ paymobOrderId }`, or `{ transactionId }`
 - Apply the same `isPaid` + kind rules as the webhook. Still never trust the redirect.
 
 Confirm the exact inquiry path against the event Postman collection if it 404s.

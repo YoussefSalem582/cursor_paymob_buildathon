@@ -122,7 +122,16 @@ Client                         Server                         Paymob
 
 Wallets: Intention `notification_url` is documented as card-only. Also register `/api/paymob/webhook` on **each** dashboard integration (card and wallet). After return, `/o/[token]` polls. If HMAC fights you, do **not** skip verify — Transaction Inquiry fallback, then the same `isPaid()` rules.
 
-All Paymob code lives in [`src/lib/paymob.ts`](src/lib/paymob.ts).
+All Paymob code lives in [`src/lib/paymob.ts`](src/lib/paymob.ts). Official skill: [`.cursor/skills/paymob-integration`](.cursor/skills/paymob-integration).
+
+App APIs:
+
+| Method | Path | Role |
+| --- | --- | --- |
+| `POST` | `/api/checkout` | Create Intention, return Unified Checkout URL |
+| `POST` | `/api/paymob/webhook` | HMAC-verified callback (source of truth) |
+| `POST` | `/api/paymob/inquiry` | Transaction Inquiry fallback (`PAYMOB_API_KEY`) |
+| `GET` | `/api/paymob/redirect/[locale]` | Browser return — UX only, never marks paid |
 
 ---
 

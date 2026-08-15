@@ -16,7 +16,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 - `.env.example` and gitignored `.env.local` for the Escrowd Supabase project.
 - `src/lib/supabase/env.ts` reads `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (falls back to `NEXT_PUBLIC_SUPABASE_ANON_KEY`). Browser, server, and `proxy.ts` session refresh all use it.
 - Admin client prefers `SUPABASE_SECRET_KEY` (`sb_secret_…`) and still accepts legacy `SUPABASE_SERVICE_ROLE_KEY`.
-- Official Paymob AI agent skill v3.3.0 under `.agents/skills/paymob-integration/` (plus release ZIP and Cursor commands `/paymob-test-cards`, `/paymob-explain-error`, `/paymob-check-hmac`). Source: [PaymobAccept/Paymob-AI-Integration-Skill](https://github.com/PaymobAccept/Paymob-AI-Integration-Skill).
+- Official Paymob AI agent skill under `.cursor/skills/paymob-integration/` (and `.agents/skills/paymob-integration/` plus Cursor commands `/paymob-test-cards`, `/paymob-explain-error`, `/paymob-check-hmac`). Source: [PaymobAccept/Paymob-AI-Integration-Skill](https://github.com/PaymobAccept/Paymob-AI-Integration-Skill).
+- Transaction Inquiry client in `src/lib/paymob.ts` and `POST /api/paymob/inquiry` (API Key → auth token → lookup, then the same `isPaid()` persist path as the webhook).
 - Official Paymob MCP at `https://mcp.paymob.com/mcp` via [`.cursor/mcp.json`](../.cursor/mcp.json) and [`.mcp.json`](../.mcp.json). Credentials stay in-session (`set_api_credentials`); HMAC webhook remains the only paid signal.
 - Supabase agent skills under `.agents/skills/` (`npx skills add supabase/agent-skills`).
 
@@ -27,7 +28,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 - `POST /api/checkout` with `{ token, kind }` and server-side price (stop trusting `amountEgp`).
 - Webhook distinguishes `deposit` vs `balance`; `/o/[token]` polls after redirect.
 - Nour dashboard: one-step status advance, preview + final upload; hide `final_url` until `balance_paid_at`.
-- Register the webhook on card **and** wallet integrations; Transaction Inquiry fallback if HMAC or the callback is slow.
+- Register the webhook on card **and** wallet integrations.
 
 ### Not planned (today)
 

@@ -294,3 +294,93 @@ export function isPaid(transaction: PaymobTransaction): boolean {
     transaction.error_occured === false
   );
 }
+
+/**
+ * Transaction Inquiry uses the older Auth-Token flow, not the Intention Secret Key.
+ * POST https://accept.paymob.com/api/auth/tokens  { api_key }
+ * Spec: .cursor/skills/paymob-integration/references/transaction-inquiry.md
+ */
+export async function createInquiryAuthToken(): Promise<string> {
+  const apiKey = requireEnv("PAYMOB_API_KEY");
+  const response = await fetch(`${PAYMOB_BASE_URL}/api/auth/tokens`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ api_key: apiKey }),
+    cache: "no-store",
+  });
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`Paymob auth token failed (${response.status}): ${text}`);
+  }
+  const data = JSON.parse(text) as { token?: unknown };
+  if (typeof data.token !== "string" || !data.token) {
+    throw new Error(`Paymob auth token response had no token: ${text}`);
+  }
+  return data.token;
+}
+
+export function asPaymobTransaction(data: unknown): PaymobTransaction {
+  if (!data || typeof data !== "object") {
+    throw new Error("Paymob inquiry returned no transaction");
+  }
+  const record = data as Record<string, unknown>;
+  if (record.obj && typeof record.obj === "object") {
+    return record.obj as PaymobTransaction;
+  }
+  if (Array.isArray(record.transactions) && record.transactions[0]) {
+    return record.transactions[0] as PaymobTransaction;
+  }
+  if ("success" in record && "id" in record) {
+    return data as PaymobTransaction;
+  }
+  throw new Error("Paymob inquiry response was not a transaction");
+}
+
+async function paymobInquiryFetch(
+  path: string,
+  init: RequestInit,
+): Promise<PaymobTransaction> {
+  const token = await createInquiryAuthToken();
+  const headers = new Headers(init.headers);
+  headers.set("Authorization", `Bearer ${token}`);
+  const url = new URL(path, `${PAYMOB_BASE_URL}/`);
+  if (!headers.has("Content-Type") && init.method !== "GET") {
+    headers.set("Content-Type", "application/json");
+  }
+  if (init.method === "GET" || init.method === undefined) {
+    url.searchParams.set("token", token);
+  }
+  const response = await fetch(url, { ...init, headers, cache: "no-store" });
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`Paymob inquiry failed (${response.status}): ${text}`);
+  }
+  return asPaymobTransaction(JSON.parse(text) as unknown);
+}
+
+/** GET /api/acceptance/transactions/{id} */
+export function inquireTransactionById(
+  transactionId: number,
+): Promise<PaymobTransaction> {
+  return paymobInquiryFetch(
+    `api/acceptance/transactions/${transactionId}`,
+    { method: "GET" },
+  );
+}
+
+/** POST /api/ecommerce/orders/transaction_inquiry */
+export function inquireTransaction(input: {
+  merchantOrderId?: string;
+  paymobOrderId?: number;
+}): Promise<PaymobTransaction> {
+  const body: Record<string, string | number> = {};
+  if (input.merchantOrderId) body.merchant_order_id = input.merchantOrderId;
+  if (input.paymobOrderId != null) body.order_id = input.paymobOrderId;
+  if (Object.keys(body).length === 0) {
+    throw new Error("inquireTransaction needs merchantOrderId or paymobOrderId");
+  }
+  return paymobInquiryFetch("api/ecommerce/orders/transaction_inquiry", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}

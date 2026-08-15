@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { isPaid, verifyTransactionHmac, type PaymobTransaction } from "@/lib/paymob";
+import { applyPaymobTransaction } from "@/lib/apply-paymob-transaction";
+import { verifyTransactionHmac, type PaymobTransaction } from "@/lib/paymob";
 
 /**
  * Paymob "Transaction Processed Callback".
@@ -32,39 +32,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, ignored: payload.type });
   }
 
-  const transaction = payload.obj;
-  const status = isPaid(transaction)
-    ? "paid"
-    : transaction.pending
-      ? "pending"
-      : "failed";
-
-  // special_reference we sent comes back as order.merchant_order_id.
-  const orderId = transaction.order?.merchant_order_id ?? null;
-  const paymobOrderId =
-    transaction.order?.id != null ? String(transaction.order.id) : null;
-
-  const admin = createAdminClient();
-  const query = admin
-    .from("orders")
-    .update({ status, paymob_order_id: paymobOrderId });
-
-  const { data, error } = orderId
-    ? await query.eq("id", orderId).select("id")
-    : await query.eq("paymob_order_id", paymobOrderId).select("id");
-
-  if (error) {
+  try {
+    const result = await applyPaymobTransaction(payload.obj);
+    if (result.status === "paid") {
+      console.log("[paymob webhook] paid", {
+        orderId: result.orderId,
+        paymobOrderId: result.paymobOrderId,
+      });
+    }
+    return NextResponse.json({ ok: true, ...result });
+  } catch (error) {
     console.error("[paymob webhook] update failed", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Update failed" },
+      { status: 500 },
+    );
   }
-
-  // TODO: this is where your product logic goes — fulfil the order, send the
-  // receipt, credit the wallet. Make it idempotent: Paymob retries callbacks.
-  if (status === "paid") {
-    console.log("[paymob webhook] paid", { orderId, paymobOrderId });
-  }
-
-  // Always 200 once verified, even if we found no matching row, so Paymob
-  // stops retrying a callback we will never be able to match.
-  return NextResponse.json({ ok: true, status, matched: data?.length ?? 0 });
 }

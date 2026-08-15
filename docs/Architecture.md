@@ -155,12 +155,13 @@ One function, client (live UI) and server (Intention amount):
 | GET | `/api/orders/:token` | Client | Order for `/o/[token]`; strip `final_url` until balance paid |
 | POST | `/api/checkout` | Client | `{ token, kind }`; return hosted checkout URL |
 | POST | `/api/paymob/webhook` | Paymob | HMAC, then paid fields |
+| POST | `/api/paymob/inquiry` | Server / poll | Transaction Inquiry fallback; same `isPaid()` persist as webhook |
 | GET | `/api/dashboard/orders` | Nour | List + status filter |
 | PATCH | `/api/dashboard/orders/:id` | Nour | Advance one legal step |
 | POST | `/api/dashboard/orders/:id/preview` | Nour | Set `preview_url` |
 | POST | `/api/dashboard/orders/:id/final` | Nour | Set `final_url` (not exposed yet) |
 
-**Exists now (demo):** `POST /api/checkout` (signed-in, trusts `amountEgp`), `POST /api/paymob/webhook` (sets `paid`), redirect to `/{locale}/checkout/success|failure`.
+**Exists now (demo):** `POST /api/checkout` (signed-in, trusts `amountEgp`), `POST /api/paymob/webhook` (HMAC then `paid`), `POST /api/paymob/inquiry` (Inquiry fallback), redirect to `/{locale}/checkout/success|failure`.
 
 ---
 
@@ -168,9 +169,11 @@ One function, client (live UI) and server (Intention amount):
 
 | Path | Role |
 | --- | --- |
-| [`src/lib/paymob.ts`](../src/lib/paymob.ts) | Intention, checkout URL, HMAC, `isPaid` — **keep**. Field order: [`.agents/skills/paymob-integration/references/hmac-verification.md`](../.agents/skills/paymob-integration/references/hmac-verification.md) |
+| [`src/lib/paymob.ts`](../src/lib/paymob.ts) | Intention, checkout URL, HMAC, `isPaid`, Inquiry — **keep**. Field order: [`.agents/skills/paymob-integration/references/hmac-verification.md`](../.agents/skills/paymob-integration/references/hmac-verification.md) |
+| [`src/lib/apply-paymob-transaction.ts`](../src/lib/apply-paymob-transaction.ts) | Shared persist after HMAC or Inquiry |
 | [`.cursor/mcp.json`](../.cursor/mcp.json) / [`.mcp.json`](../.mcp.json) | Paymob MCP URL only. Credentials via `set_api_credentials` in-session, never in git |
 | [`src/app/api/paymob/webhook/route.ts`](../src/app/api/paymob/webhook/route.ts) | Callback — extend for deposit vs balance |
+| [`src/app/api/paymob/inquiry/route.ts`](../src/app/api/paymob/inquiry/route.ts) | Pull-based fallback when the callback is slow |
 | [`src/app/api/checkout/route.ts`](../src/app/api/checkout/route.ts) | Replace: `{ token, kind }`, no login, server price |
 | [`src/lib/supabase/`](../src/lib/supabase/) | Browser, cookie, and admin clients; `env.ts` for publishable key |
 | [`src/proxy.ts`](../src/proxy.ts) | Locale + session. Skips Supabase if public env is missing so Vercel does not 500 |
