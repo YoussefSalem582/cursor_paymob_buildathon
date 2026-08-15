@@ -182,6 +182,8 @@ npx vercel --prod
 
 Add every env var for Production. `NEXT_PUBLIC_SITE_URL` = `https://your-app.vercel.app` (no trailing slash). Redeploy. Register that origin’s `/api/paymob/webhook` in Paymob.
 
+Do not add `@next/swc-darwin-*` (or any platform SWC package) to `dependencies`. Next already pulls the right optional binary; a Darwin-only required dep makes Linux Vercel builds fail with `EBADPLATFORM`.
+
 Hour 0 of the build: this URL must exist.
 
 ---
