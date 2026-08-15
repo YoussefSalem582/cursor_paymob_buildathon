@@ -1,89 +1,93 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { redirect } from "@/i18n/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { Card, CardTitle, CardDescription } from "@/components/ui/card";
-import { piastresToEgp } from "@/lib/paymob";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { requireNour } from "@/lib/nour-auth";
+import { Price } from "@/components/site-chrome";
+import { STATUS_ORDER, type Order, type OrderStatus } from "@/lib/orders";
 
-/**
- * Example protected route. proxy.ts already bounces signed-out users, but the
- * page checks again — never trust the proxy alone for authorization.
- */
+export const dynamic = "force-dynamic";
+
+const STATUS_I18N: Record<OrderStatus, string> = {
+  awaiting_deposit: "order.awaitingDeposit",
+  in_progress: "order.inProgress",
+  ready_for_review: "order.readyForReview",
+  awaiting_balance: "order.awaitingBalance",
+  delivered: "order.delivered",
+};
+
 export default async function DashboardPage({
   params,
-}: PageProps<"/[locale]/dashboard">) {
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   setRequestLocale(locale);
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await requireNour();
   if (!user) redirect({ href: "/sign-in", locale });
 
-  // RLS restricts this to the signed-in user's own rows.
-  const { data: orders } = await supabase
+  const admin = createAdminClient();
+  const { data } = await admin
     .from("orders")
-    .select("id, amount, currency, status, paymob_order_id, created_at")
-    .order("created_at", { ascending: false })
-    .limit(20);
-
+    .select("*")
+    .order("created_at", { ascending: false });
+  const orders = (data ?? []) as Order[];
   const t = await getTranslations();
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold">{t("dashboard.title")}</h1>
-        <p className="text-sm text-muted">
-          {t("dashboard.signedInAs", { email: user!.email ?? "" })}
-        </p>
+    <main className="px-6 py-6 sm:px-10">
+      <div className="mb-8 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
+            {t("dashboard.kicker")}
+          </p>
+          <h2 className="font-display text-4xl">{t("dashboard.title")}</h2>
+          <p className="mt-2 text-sm text-muted">
+            {t("dashboard.signedInAs", { email: user!.email ?? "" })}
+          </p>
+        </div>
+        <p className="max-w-sm text-sm text-muted">{t("dashboard.subtitle")}</p>
       </div>
-
-      <Card className="flex flex-col gap-4">
-        <CardTitle>{t("dashboard.ordersTitle")}</CardTitle>
-
-        {!orders || orders.length === 0 ? (
-          <CardDescription>{t("dashboard.empty")}</CardDescription>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-start text-sm">
-              <thead className="text-muted">
-                <tr>
-                  <th className="py-2 text-start font-medium">
-                    {t("dashboard.colAmount")}
-                  </th>
-                  <th className="py-2 text-start font-medium">
-                    {t("dashboard.colStatus")}
-                  </th>
-                  <th className="py-2 text-start font-medium">
-                    {t("dashboard.colRef")}
-                  </th>
-                  <th className="py-2 text-start font-medium">
-                    {t("dashboard.colDate")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id} className="border-t border-border">
-                    <td className="py-2">
-                      {piastresToEgp(order.amount).toFixed(2)} {order.currency}
-                    </td>
-                    <td className="py-2">{t(`status.${order.status}`)}</td>
-                    <td className="py-2 font-mono text-xs text-muted">
-                      {order.paymob_order_id ?? "—"}
-                    </td>
-                    <td className="py-2 text-muted">
-                      {new Date(order.created_at).toLocaleString(locale)}
-                    </td>
-                  </tr>
+      <div className="grid gap-5 lg:grid-cols-5">
+        {STATUS_ORDER.map((status) => {
+          const items = orders.filter((o) => o.status === status);
+          return (
+            <section key={status}>
+              <h3 className="mb-3 text-xs uppercase tracking-widest text-muted">
+                {t(STATUS_I18N[status])}
+              </h3>
+              <ul className="grid gap-3">
+                {items.length === 0 ? (
+                  <li className="text-sm text-muted">{t("dashboard.empty")}</li>
+                ) : null}
+                {items.map((order) => (
+                  <li key={order.id}>
+                    <Link
+                      href={`/dashboard/${order.id}`}
+                      className="block border border-line p-3"
+                    >
+                      {order.preview_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={order.preview_url}
+                          alt=""
+                          className="mb-3 aspect-[4/5] w-full object-cover"
+                        />
+                      ) : (
+                        <div className="mb-3 aspect-[4/5] bg-gradient-to-br from-clay to-ink" />
+                      )}
+                      <p className="font-display text-lg leading-tight">{order.client_name}</p>
+                      <p className="mt-2 text-sm">
+                        <Price piastres={order.price_total} />
+                      </p>
+                    </Link>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-
-      {/* TODO: your product's dashboard goes here. */}
-    </div>
+              </ul>
+            </section>
+          );
+        })}
+      </div>
+    </main>
   );
 }
