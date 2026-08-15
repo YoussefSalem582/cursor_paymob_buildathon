@@ -8,13 +8,13 @@ As of 2026-08-15. Canonical spec: [`docs/plan.md`](docs/plan.md). Architecture: 
 
 ## Where the repo is right now
 
-`main` is current. Rebase conflict is done. Hosted `orders` is the Escrowd shape (`0005_escrowd_orders_replace_third.sql`).
+`main` is current. Rebase conflict is done. Hosted `orders` is the Escrowd shape (`0006_escrowd_orders_restore_fourth.sql`).
 
 The **screens and payment model are in the tree**. The **demo is not proven** on a public URL (two HMAC-verified sandbox payments on one order). That is the remaining risk.
 
 | Layer | In tree | Gap |
 | --- | --- | --- |
-| Schema | `0002` + `0003` + `0004` + `0005` on the hosted project | Do not re-apply `0001_orders.sql`. Do not re-add `clients` / `client_id` |
+| Schema | `0002` + `0003` + `0004` + `0005` + `0006` on the hosted project | Do not re-apply `0001_orders.sql`. Do not re-add `clients` / `client_id` |
 | Pricing | Shared `priceBrief()`; commercial ×3 | — |
 | Client | Brief submit starts deposit checkout; `/o/[token]` timeline + poll + Inquiry reconcile | Prove on the public URL |
 | Nour | Gated `/dashboard` studio (own chrome): overview charts, board, uploads, Paymob ids on detail | Seed artwork |
@@ -78,7 +78,8 @@ Without this, the rest is a storefront. Spec “done when”: two real sandbox p
 
 ## 5. Glue / freeze (Stream 4)
 
-- [ ] Seed 2–3 orders plus 2–3 **already-watermarked** preview files and matching finals (no image pipeline)
+- [x] Seed pipeline orders on hosted `orders` (awaiting_deposit → delivered)
+- [ ] Seed 2–3 **already-watermarked** preview files and matching finals (no image pipeline)
 - [x] Arabic + RTL pass on phone-width (logical CSS; header wraps)
 - [x] Dark mode
 - [ ] Run the 90-second script **three times on the deployed URL**. Script is in `docs/plan.md` / `README.md`

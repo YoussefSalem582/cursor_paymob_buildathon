@@ -47,7 +47,7 @@ Two human surfaces, one money rail:
 | Layer | Choice | Notes |
 | --- | --- | --- |
 | App | Next.js 16 App Router, TypeScript | Locale prefix `[locale]` |
-| UI | Tailwind 4, next-intl | Arabic default |
+| UI | Tailwind 4, next-intl | Arabic default. Body: IBM Plex Sans Arabic. Display: El Messiri (both Arabic + Latin). |
 | Data | Supabase Postgres + Storage | Service role for writes; RLS: no browser insert/update |
 | Pay | Paymob Intention + Unified Checkout | [`src/lib/paymob.ts`](../src/lib/paymob.ts) |
 | Host | Vercel | Public URL required from hour 0 for webhooks |
@@ -130,7 +130,7 @@ Payment rating is **computed** from `created_at` vs `deposit_paid_at` (or now if
 
 Writes go through the service-role key. Public read is by token on the server, not a wide-open select.
 
-Demo starter / Scope Guard `orders` is replaced by [`supabase/migrations/0005_escrowd_orders_replace_third.sql`](../supabase/migrations/0005_escrowd_orders_replace_third.sql) on the hosted project (canonical create: [`0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql); `0003` and `0004` were overwritten by leftover Scope Guard columns).
+Demo starter / Scope Guard `orders` is replaced by [`supabase/migrations/0006_escrowd_orders_restore_fourth.sql`](../supabase/migrations/0006_escrowd_orders_restore_fourth.sql) on the hosted project (canonical create: [`0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql); `0003`–`0005` were overwritten when Scope Guard columns came back). `0006` copies leftover Escrowd rows from `orders_legacy_pre_escrowd_*` before dropping the Scope Guard table.
 
 ---
 
@@ -187,19 +187,20 @@ Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout
 | [`src/app/api/paymob/inquiry/route.ts`](../src/app/api/paymob/inquiry/route.ts) | Pull-based fallback when the callback is slow |
 | [`src/app/api/checkout/route.ts`](../src/app/api/checkout/route.ts) | `{ token, kind }`, no login, server price |
 | [`src/app/[locale]/(site)/commission/`](../src/app/%5Blocale%5D/%28site%29/commission/) | Public brief + live price |
-| [`src/app/[locale]/(site)/page.tsx`](../src/app/%5Blocale%5D/%28site%29/page.tsx) | Public landing: hero study, three-step mechanism, about, work wall |
+| [`src/app/[locale]/(site)/page.tsx`](../src/app/%5Blocale%5D/%28site%29/page.tsx) | Public landing: client-facing hero, framed study, three-step mechanism, about, work wall |
 | [`src/app/[locale]/(site)/o/[token]/`](../src/app/%5Blocale%5D/%28site%29/o/%5Btoken%5D/) | Client status page; polls after Paymob return; `?reconcile=1` on first/last tick |
 | [`src/components/price.tsx`](../src/components/price.tsx) | EGP display; safe to import from Client Components |
 | [`src/components/ui/`](../src/components/ui/) | Shared field/button chrome: labels, hints, errors, choice chips, steppers, file picker |
 | [`src/components/site-chrome.tsx`](../src/components/site-chrome.tsx) | Public header/footer only. Do not import from `"use client"` files |
 | [`src/app/[locale]/(auth)/`](../src/app/%5Blocale%5D/%28auth%29/) | Studio login chrome (no Work/Commission nav) |
 | [`src/app/[locale]/(studio)/dashboard/`](../src/app/%5Blocale%5D/%28studio%29/dashboard/) | Nour overview, board, order detail, uploads |
+| [`src/lib/studio-data.ts`](../src/lib/studio-data.ts) | Studio order reads via service role; errors surface instead of looking like zero commissions |
 | [`src/lib/studio-stats.ts`](../src/lib/studio-stats.ts) | Orders-derived KPIs; collected follows `*_paid_at` only |
 | [`src/components/studio-chrome.tsx`](../src/components/studio-chrome.tsx) | Studio shell (compact sticky header on small screens, sidebar from `lg`). Do not import from `"use client"` files |
-| [`src/lib/supabase/`](../src/lib/supabase/) | Browser, cookie, and admin clients; `env.ts` for publishable key |
+| [`src/lib/supabase/`](../src/lib/supabase/) | Browser, cookie, and admin clients; `env.ts` for publishable key. Admin fetch is `cache: "no-store"` so new briefs show on `/dashboard` |
 | [`src/proxy.ts`](../src/proxy.ts) | Locale + session. Skips Supabase if public env is missing so Vercel does not 500 |
 | [`src/app/layout.tsx`](../src/app/layout.tsx) | Root pass-through; `html`/`body` live in `[locale]/layout` |
-| [`src/app/[locale]/layout.tsx`](../src/app/%5Blocale%5D/layout.tsx) | Locale `html`/`body`; blocking theme script before paint; `viewportFit: cover`. Public/auth/studio chrome live in route-group layouts |
+| [`src/app/[locale]/layout.tsx`](../src/app/%5Blocale%5D/layout.tsx) | Locale `html`/`body`; IBM Plex Sans Arabic + El Messiri via `next/font`; blocking theme script before paint; `viewportFit: cover`. Public/auth/studio chrome live in route-group layouts |
 | [`src/components/escrowd-logo.tsx`](../src/components/escrowd-logo.tsx) | PNG mark for chrome and empty artwork. Renders the light and dark marks together and swaps them with `dark:hidden` / `hidden dark:block` |
 | [`public/brand/`](../public/brand/) | Illustrated mark and lockup. `escrowd-{mark,lockup}.png` are transparent, `*-dark.png` carry cream ink for dark mode, `*-on-paper.png` keep the cream plate for surfaces we do not control (GitHub, share cards) |
 | [`src/app/favicon.ico`](../src/app/favicon.ico) / [`icon.png`](../src/app/icon.png) / [`apple-icon.png`](../src/app/apple-icon.png) | Tab and touch icons — cropped lock mark. First two transparent; `apple-icon` stays opaque because iOS composites on black |
@@ -207,6 +208,7 @@ Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout
 | [`supabase/migrations/0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql) | Escrowd `orders` + `deliveries` bucket |
 | [`supabase/migrations/0004_escrowd_orders_replace_again.sql`](../supabase/migrations/0004_escrowd_orders_replace_again.sql) | Re-replaces hosted `orders` after Scope Guard columns (`client_id`, …) came back |
 | [`supabase/migrations/0005_escrowd_orders_replace_third.sql`](../supabase/migrations/0005_escrowd_orders_replace_third.sql) | Same replace after `0004` was recorded and Scope Guard columns returned again (studio 500) |
+| [`supabase/migrations/0006_escrowd_orders_restore_fourth.sql`](../supabase/migrations/0006_escrowd_orders_restore_fourth.sql) | Restore after Scope Guard renamed Escrowd `orders` to `orders_legacy_pre_escrowd_*`; copies leftover rows |
 
 Env: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or legacy `ANON_KEY`), `SUPABASE_SECRET_KEY` (`sb_secret_…`, or legacy `SUPABASE_SERVICE_ROLE_KEY`), `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_HMAC_SECRET`, `PAYMOB_INTEGRATION_IDS`, optional `PAYMOB_API_KEY` for Inquiry. Secret key never in the client bundle (`NEXT_PUBLIC_`). Clients live in [`src/lib/supabase/`](../src/lib/supabase/) — session refresh is [`src/proxy.ts`](../src/proxy.ts) (Next.js 16), not a separate `middleware.ts`. Copy `.env.example` to `.env.local`; never commit real keys.
 

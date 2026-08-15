@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ### Fixed
 
+- Studio `/dashboard` empty/500 after client briefs: Scope Guard migrations ran on the hosted project again after `0005`, renamed Escrowd `orders` to `orders_legacy_pre_escrowd_*`, and put back `client_id` (no `token` / `brief`). [`0006_escrowd_orders_restore_fourth.sql`](../supabase/migrations/0006_escrowd_orders_restore_fourth.sql) restores Escrowd and copies leftover rows. Studio reads no longer cache an empty list; a load failure shows an error instead of zero income.
 - Studio `/dashboard` 500: hosted `orders` was Scope Guard again after `0004` was recorded as applied (`client_id`, `pending_payment`, no `brief`). Overview crashed on `order.brief.type`. [`0005_escrowd_orders_replace_third.sql`](../supabase/migrations/0005_escrowd_orders_replace_third.sql) restored the Escrowd table (two leftover test rows dropped). Studio reads now skip a missing brief instead of throwing.
 - Brief submit 500 `null value in column "client_id"`: hosted `orders` had Scope Guard columns again after `0003` (`client_id` NOT NULL, status `pending_payment|paid`). [`0004_escrowd_orders_replace_again.sql`](../supabase/migrations/0004_escrowd_orders_replace_again.sql) dropped leftover tables and recreated the Escrowd shape. Three unpaid test rows were dropped.
 - Intention 404 “Integration ID/Name does not exist”: `PAYMOB_INTEGRATION_IDS` was a card ID from a different Paymob account. This merchant’s test online card ID is `5853667` (same Test status as `egy_sk_test_…`).
@@ -18,6 +19,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ### Changed
 
+- Arabic type: body is IBM Plex Sans Arabic, headlines are El Messiri (both `next/font`, Arabic + Latin). Fraunces/Cairo are gone — Fraunces had no Arabic glyphs so headlines were falling back to the body face. RTL drops `letter-spacing` / `uppercase` so Arabic joining stays intact.
+- Home hero copy is client-facing, not the payment-mechanism pitch: custom drawing without a week of DMs; deposit/balance trust sits in the subtitle. CTA is «اطلب رسمتك» / “Commission yours”.
 - Arabic UI in `messages/ar.json` is spoken Cairene (white dialect), not MSA: `دلوقتي` / `معرفناش` / `بنفتح` / `الإيميل`, artwork captions like بتاع البلح, Nour’s studio stays feminine (`ارفعي`, `مستنياكي`). Product words stay: العربون، الباقي، البرايف، باي موب، فك الملف.
 - Public storefront, studio login, and Nour’s studio are separate route groups. `/dashboard` no longer uses the marketing header/footer.
 - Layouts fit a phone: compact public/studio headers, full-width CTAs, 16px inputs so iOS does not zoom, a fixed commission price + pay bar, a swipeable studio board, notch/home-indicator padding, and order status before the artwork on `/o/[token]`.
@@ -31,6 +34,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 ### Added
 
 - Payment punctuality rating: 5 stars if the deposit webhook lands within 72 hours of `created_at`, otherwise 4. Client alert on the brief and on `/o/[token]` while the deposit is due. Studio board and order detail show the stars. Computed in `paymentStars()` — not a column, and late payment still checks out.
+- Hosted studio pipeline rows (in progress through delivered, plus live brief submits) so `/dashboard` income and order charts have data after `0006`.
+
 - Studio overview at `/dashboard`: order counts, webhook-only collected/outstanding totals, 14-day Cairo activity, status pipeline, type mix, and an attention queue. Board at `/dashboard/orders`. Order detail at `/dashboard/orders/[id]` (timeline + Paymob references). `/dashboard/[id]` redirects there.
 
 - Dark-mode logo variants `public/brand/escrowd-{mark,lockup}-dark.png`: the near-black ink is repainted `--ink` cream and the clay shackle is left alone (split on lightness, ink ≤0.26 and clay ≥0.42). `EscrowdLogo` and `EscrowdLogoFrame` render both and swap with `dark:hidden` / `hidden dark:block`, so exactly one variant is in the layout and the accessibility tree.
