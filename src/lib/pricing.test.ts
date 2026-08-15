@@ -39,3 +39,27 @@ test("parseBrief rejects unknown enums", () => {
     null,
   );
 });
+
+test("parseBrief accepts string counts and rejects out of range", () => {
+  const ok = parseBrief({
+    type: "portrait",
+    subjects: "2",
+    detail_level: "sketch",
+    background: "simple",
+    usage: "personal",
+    revisions: "0",
+  });
+  assert.equal(ok?.subjects, 2);
+  assert.equal(ok?.revisions, 0);
+  assert.equal(
+    parseBrief({
+      type: "portrait",
+      subjects: 9,
+      detail_level: "sketch",
+      background: "none",
+      usage: "personal",
+      revisions: 2,
+    }),
+    null,
+  );
+});

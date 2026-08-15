@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { routing } from "@/i18n/routing";
+import { parseEmail, safeInternalPath } from "@/lib/validate";
 
 function localeFrom(formData: FormData) {
   const locale = String(formData.get("locale") ?? "");
@@ -12,15 +13,19 @@ function localeFrom(formData: FormData) {
 }
 
 export async function signIn(_prev: string | null, formData: FormData) {
+  const email = parseEmail(formData.get("email"));
+  const password = String(formData.get("password") ?? "");
+  if (!email || password.length < 6) return "invalid";
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
-    email: String(formData.get("email") ?? ""),
-    password: String(formData.get("password") ?? ""),
+    email,
+    password,
   });
-  if (error) return error.message;
+  if (error) return "invalid";
 
-  const next = String(formData.get("next") ?? "");
-  redirect(next.startsWith("/") ? next : `/${localeFrom(formData)}/dashboard`);
+  const next = safeInternalPath(formData.get("next"));
+  redirect(next ?? `/${localeFrom(formData)}/dashboard`);
 }
 
 export async function signUp() {

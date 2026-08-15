@@ -57,17 +57,25 @@ function isOneOf<T extends string>(value: unknown, allowed: readonly T[]): value
   return typeof value === "string" && (allowed as readonly string[]).includes(value);
 }
 
+function parseCount(value: unknown, min: number, max: number): number | null {
+  let n: number;
+  if (typeof value === "number") n = value;
+  else if (typeof value === "string" && value.trim() !== "") n = Number(value.trim());
+  else return null;
+  if (!Number.isInteger(n) || n < min || n > max) return null;
+  return n;
+}
+
 export function parseBrief(input: unknown): Brief | null {
-  if (!input || typeof input !== "object") return null;
+  if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   const raw = input as Record<string, unknown>;
   if (!isOneOf(raw.type, BRIEF_TYPES)) return null;
   if (!isOneOf(raw.detail_level, DETAIL_LEVELS)) return null;
   if (!isOneOf(raw.background, BACKGROUNDS)) return null;
   if (!isOneOf(raw.usage, USAGES)) return null;
-  const subjects = Number(raw.subjects);
-  const revisions = Number(raw.revisions ?? 2);
-  if (!Number.isInteger(subjects) || subjects < 1 || subjects > 8) return null;
-  if (!Number.isInteger(revisions) || revisions < 0 || revisions > 6) return null;
+  const subjects = parseCount(raw.subjects, 1, 8);
+  const revisions = parseCount(raw.revisions ?? 2, 0, 6);
+  if (subjects == null || revisions == null) return null;
   return {
     type: raw.type,
     subjects,

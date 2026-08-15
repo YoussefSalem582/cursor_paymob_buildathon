@@ -4,6 +4,7 @@ import {
   inquireTransaction,
   inquireTransactionById,
 } from "@/lib/paymob";
+import { parseMerchantOrderId, parsePositiveInt } from "@/lib/validate";
 
 /**
  * Pull-based reconciliation when the webhook never arrived.
@@ -14,34 +15,29 @@ import {
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json().catch(() => ({}))) as {
-      orderId?: string;
-      paymobOrderId?: number | string;
-      transactionId?: number | string;
+      orderId?: unknown;
+      paymobOrderId?: unknown;
+      transactionId?: unknown;
     };
 
-    const transactionId = Number(body.transactionId);
-    const paymobOrderId = Number(body.paymobOrderId);
-    const orderId = body.orderId?.trim() || undefined;
+    const transactionId = parsePositiveInt(body.transactionId);
+    const paymobOrderId = parsePositiveInt(body.paymobOrderId);
+    const orderId = parseMerchantOrderId(body.orderId);
 
-    if (
-      !orderId &&
-      !Number.isInteger(paymobOrderId) &&
-      !Number.isInteger(transactionId)
-    ) {
+    if (!orderId && paymobOrderId == null && transactionId == null) {
       return NextResponse.json(
         { error: "Provide orderId, paymobOrderId, or transactionId" },
         { status: 400 },
       );
     }
 
-    const transaction = Number.isInteger(transactionId)
-      ? await inquireTransactionById(transactionId)
-      : await inquireTransaction({
-          merchantOrderId: orderId,
-          paymobOrderId: Number.isInteger(paymobOrderId)
-            ? paymobOrderId
-            : undefined,
-        });
+    const transaction =
+      transactionId != null
+        ? await inquireTransactionById(transactionId)
+        : await inquireTransaction({
+            merchantOrderId: orderId,
+            paymobOrderId,
+          });
 
     const result = await applyPaymobTransaction(transaction);
     return NextResponse.json({ ok: true, ...result });

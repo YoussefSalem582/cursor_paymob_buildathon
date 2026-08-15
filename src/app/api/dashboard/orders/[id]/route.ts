@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireNour } from "@/lib/nour-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NOUR_TRANSITIONS, type Order, type OrderStatus } from "@/lib/orders";
+import { parseOrderId } from "@/lib/validate";
 
 export async function PATCH(
   request: Request,
@@ -11,9 +12,16 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = parseOrderId(rawId);
+  if (!id) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
   const body = (await request.json().catch(() => ({}))) as { status?: OrderStatus };
   const next = body.status;
+  if (next !== "ready_for_review" && next !== "awaiting_balance") {
+    return NextResponse.json({ error: "Illegal status transition." }, { status: 400 });
+  }
+
   const admin = createAdminClient();
   const { data: row } = await admin.from("orders").select("*").eq("id", id).maybeSingle();
   if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });

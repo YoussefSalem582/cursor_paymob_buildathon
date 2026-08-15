@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
 import { parseSpecialReference } from "@/lib/paymob";
+import { parseOrderToken } from "@/lib/validate";
 
 /**
  * Browser return from Paymob. Never marks paid. Sends the client to /o/[token]
@@ -19,7 +20,7 @@ export async function GET(
   const merchant =
     query.get("merchant_order_id") ?? query.get("merchantOrderId") ?? "";
   const parsed = parseSpecialReference(merchant);
-  const token = parsed?.token ?? query.get("token") ?? "";
+  const token = parseOrderToken(parsed?.token ?? query.get("token"));
 
   const path = token ? `/${locale}/o/${token}` : `/${locale}`;
   const target = new URL(path, request.nextUrl.origin);

@@ -2,12 +2,16 @@ import { NextResponse, type NextRequest } from "next/server";
 import { reconcileEscrowdOrder } from "@/lib/apply-paymob-transaction";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { publicOrder, type Order } from "@/lib/orders";
+import { isOrderToken } from "@/lib/validate";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> },
 ) {
   const { token } = await params;
+  if (!isOrderToken(token)) {
+    return NextResponse.json({ error: "Order not found." }, { status: 404 });
+  }
   const admin = createAdminClient();
   const { data: row, error } = await admin
     .from("orders")

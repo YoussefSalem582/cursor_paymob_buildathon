@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test src/lib/paymob.test.ts src/lib/pricing.test.ts src/lib/orders.test.ts src/lib/studio-stats.test.ts"
+    "test": "node --experimental-strip-types --test src/lib/paymob.test.ts src/lib/pricing.test.ts src/lib/orders.test.ts src/lib/studio-stats.test.ts src/lib/validate.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

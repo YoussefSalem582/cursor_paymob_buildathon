@@ -5,6 +5,7 @@ import { AuthForm } from "@/components/auth-form";
 import { EscrowdLogo } from "@/components/escrowd-logo";
 import { signIn } from "@/lib/auth-actions";
 import { requireNour } from "@/lib/nour-auth";
+import { safeInternalPath } from "@/lib/validate";
 
 export default async function SignInPage({
   params,
@@ -20,7 +21,7 @@ export default async function SignInPage({
   const t = await getTranslations();
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-4 px-6 py-16">
+    <div className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-10 sm:px-6 sm:py-16">
       <Card className="flex flex-col gap-5">
         <EscrowdLogo size={96} className="size-16" alt={t("app.logoAlt")} />
         <div className="flex flex-col gap-1">
@@ -37,7 +38,7 @@ export default async function SignInPage({
         <AuthForm
           action={signIn}
           locale={locale}
-          next={typeof next === "string" ? next : undefined}
+          next={typeof next === "string" ? (safeInternalPath(next) ?? undefined) : undefined}
           labels={{
             email: t("auth.email"),
             emailPlaceholder: t("auth.emailPlaceholder"),

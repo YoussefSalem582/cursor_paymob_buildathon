@@ -9,6 +9,7 @@ import { parseBrief, priceBrief } from "@/lib/pricing";
 import { publicSiteUrl } from "@/lib/site-url";
 import { routing } from "@/i18n/routing";
 import type { Order } from "@/lib/orders";
+import { parseCheckoutKind, parseOrderToken } from "@/lib/validate";
 
 /**
  * Body `{ token, kind }`. Amount comes from the server price, never the client.
@@ -22,9 +23,9 @@ export async function POST(request: NextRequest) {
       locale?: string;
     };
 
-    const token = String(body.token ?? "").trim();
-    const kind = body.kind;
-    if (!token || (kind !== "deposit" && kind !== "balance")) {
+    const token = parseOrderToken(body.token);
+    const kind = parseCheckoutKind(body.kind);
+    if (!token || !kind) {
       return NextResponse.json(
         { error: "Expected { token, kind: \"deposit\" | \"balance\" }" },
         { status: 400 },

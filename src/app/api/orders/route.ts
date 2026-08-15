@@ -2,23 +2,32 @@ import { NextResponse } from "next/server";
 import { nanoid } from "nanoid";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { parseBrief, priceBrief } from "@/lib/pricing";
+import { parseContact } from "@/lib/validate";
 
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as {
-    name?: string;
-    email?: string;
-    phone?: string;
+    name?: unknown;
+    email?: unknown;
+    phone?: unknown;
     brief?: unknown;
   } | null;
 
-  const name = String(body?.name ?? "").trim();
-  const email = String(body?.email ?? "").trim();
-  const phone = String(body?.phone ?? "").trim();
-  const brief = parseBrief(body?.brief);
-
-  if (!name || !email || !phone || !brief) {
+  const contact = parseContact({
+    name: body?.name,
+    email: body?.email,
+    phone: body?.phone,
+  });
+  if (!contact.ok) {
     return NextResponse.json(
-      { error: "Name, email, phone, and a valid brief are required." },
+      { error: contact.error, field: contact.field },
+      { status: 400 },
+    );
+  }
+
+  const brief = parseBrief(body?.brief);
+  if (!brief) {
+    return NextResponse.json(
+      { error: "invalid_brief", field: "brief" },
       { status: 400 },
     );
   }
@@ -30,9 +39,9 @@ export async function POST(request: Request) {
     .from("orders")
     .insert({
       token,
-      client_name: name,
-      client_email: email,
-      client_phone: phone,
+      client_name: contact.value.name,
+      client_email: contact.value.email,
+      client_phone: contact.value.phone,
       brief,
       price_total: priced.totalPiastres,
       price_deposit: priced.depositPiastres,

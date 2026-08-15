@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { publicOrder, type Order } from "@/lib/orders";
+import { isOrderToken } from "@/lib/validate";
 import { OrderPanel } from "./order-panel";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,7 @@ export default async function OrderPage({
 }) {
   const { locale, token } = await params;
   setRequestLocale(locale);
+  if (!isOrderToken(token)) notFound();
   const { checkout } = await searchParams;
 
   const admin = createAdminClient();

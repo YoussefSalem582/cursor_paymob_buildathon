@@ -11,11 +11,7 @@ export async function POST(
   }
   const { id } = await params;
   const form = await request.formData();
-  const file = form.get("file");
-  if (!(file instanceof File) || file.size === 0) {
-    return NextResponse.json({ error: "Attach a file." }, { status: 400 });
-  }
-  const result = await uploadDelivery(id, file, "final");
+  const result = await uploadDelivery(id, form.get("file"), "final");
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
