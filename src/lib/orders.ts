@@ -21,6 +21,8 @@ export type Order = {
   status: OrderStatus;
   deposit_paid_at: string | null;
   balance_paid_at: string | null;
+  paymob_deposit_reference: string | null;
+  paymob_balance_reference: string | null;
   paymob_deposit_order_id: string | null;
   paymob_balance_order_id: string | null;
   paymob_deposit_transaction_id: string | null;
@@ -46,7 +48,48 @@ export const STATUS_ORDER: OrderStatus[] = [
   "delivered",
 ];
 
+export const STATUS_I18N: Record<OrderStatus, string> = {
+  awaiting_deposit: "order.awaitingDeposit",
+  in_progress: "order.inProgress",
+  ready_for_review: "order.readyForReview",
+  awaiting_balance: "order.awaitingBalance",
+  delivered: "order.delivered",
+};
+
 export function publicOrder(order: Order): Order {
   if (order.balance_paid_at) return order;
   return { ...order, final_url: null };
+}
+
+export function awaitingPayment(order: Order): boolean {
+  return (
+    (order.status === "awaiting_deposit" && !order.deposit_paid_at) ||
+    (order.status === "awaiting_balance" && !order.balance_paid_at)
+  );
+}
+
+/** Last Intention correlation for Transaction Inquiry. Prefer special_reference. */
+export function inquiryLookup(order: Order): {
+  merchantOrderId?: string;
+  paymobOrderId?: number;
+} | null {
+  const kind = awaitingPayment(order)
+    ? order.status === "awaiting_deposit"
+      ? "deposit"
+      : "balance"
+    : null;
+  if (!kind) return null;
+  const reference =
+    kind === "deposit"
+      ? order.paymob_deposit_reference
+      : order.paymob_balance_reference;
+  const paymobId =
+    kind === "deposit"
+      ? order.paymob_deposit_order_id
+      : order.paymob_balance_order_id;
+  const merchantOrderId = reference || undefined;
+  const paymobOrderId =
+    paymobId && /^\d+$/.test(paymobId) ? Number(paymobId) : undefined;
+  if (!merchantOrderId && paymobOrderId == null) return null;
+  return { merchantOrderId, paymobOrderId };
 }

@@ -14,6 +14,7 @@ brief jsonb  -- type, subjects, detail_level, background, usage, revisions
 price_total, price_deposit, price_balance  -- integer piastres
 status
 deposit_paid_at, balance_paid_at
+paymob_deposit_reference, paymob_balance_reference  -- last {token}:{kind}:{attemptId}
 paymob_deposit_order_id, paymob_balance_order_id
 paymob_deposit_transaction_id, paymob_balance_transaction_id
 preview_url, final_url

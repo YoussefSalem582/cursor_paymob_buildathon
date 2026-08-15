@@ -1,7 +1,18 @@
--- Escrowd: one orders table. Deposit starts work; balance unlocks the file.
--- Replaces the demo starter (user_id + pending|paid|failed).
+-- Hosted project still has the Scope Guard `orders` shape (client_id, lead_score, …)
+-- even though a migration named escrowd_orders was recorded. Replace it with the
+-- Escrowd table. Drops leftover Scope Guard product tables (not used by this app).
 
+drop table if exists public.activity_events cascade;
+drop table if exists public.provider_operations cascade;
+drop table if exists public.disputes cascade;
+drop table if exists public.webhook_events cascade;
+drop table if exists public.scope_versions cascade;
+drop table if exists public.milestones cascade;
+drop table if exists public.change_orders cascade;
+drop table if exists public.payments cascade;
 drop table if exists public.orders cascade;
+drop table if exists public.clients cascade;
+drop table if exists public.orders_legacy_pre_escrowd cascade;
 
 create table public.orders (
   id uuid primary key default gen_random_uuid(),
@@ -45,8 +56,6 @@ create table public.orders (
 create index orders_status_created_idx on public.orders (status, created_at desc);
 
 alter table public.orders enable row level security;
--- No anon/authenticated policies. Browser cannot insert or update.
--- Server uses the service role (checkout, webhook, Nour dashboard).
 
 insert into storage.buckets (id, name, public)
 values ('deliveries', 'deliveries', true)

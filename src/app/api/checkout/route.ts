@@ -96,6 +96,28 @@ export async function POST(request: NextRequest) {
       extras: { token: order.token, kind, attemptId },
     });
 
+    const referencePatch =
+      kind === "deposit"
+        ? {
+            paymob_deposit_reference: specialReference,
+            ...(intention.paymobOrderId
+              ? { paymob_deposit_order_id: intention.paymobOrderId }
+              : {}),
+          }
+        : {
+            paymob_balance_reference: specialReference,
+            ...(intention.paymobOrderId
+              ? { paymob_balance_order_id: intention.paymobOrderId }
+              : {}),
+          };
+    const { error: persistError } = await admin
+      .from("orders")
+      .update(referencePatch)
+      .eq("token", token);
+    if (persistError) {
+      console.error("[checkout] could not persist special_reference", persistError);
+    }
+
     return NextResponse.json({ checkoutUrl: intention.checkoutUrl });
   } catch (error) {
     console.error("[checkout]", error);

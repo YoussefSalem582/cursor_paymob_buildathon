@@ -1,14 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { reconcileEscrowdOrder } from "@/lib/apply-paymob-transaction";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { publicOrder, type Order } from "@/lib/orders";
 
 export async function GET(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ token: string }> },
 ) {
   const { token } = await params;
   const admin = createAdminClient();
-  const { data: order, error } = await admin
+  const { data: row, error } = await admin
     .from("orders")
     .select("*")
     .eq("token", token)
@@ -17,9 +18,14 @@ export async function GET(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  if (!order) {
+  if (!row) {
     return NextResponse.json({ error: "Order not found." }, { status: 404 });
   }
 
-  return NextResponse.json({ order: publicOrder(order as Order) });
+  let order = row as Order;
+  if (request.nextUrl.searchParams.get("reconcile") === "1") {
+    order = await reconcileEscrowdOrder(order);
+  }
+
+  return NextResponse.json({ order: publicOrder(order) });
 }

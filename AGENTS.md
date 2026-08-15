@@ -45,7 +45,7 @@ Next.js App Router, TypeScript, Supabase, next-intl (Arabic default, real RTL), 
 
 ## Schema (one table)
 
-`orders`: `id`, `token` (12-char nanoid, unique), `client_name/email/phone`, `brief` jsonb, `price_total/deposit/balance` (integer piastres), `status`, `deposit_paid_at`, `balance_paid_at`, `paymob_{deposit,balance}_{order,transaction}_id`, `preview_url`, `final_url`.
+`orders`: `id`, `token` (12-char nanoid, unique), `client_name/email/phone`, `brief` jsonb, `price_total/deposit/balance` (integer piastres), `status`, `deposit_paid_at`, `balance_paid_at`, `paymob_{deposit,balance}_reference` (last `{token}:{kind}:{attemptId}`), `paymob_{deposit,balance}_{order,transaction}_id`, `preview_url`, `final_url`.
 
 Create the row as `awaiting_deposit` **before** Intention. No `clients` / `payments` / `change_orders` tables.
 

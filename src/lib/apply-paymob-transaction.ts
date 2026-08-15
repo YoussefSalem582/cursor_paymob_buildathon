@@ -1,11 +1,12 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
+  inquireTransaction,
   isPaid,
   parseSpecialReference,
   type CheckoutKind,
   type PaymobTransaction,
 } from "@/lib/paymob";
-import type { Order } from "@/lib/orders";
+import { inquiryLookup, type Order } from "@/lib/orders";
 
 export type AppliedPaymobResult =
   | { outcome: "unmatched" }
@@ -98,4 +99,29 @@ export async function applyPaymobTransaction(
     throw new Error(error.message);
   }
   return { outcome: "applied", kind: "balance" };
+}
+
+/**
+ * Pull Paymob when the webhook has not landed yet. Same persist as the HMAC path.
+ * Never called from the browser redirect itself — only from a server poll.
+ */
+export async function reconcileEscrowdOrder(order: Order): Promise<Order> {
+  const lookup = inquiryLookup(order);
+  if (!lookup || !process.env.PAYMOB_API_KEY) return order;
+  try {
+    const transaction = await inquireTransaction({
+      merchantOrderId: lookup.merchantOrderId,
+      paymobOrderId: lookup.paymobOrderId,
+    });
+    await applyPaymobTransaction(transaction);
+  } catch (error) {
+    console.warn("[paymob] inquiry reconcile failed", error);
+  }
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("orders")
+    .select("*")
+    .eq("token", order.token)
+    .maybeSingle();
+  return (data as Order | null) ?? order;
 }
