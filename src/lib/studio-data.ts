@@ -1,8 +1,13 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Order } from "@/lib/orders";
 
+export type StudioOrdersLoad = {
+  orders: Order[];
+  error: string | null;
+};
+
 /** Nour's studio reads. Missing env or a leftover schema must not 500 the page. */
-export async function loadStudioOrders(): Promise<Order[]> {
+export async function loadStudioOrders(): Promise<StudioOrdersLoad> {
   try {
     const admin = createAdminClient();
     const { data, error } = await admin
@@ -11,12 +16,12 @@ export async function loadStudioOrders(): Promise<Order[]> {
       .order("created_at", { ascending: false });
     if (error) {
       console.error("[escrowd] studio orders", error.message);
-      return [];
+      return { orders: [], error: error.message };
     }
-    return (data ?? []) as Order[];
+    return { orders: (data ?? []) as Order[], error: null };
   } catch (error) {
     console.error("[escrowd] studio orders", error);
-    return [];
+    return { orders: [], error: "studio_load_failed" };
   }
 }
 

@@ -12,5 +12,8 @@ import { supabaseSecretKey, supabaseUrl } from "@/lib/supabase/env";
 export function createAdminClient() {
   return createClient(supabaseUrl(), supabaseSecretKey(), {
     auth: { autoRefreshToken: false, persistSession: false },
+    global: {
+      fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+    },
   });
 }

@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { EscrowdLogoFrame } from "@/components/escrowd-logo";
 import { Price } from "@/components/price";
 import { Stars } from "@/components/stars";
+import { FieldError } from "@/components/ui/field";
 import { STATUS_I18N, STATUS_ORDER, paymentStars } from "@/lib/orders";
 import type { Brief } from "@/lib/pricing";
 import { loadStudioOrders } from "@/lib/studio-data";
@@ -14,7 +15,7 @@ export default async function StudioBoardPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const orders = await loadStudioOrders();
+  const { orders, error } = await loadStudioOrders();
   const t = await getTranslations();
 
   return (
@@ -28,6 +29,11 @@ export default async function StudioBoardPage({
           {t("dashboard.boardSubtitle")}
         </p>
       </div>
+      {error ? (
+        <div className="mb-6">
+          <FieldError>{t("dashboard.loadError")}</FieldError>
+        </div>
+      ) : null}
       <div className="-mx-4 overflow-x-auto overscroll-x-contain px-4 pb-2 snap-x snap-mandatory sm:-mx-10 sm:px-10 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:snap-none">
         <div className="flex gap-4 lg:grid lg:grid-cols-5">
         {STATUS_ORDER.map((status) => {

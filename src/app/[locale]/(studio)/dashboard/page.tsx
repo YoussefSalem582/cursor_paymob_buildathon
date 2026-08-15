@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { ActivityChart, StatusPipeline, TypeMix } from "@/components/studio-charts";
 import { Price } from "@/components/price";
 import { buttonBase, buttonVariants } from "@/components/ui/button";
+import { FieldError } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import { STATUS_I18N, STATUS_ORDER } from "@/lib/orders";
 import { loadStudioOrders } from "@/lib/studio-data";
@@ -27,7 +28,7 @@ export default async function StudioOverviewPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const orders = await loadStudioOrders();
+  const { orders, error } = await loadStudioOrders();
   const stats = studioStats(orders);
   const t = await getTranslations();
   const statusLabels = Object.fromEntries(
@@ -59,6 +60,12 @@ export default async function StudioOverviewPage({
           {t("dashboard.openBoard")}
         </Link>
       </div>
+
+      {error ? (
+        <div className="mb-6">
+          <FieldError>{t("dashboard.loadError")}</FieldError>
+        </div>
+      ) : null}
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label={t("dashboard.ordersCount")} hint={t("dashboard.ordersHint")}>

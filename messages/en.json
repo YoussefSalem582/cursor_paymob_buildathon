@@ -147,6 +147,7 @@
     "subtitle": "Paid only after a verified webhook. You move the work. Deposit starts it; balance unlocks the file.",
     "empty": "Nothing in this column.",
     "emptyAttention": "Nothing waiting.",
+    "loadError": "Could not load commissions. Refresh the page.",
     "signedInAs": "Signed in as {email}",
     "advancePreview": "Upload preview and send to review",
     "advanceFinal": "Upload final and request the balance",
