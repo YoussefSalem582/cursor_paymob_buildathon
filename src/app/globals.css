@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --paper: #f4efe6;
   --ink: #1c1915;
@@ -8,6 +10,18 @@
   --clay: #c45c3e;
   --clay-deep: #9a3d26;
   --sage: #3f5348;
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #161310;
+  --ink: #f4efe6;
+  --muted: #a39a8c;
+  --line: #3a342c;
+  --clay: #e07052;
+  --clay-deep: #f0a090;
+  --sage: #8fa396;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -37,6 +51,13 @@ body {
     var(--paper);
   color: var(--ink);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.dark body {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(224, 112, 82, 0.12), transparent 50%),
+    radial-gradient(900px 500px at 100% 0%, rgba(143, 163, 150, 0.08), transparent 45%),
+    var(--paper);
 }
 
 ::selection {
