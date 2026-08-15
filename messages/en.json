@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "Escrowd",
-    "tagline": "Creative Work, Clearly Agreed",
+    "tagline": "A drawing made for you — agreed from the start",
     "logoAlt": "Escrowd",
     "footer": "Escrowd — deposit starts work. Balance unlocks the file."
   },
@@ -19,11 +19,11 @@
     "theme": "Toggle dark mode"
   },
   "home": {
-    "kicker": "Illustrator · Cairo",
-    "title": "A deposit starts the drawing. The balance unlocks the file.",
-    "subtitle": "Nour puts one link in her Instagram bio. The client fills a brief, pays a deposit, and gets a page they can return to. No deposit, no work. No final payment, no file.",
-    "cta": "Start a commission",
-    "seeWork": "See recent work",
+    "kicker": "Nour · Garden City, Cairo",
+    "title": "A drawing made for you. Not a week of DMs.",
+    "subtitle": "Tell Nour what to draw, see the price, and pay a deposit on Paymob. She starts when the money is confirmed. The finished file unlocks after the balance — so both of you are covered.",
+    "cta": "Commission yours",
+    "seeWork": "See the work",
     "heroCaption": "Studio wall, Garden City",
     "heroMeta": "Oil pastel · 2026",
     "stepsKicker": "How a commission works",
@@ -55,7 +55,7 @@
     "mediumPastel": "Oil pastel",
     "mediumInk": "Ink",
     "mediumStudy": "Study",
-    "closeTitle": "Ready when you are.",
+    "closeTitle": "Ready? Commission yours.",
     "closeBody": "One form. A live price. Deposit starts work; the balance unlocks the file."
   },
   "commission": {
