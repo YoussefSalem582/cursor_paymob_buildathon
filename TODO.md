@@ -17,7 +17,7 @@ The **screens and payment model are in the tree**. The **demo is not proven** on
 | Schema | `0002` + `0003` + `0004` + `0005` + `0006` on the hosted project | Do not re-apply `0001_orders.sql`. Do not re-add `clients` / `client_id` |
 | Pricing | Shared `priceBrief()`; commercial ×3 | — |
 | Client | Brief submit starts deposit checkout; `/o/[token]` timeline + poll + Inquiry reconcile | Prove on the public URL |
-| Nour | Gated `/dashboard` studio (own chrome): overview charts, board, uploads, Paymob ids on detail | Seed artwork |
+| Nour | Gated `/dashboard` studio (own chrome): overview charts, board, uploads, Paymob ids on detail. Public Selected work is real studies. | Seed 2–3 orders with watermarked preview/final |
 | Paymob | Intention `{token}:{kind}:{attemptId}` stored; HMAC webhook; Inquiry fallback | Paste webhook on **wallet** integration; two sandbox payments |
 | Theme | Class-based dark mode | — |
 | E2E | Not recorded | Kill switches in `docs/plan.md` still apply |

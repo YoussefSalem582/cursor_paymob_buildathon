@@ -187,7 +187,9 @@ Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout
 | [`src/app/api/paymob/inquiry/route.ts`](../src/app/api/paymob/inquiry/route.ts) | Pull-based fallback when the callback is slow |
 | [`src/app/api/checkout/route.ts`](../src/app/api/checkout/route.ts) | `{ token, kind }`, no login, server price |
 | [`src/app/[locale]/(site)/commission/`](../src/app/%5Blocale%5D/%28site%29/commission/) | Public brief + live price |
-| [`src/app/[locale]/(site)/page.tsx`](../src/app/%5Blocale%5D/%28site%29/page.tsx) | Public landing: client-facing hero, framed study, three-step mechanism, about, work wall |
+| [`src/app/[locale]/(site)/page.tsx`](../src/app/%5Blocale%5D/%28site%29/page.tsx) | Public landing: framed study, three-step mechanism, about, selected-work wall |
+| [`src/lib/work.ts`](../src/lib/work.ts) | Static catalog for the public wall (not `orders`, not delivery files) |
+| [`public/work/`](../public/work/) | WebP studies for the hero and Selected work |
 | [`src/app/[locale]/(site)/o/[token]/`](../src/app/%5Blocale%5D/%28site%29/o/%5Btoken%5D/) | Client status page; polls after Paymob return; `?reconcile=1` on first/last tick |
 | [`src/components/price.tsx`](../src/components/price.tsx) | EGP display; safe to import from Client Components |
 | [`src/components/ui/`](../src/components/ui/) | Shared field/button chrome: labels, hints, errors, choice chips, steppers, file picker |

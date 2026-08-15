@@ -226,6 +226,8 @@ src/app/[locale]/(auth)/              studio login (no marketing chrome)
 src/app/[locale]/(studio)/dashboard   Nour overview, board, order detail
 src/lib/studio-data.ts                studio order reads (service role, uncached)
 src/lib/studio-stats.ts               orders-derived KPIs (webhook timestamps only)
+src/lib/work.ts                       public Selected work catalog
+public/work/                          oil-pastel / ink studies for the home wall
 ```
 
 RTL is already real: `<html dir>` from locale, Tailwind logical utilities (`ms-*`, `ps-*`, `text-start`). Do not fake RTL with a `lang` attribute.
@@ -238,7 +240,7 @@ RTL is already real: `<html dir>` from locale, Tailwind logical utilities (`ms-*
 npm test
 ```
 
-HMAC field order, tampered-amount reject, `billing_data` → `"NA"`, piastres conversion, `isPaid`, `parseSpecialReference`, pricing ×3 commercial, studio totals from `*_paid_at`. Keep these green when you change checkout/webhook.
+HMAC field order, tampered-amount reject, `billing_data` → `"NA"`, piastres conversion, `isPaid`, `parseSpecialReference`, pricing ×3 commercial, studio totals from `*_paid_at`, Selected work locale captions. Keep these green when you change checkout/webhook.
 
 ---
 

@@ -19,6 +19,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ### Changed
 
+- Home Selected work (and the hero study) use real oil-pastel / ink pieces from `public/work/` instead of gradient mats. Captions carry medium, neighbourhood, paper size, and year from [`src/lib/work.ts`](../src/lib/work.ts).
 - Arabic type: body is IBM Plex Sans Arabic, headlines are El Messiri (both `next/font`, Arabic + Latin). Fraunces/Cairo are gone — Fraunces had no Arabic glyphs so headlines were falling back to the body face. RTL drops `letter-spacing` / `uppercase` so Arabic joining stays intact.
 - Home hero copy is client-facing, not the payment-mechanism pitch: custom drawing without a week of DMs; deposit/balance trust sits in the subtitle. CTA is «اطلب رسمتك» / “Commission yours”.
 - Arabic UI in `messages/ar.json` is spoken Cairene (white dialect), not MSA: `دلوقتي` / `معرفناش` / `بنفتح` / `الإيميل`, artwork captions like بتاع البلح, Nour’s studio stays feminine (`ارفعي`, `مستنياكي`). Product words stay: العربون، الباقي، البرايف، باي موب، فك الملف.
@@ -28,7 +29,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 - `favicon.ico` (16/32/48, both copies) and `icon.png` are transparent, regenerated from the trimmed mark with a premultiplied resize so no cream fringe survives at 16px. `apple-icon.png` stays opaque — iOS composites touch icons onto black.
 - Favicon is a tight crop of the lock mark (`favicon.ico`, `icon.png`, `apple-icon.png`) so the clay shackle reads in the tab. Linked from the locale layout.
 - Form chrome: shared field/button primitives (`src/components/ui/`), labels with hints and errors, placeholders, LTR email/phone in Arabic, choice chips and steppers on the commission brief, sticky live price next to the deposit CTA, and a styled file picker in the studio.
-- Home: hero is a framed study (not the logo), a three-step deposit / work / unlock band, an about section for Nour’s Garden City studio, a matted work wall with Arabic titles, and a closing commission CTA. Header is sticky and shares the page max-width; the site name is no longer an extra `h1`.
+- Home: hero is a framed oil-pastel study (not the logo), a three-step deposit / work / unlock band, an about section for Nour’s Garden City studio, a selected-work wall with real pieces, and a closing commission CTA. Header is sticky and shares the page max-width; the site name is no longer an extra `h1`.
 - Shared input validation (`src/lib/validate.ts`): Egyptian mobile stored as E.164, email/name checks, 12-char order tokens, PNG/JPEG/WebP uploads capped at 8 MB, Inquiry ids must be positive integers, and studio `next` cannot be a protocol-relative URL. The brief form shows field errors in the page language instead of the browser tooltip.
 
 ### Added

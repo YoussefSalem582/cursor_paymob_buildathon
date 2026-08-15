@@ -1,46 +1,14 @@
+import Image from "next/image";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { buttonBase, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-const pieces = [
-  {
-    title: "pieceDate",
-    medium: "mediumPastel",
-    year: "2025",
-    tone: "from-[#c45c3e] to-[#1c1915]",
-  },
-  {
-    title: "pieceTram",
-    medium: "mediumInk",
-    year: "2025",
-    tone: "from-[#3f5348] to-[#1c1915]",
-  },
-  {
-    title: "pieceOrange",
-    medium: "mediumStudy",
-    year: "2024",
-    tone: "from-[#d8a15a] to-[#9a3d26]",
-  },
-  {
-    title: "pieceBalcony",
-    medium: "mediumPastel",
-    year: "2024",
-    tone: "from-[#6b7c8a] to-[#1c1915]",
-  },
-  {
-    title: "piecePot",
-    medium: "mediumPastel",
-    year: "2026",
-    tone: "from-[#c47a6a] to-[#3f5348]",
-  },
-  {
-    title: "pieceFelucca",
-    medium: "mediumInk",
-    year: "2026",
-    tone: "from-[#2c3a4a] to-[#c45c3e]",
-  },
-] as const;
+import {
+  formatWorkSize,
+  formatWorkYear,
+  heroWork,
+  selectedWork,
+} from "@/lib/work";
 
 const steps = [
   { title: "step1Title", body: "step1Body" },
@@ -52,6 +20,35 @@ function stepIndex(locale: string, n: number) {
   return new Intl.NumberFormat(locale === "ar" ? "ar-EG" : "en-GB", {
     minimumIntegerDigits: 2,
   }).format(n);
+}
+
+function WorkFrame({
+  src,
+  alt,
+  frameClassName,
+  sizes,
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  frameClassName: string;
+  sizes: string;
+  priority?: boolean;
+}) {
+  return (
+    <div className="border border-line bg-paper p-2 transition-colors hover:border-ink sm:p-3">
+      <div className={cn("relative overflow-hidden bg-line", frameClassName)}>
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          className="object-cover"
+          sizes={sizes}
+          priority={priority}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default async function HomePage({
@@ -92,12 +89,23 @@ export default async function HomePage({
           </div>
         </div>
         <figure className="min-w-0">
-          <div className="border border-line bg-paper p-2 sm:p-3">
-            <div className="aspect-[4/5] bg-gradient-to-br from-[#c45c3e] via-[#9a3d26] to-[#1c1915]" />
-          </div>
+          <WorkFrame
+            src={heroWork.src}
+            alt={t("heroCaption")}
+            frameClassName="aspect-[4/5]"
+            sizes="(min-width: 1024px) 45vw, 100vw"
+            priority
+          />
           <figcaption className="mt-4 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
             <p className="font-display text-xl sm:text-2xl">{t("heroCaption")}</p>
-            <p className="text-sm text-muted">{t("heroMeta")}</p>
+            <p className="text-sm text-muted">
+              {[
+                t(heroWork.medium),
+                t(heroWork.place),
+                formatWorkSize(locale, heroWork.widthCm, heroWork.heightCm),
+                formatWorkYear(locale, heroWork.year),
+              ].join(" · ")}
+            </p>
           </figcaption>
         </figure>
       </section>
@@ -172,23 +180,33 @@ export default async function HomePage({
             <p className="max-w-sm text-sm text-muted">{t("workNote")}</p>
           </div>
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {pieces.map((piece, index) => (
+            {selectedWork.map((piece) => (
               <li
-                key={piece.title}
-                className={index === 0 ? "sm:col-span-2 lg:col-span-2" : undefined}
+                key={piece.id}
+                className={piece.featured ? "sm:col-span-2 lg:col-span-2" : undefined}
               >
-                <div className="border border-line bg-paper p-2 transition-colors hover:border-ink sm:p-3">
-                  <div
-                    className={cn(
-                      "bg-gradient-to-br",
-                      piece.tone,
-                      index === 0 ? "aspect-[5/3] sm:aspect-[16/10]" : "aspect-[4/5]",
-                    )}
-                  />
-                </div>
+                <WorkFrame
+                  src={piece.src}
+                  alt={t(piece.title)}
+                  frameClassName={
+                    piece.featured
+                      ? "aspect-[5/3] sm:aspect-[16/10]"
+                      : "aspect-[4/5]"
+                  }
+                  sizes={
+                    piece.featured
+                      ? "(min-width: 1024px) 66vw, 100vw"
+                      : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  }
+                />
                 <p className="mt-3 font-display text-xl">{t(piece.title)}</p>
                 <p className="text-sm text-muted">
-                  {t(piece.medium)} · {piece.year}
+                  {[
+                    t(piece.medium),
+                    t(piece.place),
+                    formatWorkSize(locale, piece.widthCm, piece.heightCm),
+                    formatWorkYear(locale, piece.year),
+                  ].join(" · ")}
                 </p>
               </li>
             ))}
