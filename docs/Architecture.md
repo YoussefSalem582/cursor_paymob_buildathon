@@ -38,7 +38,7 @@ Two human surfaces, one money rail:
 3. **Webhook is the only paid signal.** Redirect query params, dashboard PATCH, and Paymob MCP `get_*` results cannot set `*_paid_at` or jump to `in_progress` / `delivered`. MCP is live account ops only ([`.cursor/mcp.json`](../.cursor/mcp.json)).
 4. **Price is a server function.** The live calculator is display. Intention `amount` is recomputed from `brief`.
 5. **One `orders` table.** No `clients`, `payments`, or `change_orders` tables today.
-6. **Arabic-first RTL** via next-intl (`/` → `/ar`). Tailwind logical utilities, not a fake `dir` on a Latin layout.
+6. **Egyptian Arabic-first RTL** via next-intl (`/` → `/ar`). Copy in `messages/ar.json` is spoken Cairene, not MSA. Tailwind logical utilities, not a fake `dir` on a Latin layout.
 
 ---
 
@@ -128,7 +128,7 @@ Target `orders` row (piastres are integers; no floats):
 
 Writes go through the service-role key. Public read is by token on the server, not a wide-open select.
 
-Demo starter / Scope Guard `orders` is replaced by [`supabase/migrations/0004_escrowd_orders_replace_again.sql`](../supabase/migrations/0004_escrowd_orders_replace_again.sql) on the hosted project (canonical create: [`0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql); `0003` was overwritten by leftover Scope Guard columns).
+Demo starter / Scope Guard `orders` is replaced by [`supabase/migrations/0005_escrowd_orders_replace_third.sql`](../supabase/migrations/0005_escrowd_orders_replace_third.sql) on the hosted project (canonical create: [`0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql); `0003` and `0004` were overwritten by leftover Scope Guard columns).
 
 ---
 
@@ -174,6 +174,8 @@ Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout
 | [`src/lib/paymob.ts`](../src/lib/paymob.ts) | Intention, checkout URL, HMAC, `isPaid`, Inquiry, `parseSpecialReference` — **keep**. Field order: [`.agents/skills/paymob-integration/references/hmac-verification.md`](../.agents/skills/paymob-integration/references/hmac-verification.md) |
 | [`src/lib/apply-paymob-transaction.ts`](../src/lib/apply-paymob-transaction.ts) | Shared deposit/balance persist after HMAC or Inquiry |
 | [`src/lib/pricing.ts`](../src/lib/pricing.ts) | Shared brief price; live UI + server Intention |
+| [`src/lib/validate.ts`](../src/lib/validate.ts) | Contact, Egyptian mobile, order token/id, delivery files, safe `next` paths |
+| [`messages/ar.json`](../messages/ar.json) / [`messages/en.json`](../messages/en.json) | UI copy. Arabic is spoken Cairene; keep العربون / الباقي / البرايف / باي موب |
 | [`src/lib/orders.ts`](../src/lib/orders.ts) | Status machine; `publicOrder` hides `final_url`; `inquiryLookup` for reconcile |
 | [`src/lib/theme-script.ts`](../src/lib/theme-script.ts) / [`src/components/theme-toggle.tsx`](../src/components/theme-toggle.tsx) | Blocking theme script + class-based dark mode (`html.dark`) |
 | [`.cursor/mcp.json`](../.cursor/mcp.json) / [`.mcp.json`](../.mcp.json) | Paymob MCP URL only. Credentials via `set_api_credentials` in-session, never in git |
@@ -181,7 +183,7 @@ Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout
 | [`src/app/api/paymob/inquiry/route.ts`](../src/app/api/paymob/inquiry/route.ts) | Pull-based fallback when the callback is slow |
 | [`src/app/api/checkout/route.ts`](../src/app/api/checkout/route.ts) | `{ token, kind }`, no login, server price |
 | [`src/app/[locale]/(site)/commission/`](../src/app/%5Blocale%5D/%28site%29/commission/) | Public brief + live price |
-| [`src/app/[locale]/(site)/page.tsx`](../src/app/%5Blocale%5D/%28site%29/page.tsx) | Public landing: hero study, three-step mechanism, work wall |
+| [`src/app/[locale]/(site)/page.tsx`](../src/app/%5Blocale%5D/%28site%29/page.tsx) | Public landing: hero study, three-step mechanism, about, work wall |
 | [`src/app/[locale]/(site)/o/[token]/`](../src/app/%5Blocale%5D/%28site%29/o/%5Btoken%5D/) | Client status page; polls after Paymob return; `?reconcile=1` on first/last tick |
 | [`src/components/price.tsx`](../src/components/price.tsx) | EGP display; safe to import from Client Components |
 | [`src/components/ui/`](../src/components/ui/) | Shared field/button chrome: labels, hints, errors, choice chips, steppers, file picker |
@@ -189,17 +191,18 @@ Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout
 | [`src/app/[locale]/(auth)/`](../src/app/%5Blocale%5D/%28auth%29/) | Studio login chrome (no Work/Commission nav) |
 | [`src/app/[locale]/(studio)/dashboard/`](../src/app/%5Blocale%5D/%28studio%29/dashboard/) | Nour overview, board, order detail, uploads |
 | [`src/lib/studio-stats.ts`](../src/lib/studio-stats.ts) | Orders-derived KPIs; collected follows `*_paid_at` only |
-| [`src/components/studio-chrome.tsx`](../src/components/studio-chrome.tsx) | Studio shell (sidebar). Do not import from `"use client"` files |
+| [`src/components/studio-chrome.tsx`](../src/components/studio-chrome.tsx) | Studio shell (compact sticky header on small screens, sidebar from `lg`). Do not import from `"use client"` files |
 | [`src/lib/supabase/`](../src/lib/supabase/) | Browser, cookie, and admin clients; `env.ts` for publishable key |
 | [`src/proxy.ts`](../src/proxy.ts) | Locale + session. Skips Supabase if public env is missing so Vercel does not 500 |
 | [`src/app/layout.tsx`](../src/app/layout.tsx) | Root pass-through; `html`/`body` live in `[locale]/layout` |
-| [`src/app/[locale]/layout.tsx`](../src/app/%5Blocale%5D/layout.tsx) | Locale `html`/`body`; blocking theme script before paint. Public/auth/studio chrome live in route-group layouts |
+| [`src/app/[locale]/layout.tsx`](../src/app/%5Blocale%5D/layout.tsx) | Locale `html`/`body`; blocking theme script before paint; `viewportFit: cover`. Public/auth/studio chrome live in route-group layouts |
 | [`src/components/escrowd-logo.tsx`](../src/components/escrowd-logo.tsx) | PNG mark for chrome and empty artwork. Renders the light and dark marks together and swaps them with `dark:hidden` / `hidden dark:block` |
 | [`public/brand/`](../public/brand/) | Illustrated mark and lockup. `escrowd-{mark,lockup}.png` are transparent, `*-dark.png` carry cream ink for dark mode, `*-on-paper.png` keep the cream plate for surfaces we do not control (GitHub, share cards) |
 | [`src/app/favicon.ico`](../src/app/favicon.ico) / [`icon.png`](../src/app/icon.png) / [`apple-icon.png`](../src/app/apple-icon.png) | Tab and touch icons — cropped lock mark. First two transparent; `apple-icon` stays opaque because iOS composites on black |
 | [`src/app/opengraph-image.png`](../src/app/opengraph-image.png) | Share image from the lockup |
 | [`supabase/migrations/0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql) | Escrowd `orders` + `deliveries` bucket |
 | [`supabase/migrations/0004_escrowd_orders_replace_again.sql`](../supabase/migrations/0004_escrowd_orders_replace_again.sql) | Re-replaces hosted `orders` after Scope Guard columns (`client_id`, …) came back |
+| [`supabase/migrations/0005_escrowd_orders_replace_third.sql`](../supabase/migrations/0005_escrowd_orders_replace_third.sql) | Same replace after `0004` was recorded and Scope Guard columns returned again (studio 500) |
 
 Env: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or legacy `ANON_KEY`), `SUPABASE_SECRET_KEY` (`sb_secret_…`, or legacy `SUPABASE_SERVICE_ROLE_KEY`), `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_HMAC_SECRET`, `PAYMOB_INTEGRATION_IDS`, optional `PAYMOB_API_KEY` for Inquiry. Secret key never in the client bundle (`NEXT_PUBLIC_`). Clients live in [`src/lib/supabase/`](../src/lib/supabase/) — session refresh is [`src/proxy.ts`](../src/proxy.ts) (Next.js 16), not a separate `middleware.ts`. Copy `.env.example` to `.env.local`; never commit real keys.
 

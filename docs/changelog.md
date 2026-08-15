@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ### Fixed
 
+- Studio `/dashboard` 500: hosted `orders` was Scope Guard again after `0004` was recorded as applied (`client_id`, `pending_payment`, no `brief`). Overview crashed on `order.brief.type`. [`0005_escrowd_orders_replace_third.sql`](../supabase/migrations/0005_escrowd_orders_replace_third.sql) restored the Escrowd table (two leftover test rows dropped). Studio reads now skip a missing brief instead of throwing.
 - Brief submit 500 `null value in column "client_id"`: hosted `orders` had Scope Guard columns again after `0003` (`client_id` NOT NULL, status `pending_payment|paid`). [`0004_escrowd_orders_replace_again.sql`](../supabase/migrations/0004_escrowd_orders_replace_again.sql) dropped leftover tables and recreated the Escrowd shape. Three unpaid test rows were dropped.
 - Intention 404 “Integration ID/Name does not exist”: `PAYMOB_INTEGRATION_IDS` was a card ID from a different Paymob account. This merchant’s test online card ID is `5853667` (same Test status as `egy_sk_test_…`).
 - Production `next build` typecheck: `order-panel` used an undeclared `Brief` name. `Order.brief` is already that type, so the cast is gone.
@@ -17,12 +18,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ### Changed
 
+- Arabic UI in `messages/ar.json` is spoken Cairene (white dialect), not MSA: `دلوقتي` / `معرفناش` / `بنفتح` / `الإيميل`, artwork captions like بتاع البلح, Nour’s studio stays feminine (`ارفعي`, `مستنياكي`). Product words stay: العربون، الباقي، البرايف، باي موب، فك الملف.
 - Public storefront, studio login, and Nour’s studio are separate route groups. `/dashboard` no longer uses the marketing header/footer.
+- Layouts fit a phone: compact public/studio headers, full-width CTAs, 16px inputs so iOS does not zoom, a fixed commission price + pay bar, a swipeable studio board, notch/home-indicator padding, and order status before the artwork on `/o/[token]`.
 - Brand PNGs are transparent and trimmed to the artwork: `escrowd-mark.png` (815², kept square so `EscrowdLogo`'s `size` still holds) and `escrowd-lockup.png` (1381×481). The cream plate was unmixed into alpha rather than keyed out, so the anti-aliased stroke edges survive; stroke interiors are forced opaque so the ink does not go translucent off-paper. Palette quantization keeps all four brand PNGs near 71 KB total. Originals kept as `escrowd-{mark,lockup}-on-paper.png`, and the README banner points at the on-paper lockup because the black wordmark would vanish on GitHub's dark theme.
 - `favicon.ico` (16/32/48, both copies) and `icon.png` are transparent, regenerated from the trimmed mark with a premultiplied resize so no cream fringe survives at 16px. `apple-icon.png` stays opaque — iOS composites touch icons onto black.
 - Favicon is a tight crop of the lock mark (`favicon.ico`, `icon.png`, `apple-icon.png`) so the clay shackle reads in the tab. Linked from the locale layout.
 - Form chrome: shared field/button primitives (`src/components/ui/`), labels with hints and errors, placeholders, LTR email/phone in Arabic, choice chips and steppers on the commission brief, sticky live price next to the deposit CTA, and a styled file picker in the studio.
-- Home: hero is a framed study (not the logo), a three-step deposit / work / unlock band, a matted work wall with Arabic titles, and a closing commission CTA. Header is sticky and shares the page max-width; the site name is no longer an extra `h1`.
+- Home: hero is a framed study (not the logo), a three-step deposit / work / unlock band, an about section for Nour’s Garden City studio, a matted work wall with Arabic titles, and a closing commission CTA. Header is sticky and shares the page max-width; the site name is no longer an extra `h1`.
+- Shared input validation (`src/lib/validate.ts`): Egyptian mobile stored as E.164, email/name checks, 12-char order tokens, PNG/JPEG/WebP uploads capped at 8 MB, Inquiry ids must be positive integers, and studio `next` cannot be a protocol-relative URL. The brief form shows field errors in the page language instead of the browser tooltip.
 
 ### Added
 

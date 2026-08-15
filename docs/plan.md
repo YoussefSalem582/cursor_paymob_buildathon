@@ -283,7 +283,7 @@ The starter already has Next.js, Tailwind, next-intl RTL, Supabase clients, and 
 
 - Balance Intention (`kind=balance`, amount `price_balance`)
 - Hide `final_url` until `balance_paid_at`
-- Arabic copy, RTL, mobile
+- Egyptian Arabic copy (`messages/ar.json`), RTL, mobile
 
 **Hour 5–6 · Freeze**
 
