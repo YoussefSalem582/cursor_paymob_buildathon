@@ -2,7 +2,9 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/lib/auth-actions";
+import { EscrowdLogo } from "./escrowd-logo";
 import { LocaleSwitcher } from "./locale-switcher";
+import { ThemeToggle } from "./theme-toggle";
 
 export async function SiteHeader() {
   const t = await getTranslations();
@@ -24,15 +26,22 @@ export async function SiteHeader() {
   }
 
   return (
-    <header className="flex items-end justify-between gap-6 px-6 py-6 sm:px-10">
-      <Link href="/" className="group">
-        <p className="text-[11px] uppercase tracking-[0.28em] text-muted">
-          {t("app.tagline")}
-        </p>
-        <h1 className="font-display text-3xl leading-none tracking-tight sm:text-4xl">
-          {t("app.name")}
-          <span className="text-clay">.</span>
-        </h1>
+    <header className="flex items-center justify-between gap-6 px-6 py-6 sm:px-10">
+      <Link href="/" className="group flex items-center gap-3">
+        <EscrowdLogo
+          size={112}
+          className="size-12 shrink-0 sm:size-14"
+          priority
+        />
+        <span>
+          <p className="text-[11px] uppercase tracking-[0.28em] text-muted">
+            {t("app.tagline")}
+          </p>
+          <h1 className="font-display text-3xl leading-none tracking-tight sm:text-4xl">
+            {t("app.name")}
+            <span className="text-clay">.</span>
+          </h1>
+        </span>
       </Link>
       <nav className="flex flex-wrap items-center gap-5 text-sm text-muted">
         <Link href="/#work" className="hover:text-ink">
@@ -59,6 +68,7 @@ export async function SiteHeader() {
           </Link>
         )}
         <LocaleSwitcher label={t("nav.language")} />
+        <ThemeToggle label={t("nav.theme")} />
       </nav>
     </header>
   );
@@ -67,8 +77,11 @@ export async function SiteHeader() {
 export async function SiteFooter() {
   const t = await getTranslations();
   return (
-    <footer className="mt-auto border-t border-line px-6 py-8 text-sm text-muted sm:px-10">
-      <p>{t("app.footer")}</p>
+    <footer className="mt-auto border-t border-line px-6 py-8 sm:px-10">
+      <div className="flex items-center gap-3">
+        <EscrowdLogo size={80} className="size-10 shrink-0" />
+        <p className="text-sm text-muted">{t("app.footer")}</p>
+      </div>
     </footer>
   );
 }

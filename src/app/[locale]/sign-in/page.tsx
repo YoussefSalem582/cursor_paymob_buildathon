@@ -1,7 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { AuthForm } from "@/components/auth-form";
+import { EscrowdLogo } from "@/components/escrowd-logo";
 import { signIn } from "@/lib/auth-actions";
 
 export default async function SignInPage({
@@ -19,6 +19,7 @@ export default async function SignInPage({
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-4 px-6 py-16">
       <Card className="flex flex-col gap-5">
+        <EscrowdLogo size={96} className="size-16" alt={t("app.logoAlt")} />
         <div className="flex flex-col gap-1">
           <CardTitle>{t("auth.signInTitle")}</CardTitle>
           <CardDescription>{t("auth.signInSubtitle")}</CardDescription>
@@ -40,13 +41,6 @@ export default async function SignInPage({
             submit: t("auth.signInAction"),
           }}
         />
-
-        <CardDescription>
-          {t("auth.noAccount")}{" "}
-          <Link href="/sign-up" className="underline">
-            {t("nav.signUp")}
-          </Link>
-        </CardDescription>
       </Card>
     </div>
   );

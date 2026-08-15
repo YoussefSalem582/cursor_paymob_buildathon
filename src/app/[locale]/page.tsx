@@ -1,5 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { EscrowdLogoFrame } from "@/components/escrowd-logo";
 
 const pieces = [
   { title: "Date seller, Khan el-Khalili", tone: "from-[#c45c3e] to-[#1c1915]", year: "2025" },
@@ -18,6 +19,7 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("home");
+  const ta = await getTranslations("app");
 
   return (
     <main>
@@ -43,12 +45,15 @@ export default async function HomePage({
             </Link>
           </div>
         </div>
-        <figure className="relative aspect-[4/5] overflow-hidden bg-ink">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#c45c3e] via-[#1c1915] to-[#3f5348]" />
-          <div className="absolute inset-8 border border-white/20" />
-          <figcaption className="absolute bottom-6 start-6 end-6 text-paper">
+        <figure>
+          <EscrowdLogoFrame
+            className="aspect-square border border-line"
+            alt={ta("logoAlt")}
+            priority
+          />
+          <figcaption className="mt-4">
             <p className="font-display text-2xl">{t("heroCaption")}</p>
-            <p className="text-sm text-white/70">{t("heroMeta")}</p>
+            <p className="text-sm text-muted">{t("heroMeta")}</p>
           </figcaption>
         </figure>
       </section>
