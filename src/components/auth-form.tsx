@@ -57,7 +57,7 @@ export function AuthForm({
         required
       />
 
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <p className="text-sm text-clay-deep">{error}</p>}
 
       <SubmitButton label={labels.submit} />
     </form>

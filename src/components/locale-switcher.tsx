@@ -21,7 +21,7 @@ export function LocaleSwitcher({ label }: { label: string }) {
       onClick={() =>
         startTransition(() => router.replace(pathname, { locale: target }))
       }
-      className="rounded-lg border border-border px-2.5 py-1.5 text-sm hover:bg-border/40 disabled:opacity-60"
+      className="border border-line px-2.5 py-1.5 text-sm hover:text-ink disabled:opacity-60"
     >
       {label}
     </button>

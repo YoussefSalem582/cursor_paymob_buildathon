@@ -1,64 +1,73 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 
-export default async function HomePage({ params }: PageProps<"/[locale]">) {
+const pieces = [
+  { title: "Date seller, Khan el-Khalili", tone: "from-[#c45c3e] to-[#1c1915]", year: "2025" },
+  { title: "Night tram, Heliopolis", tone: "from-[#3f5348] to-[#1c1915]", year: "2025" },
+  { title: "Orange seller study", tone: "from-[#d8a15a] to-[#9a3d26]", year: "2024" },
+  { title: "Balcony with laundry", tone: "from-[#6b7c8a] to-[#1c1915]", year: "2024" },
+  { title: "Girl with clay pot", tone: "from-[#c47a6a] to-[#3f5348]", year: "2026" },
+  { title: "Felucca at dusk", tone: "from-[#2c3a4a] to-[#c45c3e]", year: "2026" },
+];
+
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("home");
 
-  const features = [
-    t("featureAuth"),
-    t("featureI18n"),
-    t("featurePaymob"),
-    t("featureDb"),
-  ];
-
   return (
-    <div className="flex flex-col gap-10">
-      <section className="flex flex-col gap-4">
-        <h1 className="text-3xl font-bold sm:text-4xl">{t("title")}</h1>
-        <p className="max-w-2xl text-muted">{t("subtitle")}</p>
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href="/demo"
-            className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-fg hover:opacity-90"
-          >
-            {t("ctaDemo")}
-          </Link>
-          <Link
-            href="/sign-up"
-            className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium hover:bg-border/40"
-          >
-            {t("ctaSignUp")}
-          </Link>
+    <main>
+      <section className="grid gap-10 px-6 pb-16 pt-4 sm:px-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+        <div>
+          <p className="text-[12px] uppercase tracking-[0.32em] text-clay">{t("kicker")}</p>
+          <h2 className="mt-4 max-w-xl font-display text-5xl leading-[0.95] tracking-tight sm:text-7xl">
+            {t("title")}
+          </h2>
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-muted">{t("subtitle")}</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/commission"
+              className="inline-flex min-h-11 items-center bg-ink px-6 text-sm text-paper"
+            >
+              {t("cta")}
+            </Link>
+            <Link
+              href="/#work"
+              className="inline-flex min-h-11 items-center border border-ink px-6 text-sm"
+            >
+              {t("seeWork")}
+            </Link>
+          </div>
         </div>
+        <figure className="relative aspect-[4/5] overflow-hidden bg-ink">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#c45c3e] via-[#1c1915] to-[#3f5348]" />
+          <div className="absolute inset-8 border border-white/20" />
+          <figcaption className="absolute bottom-6 start-6 end-6 text-paper">
+            <p className="font-display text-2xl">{t("heroCaption")}</p>
+            <p className="text-sm text-white/70">{t("heroMeta")}</p>
+          </figcaption>
+        </figure>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-xl font-semibold">{t("featuresTitle")}</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {features.map((feature) => (
-            <Card key={feature}>
-              <CardDescription>{feature}</CardDescription>
-            </Card>
+      <section id="work" className="border-t border-line px-6 py-14 sm:px-10">
+        <div className="mb-8 flex items-end justify-between">
+          <h3 className="font-display text-3xl">{t("workTitle")}</h3>
+          <p className="text-sm text-muted">{t("workNote")}</p>
+        </div>
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {pieces.map((piece) => (
+            <li key={piece.title}>
+              <div className={`aspect-[4/5] bg-gradient-to-br ${piece.tone}`} />
+              <p className="mt-3 font-display text-xl">{piece.title}</p>
+              <p className="text-sm text-muted">{piece.year}</p>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
-
-      {/* TODO: replace this landing page with your product. */}
-      <Card>
-        <CardTitle>TODO</CardTitle>
-        <CardDescription>
-          Your product goes here. The payment plumbing is in{" "}
-          <code className="rounded bg-border/50 px-1">src/lib/paymob.ts</code>{" "}
-          and{" "}
-          <code className="rounded bg-border/50 px-1">
-            src/app/api/checkout/route.ts
-          </code>
-          .
-        </CardDescription>
-      </Card>
-    </div>
+    </main>
   );
 }

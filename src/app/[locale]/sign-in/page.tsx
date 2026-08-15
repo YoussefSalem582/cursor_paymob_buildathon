@@ -7,14 +7,17 @@ import { signIn } from "@/lib/auth-actions";
 export default async function SignInPage({
   params,
   searchParams,
-}: PageProps<"/[locale]/sign-in">) {
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ next?: string; "check-email"?: string }>;
+}) {
   const { locale } = await params;
   setRequestLocale(locale);
   const { next, "check-email": checkEmail } = await searchParams;
   const t = await getTranslations();
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-md flex-col gap-4 px-6 py-16">
       <Card className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
           <CardTitle>{t("auth.signInTitle")}</CardTitle>
@@ -22,7 +25,7 @@ export default async function SignInPage({
         </div>
 
         {checkEmail && (
-          <p className="rounded-lg border border-border bg-border/30 px-3 py-2 text-sm">
+          <p className="border border-line px-3 py-2 text-sm">
             {t("auth.checkEmail")}
           </p>
         )}
@@ -40,7 +43,7 @@ export default async function SignInPage({
 
         <CardDescription>
           {t("auth.noAccount")}{" "}
-          <Link href="/sign-up" className="text-accent underline">
+          <Link href="/sign-up" className="underline">
             {t("nav.signUp")}
           </Link>
         </CardDescription>

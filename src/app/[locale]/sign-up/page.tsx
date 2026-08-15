@@ -6,13 +6,15 @@ import { signUp } from "@/lib/auth-actions";
 
 export default async function SignUpPage({
   params,
-}: PageProps<"/[locale]/sign-up">) {
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations();
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-md flex-col gap-4 px-6 py-16">
       <Card className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
           <CardTitle>{t("auth.signUpTitle")}</CardTitle>
@@ -31,7 +33,7 @@ export default async function SignUpPage({
 
         <CardDescription>
           {t("auth.haveAccount")}{" "}
-          <Link href="/sign-in" className="text-accent underline">
+          <Link href="/sign-in" className="underline">
             {t("nav.signIn")}
           </Link>
         </CardDescription>

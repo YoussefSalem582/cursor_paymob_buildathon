@@ -5,7 +5,7 @@ export function Card({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border bg-card p-6 shadow-sm",
+        "border border-line bg-paper p-6",
         className,
       )}
       {...props}
@@ -16,7 +16,7 @@ export function Card({ className, ...props }: ComponentProps<"div">) {
 export function CardTitle({ className, ...props }: ComponentProps<"h2">) {
   return (
     <h2
-      className={cn("text-lg font-semibold text-fg", className)}
+      className={cn("font-display text-3xl text-ink", className)}
       {...props}
     />
   );
