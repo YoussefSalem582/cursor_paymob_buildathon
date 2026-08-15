@@ -1,7 +1,7 @@
 # Escrowd
 
 <p align="center">
-  <img src="public/brand/escrowd-lockup.png" alt="Escrowd — deposit starts work; balance unlocks the file" width="420" />
+  <img src="public/brand/escrowd-lockup-on-paper.png" alt="Escrowd — deposit starts work; balance unlocks the file" width="420" />
 </p>
 
 Escrow for illustration commissions. Nour puts one link in her Instagram bio. A client fills a brief, pays a deposit, and gets a page they can return to. Nour gets a dashboard. Payment is the gate at both ends — no deposit, no work; no final payment, no file.
@@ -74,7 +74,7 @@ npm run dev
 | `SUPABASE_SECRET_KEY` | API Keys → Secret keys (`sb_secret_…`). **Server only.** Bypasses RLS. Legacy alias: `SUPABASE_SERVICE_ROLE_KEY` |
 | `PAYMOB_SECRET_KEY` | Paymob → Settings → Account Info → API Keys → Secret Key (`egy_sk_test_…`). **Server only** |
 | `PAYMOB_PUBLIC_KEY` | Same screen → Public Key (`egy_pk_test_…`). Safe in the checkout URL |
-| `PAYMOB_INTEGRATION_IDS` | Developers → Payment Integrations. Comma-separated integers (card **and** wallet): `1234567,7654321` |
+| `PAYMOB_INTEGRATION_IDS` | Settings → Payment Integrations. Comma-separated integers that belong to **this** Secret Key (test card on this merchant: `5853667`). Add wallet only if that method exists in Test mode |
 | `PAYMOB_HMAC_SECRET` | Settings → Account Info → HMAC |
 | `PAYMOB_API_KEY` | Same API Keys screen. Transaction Inquiry fallback only |
 
@@ -213,7 +213,7 @@ Hour 0 of the build: this URL must exist.
 ## Layout
 
 ```
-public/brand/                     Logo mark and lockup (PNG)
+public/brand/                     Logo mark and lockup (transparent PNG; *-on-paper for cream-backed)
 src/lib/paymob.ts                 HMAC, Intention, billing_data "NA", Inquiry
 src/lib/apply-paymob-transaction.ts  deposit/balance persist after HMAC or Inquiry
 src/lib/pricing.ts                live UI + server amount

@@ -8,12 +8,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ### Fixed
 
+- Intention 404 “Integration ID/Name does not exist”: `PAYMOB_INTEGRATION_IDS` was a card ID from a different Paymob account. This merchant’s test online card ID is `5853667` (same Test status as `egy_sk_test_…`).
 - Stop the Vercel Turbopack build from treating `site-chrome` as a Client Component. `order-panel` imported `Price` from that file, which also uses `next/headers` for Nour’s session — so production `next build` failed. `Price` now lives in `src/components/price.tsx`.
 - Remove `@next/swc-darwin-arm64` from `package.json`. It is a Mac-only optional binary; listing it as a required dependency made Vercel (`linux/x64`) fail `npm install` with `EBADPLATFORM`. Next installs the correct `@next/swc-*` package for the build machine.
 - Stop 500 Internal Server Error on Vercel when Supabase env vars are unset (`.env.local` is not deployed). `proxy.ts` and the header skip session refresh instead of throwing. Add a root `src/app/layout.tsx` so a missed locale rewrite cannot crash `/`.
 
 ### Changed
 
+- Brand PNGs are transparent. `public/brand/escrowd-mark.png` and `escrowd-lockup.png` no longer carry the baked cream plate, so the mark stops drawing a light rectangle over `bg-paper` in dark mode. The cream background was unmixed into alpha (not keyed out), keeping the anti-aliased stroke edges; palette quantization drops the pair from 1.6 MB to 41 KB. Originals kept as `escrowd-{mark,lockup}-on-paper.png`, and the README banner points at the on-paper lockup because the black wordmark would vanish on GitHub's dark theme.
 - Favicon is a tight crop of the lock mark (`favicon.ico`, `icon.png`, `apple-icon.png`) so the clay shackle reads in the tab. Linked from the locale layout.
 
 ### Added
@@ -32,7 +34,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 - Official Paymob AI agent skill under `.cursor/skills/paymob-integration/` (and `.agents/skills/paymob-integration/` plus Cursor commands `/paymob-test-cards`, `/paymob-explain-error`, `/paymob-check-hmac`). Source: [PaymobAccept/Paymob-AI-Integration-Skill](https://github.com/PaymobAccept/Paymob-AI-Integration-Skill).
 - Transaction Inquiry client in `src/lib/paymob.ts` and `POST /api/paymob/inquiry` (API Key → auth token → lookup). Shared persist is `src/lib/apply-paymob-transaction.ts` (deposit/balance columns, not the demo `paid` status).
 - Official Paymob MCP at `https://mcp.paymob.com/mcp` via [`.cursor/mcp.json`](../.cursor/mcp.json) and [`.mcp.json`](../.mcp.json). Credentials stay in-session (`set_api_credentials`); HMAC webhook remains the only paid signal.
-- Paymob sandbox Secret/Public/HMAC/API keys plus card Integration ID `5240449` in gitignored `.env.local` and Vercel (Production/Preview/Development). Values are not in git.
+- Paymob sandbox Secret/Public/HMAC/API keys plus this merchant’s test card Integration ID `5853667` in gitignored `.env.local` and Vercel (Production/Preview/Development). Values are not in git.
 - Supabase agent skills under `.agents/skills/` (`npx skills add supabase/agent-skills`).
 - Escrowd product surface from the teammate storefront (paper/ink/clay chrome) with this repo’s payment model: one `orders` table, live brief price, `/o/[token]`, Nour dashboard, deposit then balance. HMAC in `src/lib/paymob.ts` is unchanged. Did **not** port Scope Guard, lead score, AI quotes, or change-order payments.
 - `supabase/migrations/0002_escrowd_orders.sql` is the canonical create (including `paymob_{kind}_reference`). Hosted project needed `0003` because a prior `escrowd_orders` migration left the Scope Guard column set in place.

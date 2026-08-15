@@ -190,7 +190,7 @@ Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout
 | [`src/app/layout.tsx`](../src/app/layout.tsx) | Root pass-through; `html`/`body` live in `[locale]/layout` |
 | [`src/app/[locale]/layout.tsx`](../src/app/%5Blocale%5D/layout.tsx) | Locale `html`/`body`; blocking theme script before paint |
 | [`src/components/escrowd-logo.tsx`](../src/components/escrowd-logo.tsx) | PNG mark (`/brand/escrowd-mark.png`) for chrome and empty artwork |
-| [`public/brand/`](../public/brand/) | Illustrated mark and lockup |
+| [`public/brand/`](../public/brand/) | Illustrated mark and lockup. `escrowd-{mark,lockup}.png` are transparent; `*-on-paper.png` keep the cream plate for surfaces we do not control (GitHub, share cards) |
 | [`src/app/favicon.ico`](../src/app/favicon.ico) / [`icon.png`](../src/app/icon.png) / [`apple-icon.png`](../src/app/apple-icon.png) | Tab and touch icons — cropped lock mark |
 | [`src/app/opengraph-image.png`](../src/app/opengraph-image.png) | Share image from the lockup |
 | [`supabase/migrations/0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql) | Escrowd `orders` + `deliveries` bucket |

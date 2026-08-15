@@ -38,7 +38,8 @@ Without this, the rest is a storefront. Spec “done when”: two real sandbox p
 
 - [x] `NEXT_PUBLIC_SITE_URL` = `https://cursor-paymob-buildathon-five.vercel.app` (no trailing slash)
 - [ ] Register `https://cursor-paymob-buildathon-five.vercel.app/api/paymob/webhook` as Transaction processed callback on **card and wallet** integrations
-- [ ] `PAYMOB_INTEGRATION_IDS` includes wallet as well as card `5240449`
+- [x] `PAYMOB_INTEGRATION_IDS` is this merchant’s test card `5853667` (not an ID from another account)
+- [ ] Add a wallet Integration ID to `PAYMOB_INTEGRATION_IDS` only if this merchant enables one in Test mode
 - [ ] Test-card **deposit** on the public URL → `awaiting_deposit → in_progress` and `deposit_paid_at` set
 - [ ] **Kill switch 2:30:** if that has not happened, stop all other product work until it does
 - [ ] Test-card **balance** on the same order → `awaiting_balance → delivered`, file unlocks on `/o/[token]`
