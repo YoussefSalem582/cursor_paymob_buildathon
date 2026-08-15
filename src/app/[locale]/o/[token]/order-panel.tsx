@@ -3,11 +3,18 @@
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Price } from "@/components/price";
-import type { Order } from "@/lib/orders";
+import {
+  STATUS_ORDER,
+  awaitingPayment,
+  type Order,
+  type OrderStatus,
+} from "@/lib/orders";
 import type { CheckoutKind } from "@/lib/paymob";
 import type { Brief } from "@/lib/pricing";
 
-function statusKey(status: Order["status"]) {
+const MAX_POLLS = 15;
+
+function statusKey(status: OrderStatus) {
   switch (status) {
     case "awaiting_deposit":
       return "awaitingDeposit";
@@ -68,6 +75,30 @@ export function PayButton({
   );
 }
 
+function Timeline({ current }: { current: OrderStatus }) {
+  const t = useTranslations("order");
+  const currentIndex = STATUS_ORDER.indexOf(current);
+  return (
+    <ol className="mt-8 grid gap-2 border-t border-line pt-6 text-sm">
+      {STATUS_ORDER.map((status, index) => {
+        const done = index < currentIndex;
+        const active = index === currentIndex;
+        return (
+          <li
+            key={status}
+            className={
+              active ? "text-clay" : done ? "text-ink" : "text-muted"
+            }
+          >
+            <span className="ms-0 me-2 tabular-nums">{index + 1}.</span>
+            {t(statusKey(status))}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 export function OrderPanel({
   initial,
   returning,
@@ -78,29 +109,56 @@ export function OrderPanel({
   const t = useTranslations("order");
   const tb = useTranslations("brief");
   const [order, setOrder] = useState(initial);
+  const [trouble, setTrouble] = useState(false);
 
   useEffect(() => {
     if (!returning) return;
     let cancelled = false;
-    async function poll() {
-      const res = await fetch(`/api/orders/${initial.token}`);
-      if (!res.ok) return;
-      const data = (await res.json()) as { order: Order };
-      if (!cancelled) setOrder(data.order);
+    let ticks = 0;
+    let interval: ReturnType<typeof setInterval> | undefined;
+
+    async function poll(reconcile: boolean) {
+      try {
+        const res = await fetch(
+          `/api/orders/${initial.token}${reconcile ? "?reconcile=1" : ""}`,
+        );
+        if (!res.ok) throw new Error("status");
+        const data = (await res.json()) as { order: Order };
+        if (cancelled) return data.order;
+        setOrder(data.order);
+        setTrouble(false);
+        if (!awaitingPayment(data.order) && interval) {
+          clearInterval(interval);
+        }
+        return data.order;
+      } catch {
+        if (!cancelled) setTrouble(true);
+        return null;
+      }
     }
-    poll();
-    const id = setInterval(poll, 2000);
+
+    poll(true);
+    interval = setInterval(async () => {
+      ticks += 1;
+      if (ticks >= MAX_POLLS) {
+        if (interval) clearInterval(interval);
+        const latest = await poll(true);
+        if (!cancelled && (!latest || awaitingPayment(latest))) {
+          setTrouble(true);
+        }
+        return;
+      }
+      await poll(false);
+    }, 2000);
+
     return () => {
       cancelled = true;
-      clearInterval(id);
+      if (interval) clearInterval(interval);
     };
   }, [returning, initial.token]);
 
   const brief = order.brief as Brief;
-  const waiting =
-    returning &&
-    ((order.status === "awaiting_deposit" && !order.deposit_paid_at) ||
-      (order.status === "awaiting_balance" && !order.balance_paid_at));
+  const waiting = returning && awaitingPayment(order);
 
   return (
     <main className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-8 sm:px-10 lg:grid-cols-[1.1fr_0.9fr]">
@@ -118,6 +176,9 @@ export function OrderPanel({
         </p>
         <h2 className="mt-3 font-display text-5xl leading-none">{t("frozen")}</h2>
         {waiting ? <p className="mt-4 text-muted">{t("confirmingBody")}</p> : null}
+        {trouble ? <p className="mt-4 text-sm text-clay-deep">{t("trouble")}</p> : null}
+
+        <Timeline current={order.status} />
 
         <dl className="mt-8 grid gap-3 border-t border-line pt-6 text-sm">
           <div className="flex justify-between gap-4">

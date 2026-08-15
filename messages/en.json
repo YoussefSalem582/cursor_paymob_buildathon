@@ -2,6 +2,7 @@
   "app": {
     "name": "Escrowd",
     "tagline": "Creative Work, Clearly Agreed",
+    "logoAlt": "Escrowd",
     "footer": "Escrowd — deposit starts work. Balance unlocks the file."
   },
   "nav": {
@@ -13,7 +14,8 @@
     "signIn": "Studio login",
     "signUp": "Create account",
     "signOut": "Sign out",
-    "language": "العربية"
+    "language": "العربية",
+    "theme": "Toggle dark mode"
   },
   "home": {
     "kicker": "Illustrator · Cairo",
@@ -44,7 +46,7 @@
     "balance": "Balance on delivery",
     "commercialNote": "Commercial usage multiplies the price ×3. That is what the brief freezes.",
     "submit": "Lock the brief and pay the deposit",
-    "submitting": "Saving the order…",
+    "submitting": "Opening Paymob…",
     "error": "Could not create the commission."
   },
   "brief": {
@@ -75,7 +77,8 @@
     "opening": "Opening Paymob…",
     "preview": "Preview",
     "download": "Download the finished file",
-    "hiddenFinal": "The final file appears after the balance is paid."
+    "hiddenFinal": "The final file appears after the balance is paid.",
+    "trouble": "Having trouble loading status. Keep this page — payment is confirmed only by the signed webhook."
   },
   "dashboard": {
     "kicker": "Working wall",
@@ -86,6 +89,10 @@
     "advancePreview": "Upload preview and send to review",
     "advanceFinal": "Upload final and request the balance",
     "uploading": "Uploading…",
+    "uploadError": "Upload failed. Try again.",
+    "advanceError": "Could not advance this commission.",
+    "depositPaid": "Deposit paid",
+    "balancePaid": "Balance paid",
     "back": "Back to the wall"
   },
   "auth": {

@@ -54,6 +54,18 @@ export function CommissionForm() {
       setError(data.error ?? t("error"));
       return;
     }
+
+    const checkout = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: data.token, kind: "deposit", locale }),
+    });
+    const pay = (await checkout.json()) as { checkoutUrl?: string; error?: string };
+    if (checkout.ok && pay.checkoutUrl) {
+      window.location.href = pay.checkoutUrl;
+      return;
+    }
+    setBusy(false);
     router.push(`/o/${data.token}`);
   }
 
