@@ -12,6 +12,7 @@ import {
   buildBillingData,
   egpToPiastres,
   isPaid,
+  parseSpecialReference,
   transactionHmacPayload,
   verifyTransactionHmac,
   type PaymobTransaction,
@@ -112,4 +113,17 @@ test("asPaymobTransaction unwraps inquiry envelopes", () => {
     asPaymobTransaction({ transactions: [transaction] }).id,
     987654,
   );
+});
+
+test("parseSpecialReference splits token:kind:attemptId", () => {
+  assert.deepEqual(
+    parseSpecialReference("abcdefghijkl:deposit:11111111-2222-4333-8444-555555555555"),
+    {
+      token: "abcdefghijkl",
+      kind: "deposit",
+      attemptId: "11111111-2222-4333-8444-555555555555",
+    },
+  );
+  assert.equal(parseSpecialReference("order_abc"), null);
+  assert.equal(parseSpecialReference("tok:change:1"), null);
 });

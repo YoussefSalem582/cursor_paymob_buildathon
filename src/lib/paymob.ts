@@ -384,3 +384,24 @@ export function inquireTransaction(input: {
     body: JSON.stringify(body),
   });
 }
+
+export type CheckoutKind = "deposit" | "balance";
+
+/** `special_reference` = `{token}:{kind}:{attemptId}` */
+export function parseSpecialReference(
+  ref: string | null | undefined,
+): { token: string; kind: CheckoutKind; attemptId: string } | null {
+  if (!ref) return null;
+  const [token, kind, attemptId] = ref.split(":");
+  if (!token || !attemptId) return null;
+  if (kind !== "deposit" && kind !== "balance") return null;
+  return { token, kind, attemptId };
+}
+
+export function splitName(fullName: string) {
+  const parts = fullName.trim().split(/\s+/);
+  return {
+    first_name: parts[0] || "Client",
+    last_name: parts.slice(1).join(" ") || "NA",
+  };
+}
