@@ -16,7 +16,7 @@ Same product lock for every agent file: [`CLAUDE.md`](CLAUDE.md), [`cursor.md`](
 
 You are building **Escrowd** (escrow for illustration commissions) for the Cursor x Paymob Cairo Buildathon — not the leftover 100 EGP demo, not Scope Guard.
 
-Nour (illustrator) puts one link in her Instagram bio. Client fills a brief, pays a **deposit**, gets `/o/[token]`. Nour works from a dashboard. Client pays the **balance**; only then is `final_url` returned. One mechanism, five problems.
+Nour (illustrator) puts one link in her Instagram bio. Client fills a brief, pays a **deposit**, gets `/o/[token]`. Nour works from `/dashboard` (studio chrome, not the public header). Client pays the **balance**; only then is `final_url` returned. One mechanism, five problems.
 
 ## Always update docs
 

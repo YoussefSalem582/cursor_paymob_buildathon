@@ -18,7 +18,7 @@ This repo is Next.js + Supabase + Paymob. Reuse [`src/lib/paymob.ts`](src/lib/pa
 - Order created as `awaiting_deposit` **before** checkout, secret URL `/o/[token]`
 - Paymob Unified Checkout twice: **deposit** starts work, **balance** unlocks the file
 - HMAC-verified webhook is the only source of truth for paid
-- Nour dashboard: advance one stage, upload preview + final
+- Nour dashboard: overview + board + order detail (own chrome, not the public header)
 - `final_url` is returned only after `balance_paid_at`
 
 **Out:** chat, client accounts, fake card UI, AI pricing, Scope Guard, lead score, subscriptions.
@@ -55,12 +55,12 @@ npm run dev
 ```
 
 1. Create a Supabase project → https://supabase.com/dashboard
-2. Apply [`supabase/migrations/0002_escrowd_orders.sql`](supabase/migrations/0002_escrowd_orders.sql) on a fresh project. The hosted project needed [`0003_escrowd_orders_replace.sql`](supabase/migrations/0003_escrowd_orders_replace.sql) (already applied) because leftover Scope Guard columns were still on `orders`.
+2. Apply [`supabase/migrations/0002_escrowd_orders.sql`](supabase/migrations/0002_escrowd_orders.sql) on a fresh project. The hosted project needed [`0003`](supabase/migrations/0003_escrowd_orders_replace.sql) then [`0004_escrowd_orders_replace_again.sql`](supabase/migrations/0004_escrowd_orders_replace_again.sql) (`0004` already applied) because Scope Guard columns (`client_id`, …) were put back on `orders`.
 3. Fill `.env.local` (copy from `.env.example`). Project URL and publishable key can live there; **service role and Paymob keys stay server-only and must not be committed**.
 4. Deploy or ngrok so Paymob can hit `/api/paymob/webhook`
 5. Open `/ar/commission` → deposit checkout → webhook sets `deposit_paid_at`
 
-`/` redirects to `/ar`. Arabic is the default locale. Nour signs in at `/ar/sign-in` for `/dashboard`. Public `/sign-up` is closed. Clients have no account — they use `/o/[token]`. Header toggle switches light/dark (saved in `localStorage`).
+`/` redirects to `/ar`. Arabic is the default locale. Nour signs in at `/ar/sign-in` for the studio (`/dashboard` overview, `/dashboard/orders` board). Public `/sign-up` is closed. Clients have no account — they use `/o/[token]`. Header toggle switches light/dark (saved in `localStorage`).
 
 ---
 
@@ -220,9 +220,10 @@ src/lib/pricing.ts                live UI + server amount
 src/app/api/paymob/webhook        HMAC, then deposit or balance
 src/app/api/paymob/inquiry        Transaction Inquiry fallback
 src/app/api/checkout              { token, kind }, server price, no login
-src/app/[locale]/commission       public brief
-src/app/[locale]/o/[token]        client order page
-src/app/[locale]/dashboard        Nour only
+src/app/[locale]/(site)/              public brief + /o/[token]
+src/app/[locale]/(auth)/              studio login (no marketing chrome)
+src/app/[locale]/(studio)/dashboard   Nour overview, board, order detail
+src/lib/studio-stats.ts               orders-derived KPIs (webhook timestamps only)
 ```
 
 RTL is already real: `<html dir>` from locale, Tailwind logical utilities (`ms-*`, `ps-*`, `text-start`). Do not fake RTL with a `lang` attribute.
@@ -235,7 +236,7 @@ RTL is already real: `<html dir>` from locale, Tailwind logical utilities (`ms-*
 npm test
 ```
 
-HMAC field order, tampered-amount reject, `billing_data` → `"NA"`, piastres conversion, `isPaid`, `parseSpecialReference`, pricing ×3 commercial. Keep these green when you change checkout/webhook.
+HMAC field order, tampered-amount reject, `billing_data` → `"NA"`, piastres conversion, `isPaid`, `parseSpecialReference`, pricing ×3 commercial, studio totals from `*_paid_at`. Keep these green when you change checkout/webhook.
 
 ---
 

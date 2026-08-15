@@ -8,16 +8,16 @@ As of 2026-08-15. Canonical spec: [`docs/plan.md`](docs/plan.md). Architecture: 
 
 ## Where the repo is right now
 
-`main` is current. Rebase conflict is done. Hosted `orders` is the Escrowd shape (`0003_escrowd_orders_replace.sql`).
+`main` is current. Rebase conflict is done. Hosted `orders` is the Escrowd shape (`0004_escrowd_orders_replace_again.sql`).
 
 The **screens and payment model are in the tree**. The **demo is not proven** on a public URL (two HMAC-verified sandbox payments on one order). That is the remaining risk.
 
 | Layer | In tree | Gap |
 | --- | --- | --- |
-| Schema | `0002` + `0003` on the hosted project | Do not re-apply `0001_orders.sql` |
+| Schema | `0002` + `0003` + `0004` on the hosted project | Do not re-apply `0001_orders.sql`. Do not re-add `clients` / `client_id` |
 | Pricing | Shared `priceBrief()`; commercial ×3 | — |
 | Client | Brief submit starts deposit checkout; `/o/[token]` timeline + poll + Inquiry reconcile | Prove on the public URL |
-| Nour | Gated `/dashboard` + uploads + visible errors + timestamps | Seed artwork |
+| Nour | Gated `/dashboard` studio (own chrome): overview charts, board, uploads, Paymob ids on detail | Seed artwork |
 | Paymob | Intention `{token}:{kind}:{attemptId}` stored; HMAC webhook; Inquiry fallback | Paste webhook on **wallet** integration; two sandbox payments |
 | Theme | Class-based dark mode | — |
 | E2E | Not recorded | Kill switches in `docs/plan.md` still apply |

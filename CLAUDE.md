@@ -17,4 +17,4 @@ Same turn as the code. Do not leave `docs/` stale.
 - Agent instructions → `AGENTS.md`, `CLAUDE.md`, `cursor.md`, `grok.md` together (no one-file drift)
 - Non-negotiables → `.cursor/rules/*.mdc`
 
-Reuse `src/lib/paymob.ts`. Official skill: `.cursor/skills/paymob-integration`. Never fake checkout. Never mark paid from a redirect. Inquiry is the HMAC fallback. Clients have no login.
+Reuse `src/lib/paymob.ts`. Official skill: `.cursor/skills/paymob-integration`. Never fake checkout. Never mark paid from a redirect. Inquiry is the HMAC fallback. Clients have no login. Nour’s `/dashboard` uses studio chrome, not the public header.

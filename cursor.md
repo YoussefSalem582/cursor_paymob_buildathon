@@ -23,4 +23,4 @@ Docs ship in the same turn as the code. If the change would make a doc lie, fix 
 | Agent behavior | `AGENTS.md` + `CLAUDE.md` + `cursor.md` + `grok.md` |
 | Hard rules | `.cursor/rules/*.mdc` |
 
-Reuse `src/lib/paymob.ts`. Official skill: `.cursor/skills/paymob-integration`. Never fake Paymob UI. Webhook is the only paid signal; Inquiry is the fallback. Browser never chooses the Intention amount.
+Reuse `src/lib/paymob.ts`. Official skill: `.cursor/skills/paymob-integration`. Never fake Paymob UI. Webhook is the only paid signal; Inquiry is the fallback. Browser never chooses the Intention amount. Nour’s `/dashboard` uses studio chrome, not the public header.

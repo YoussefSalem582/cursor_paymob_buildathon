@@ -26,7 +26,7 @@ Two human surfaces, one money rail:
 | Who | Surface | Auth |
 | --- | --- | --- |
 | Client | Brief form, `/o/[token]` | None. Unguessable 12-char token |
-| Nour | `/dashboard/*` | One admin (Supabase Auth) |
+| Nour | `/dashboard/*` (studio chrome, not the public header) | One admin (Supabase Auth) |
 | Paymob | Hosted Unified Checkout | Paymob’s page. We never collect cards |
 
 ---
@@ -128,7 +128,7 @@ Target `orders` row (piastres are integers; no floats):
 
 Writes go through the service-role key. Public read is by token on the server, not a wide-open select.
 
-Demo starter / Scope Guard `orders` is replaced by [`supabase/migrations/0003_escrowd_orders_replace.sql`](../supabase/migrations/0003_escrowd_orders_replace.sql) (canonical create: [`0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql)).
+Demo starter / Scope Guard `orders` is replaced by [`supabase/migrations/0004_escrowd_orders_replace_again.sql`](../supabase/migrations/0004_escrowd_orders_replace_again.sql) on the hosted project (canonical create: [`0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql); `0003` was overwritten by leftover Scope Guard columns).
 
 ---
 
@@ -180,22 +180,26 @@ Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout
 | [`src/app/api/paymob/webhook/route.ts`](../src/app/api/paymob/webhook/route.ts) | HMAC, then deposit or balance |
 | [`src/app/api/paymob/inquiry/route.ts`](../src/app/api/paymob/inquiry/route.ts) | Pull-based fallback when the callback is slow |
 | [`src/app/api/checkout/route.ts`](../src/app/api/checkout/route.ts) | `{ token, kind }`, no login, server price |
-| [`src/app/[locale]/commission/`](../src/app/%5Blocale%5D/commission/) | Public brief + live price |
-| [`src/app/[locale]/o/[token]/`](../src/app/%5Blocale%5D/o/%5Btoken%5D/) | Client status page; polls after Paymob return; `?reconcile=1` on first/last tick |
+| [`src/app/[locale]/(site)/commission/`](../src/app/%5Blocale%5D/%28site%29/commission/) | Public brief + live price |
+| [`src/app/[locale]/(site)/page.tsx`](../src/app/%5Blocale%5D/%28site%29/page.tsx) | Public landing: hero study, three-step mechanism, work wall |
+| [`src/app/[locale]/(site)/o/[token]/`](../src/app/%5Blocale%5D/%28site%29/o/%5Btoken%5D/) | Client status page; polls after Paymob return; `?reconcile=1` on first/last tick |
 | [`src/components/price.tsx`](../src/components/price.tsx) | EGP display; safe to import from Client Components |
 | [`src/components/ui/`](../src/components/ui/) | Shared field/button chrome: labels, hints, errors, choice chips, steppers, file picker |
-| [`src/components/site-chrome.tsx`](../src/components/site-chrome.tsx) | Server header/footer (session via `cookies()`). Do not import from `"use client"` files |
-| [`src/app/[locale]/dashboard/`](../src/app/%5Blocale%5D/dashboard/) | Nour wall + uploads |
+| [`src/components/site-chrome.tsx`](../src/components/site-chrome.tsx) | Public header/footer only. Do not import from `"use client"` files |
+| [`src/app/[locale]/(auth)/`](../src/app/%5Blocale%5D/%28auth%29/) | Studio login chrome (no Work/Commission nav) |
+| [`src/app/[locale]/(studio)/dashboard/`](../src/app/%5Blocale%5D/%28studio%29/dashboard/) | Nour overview, board, order detail, uploads |
+| [`src/lib/studio-stats.ts`](../src/lib/studio-stats.ts) | Orders-derived KPIs; collected follows `*_paid_at` only |
+| [`src/components/studio-chrome.tsx`](../src/components/studio-chrome.tsx) | Studio shell (sidebar). Do not import from `"use client"` files |
 | [`src/lib/supabase/`](../src/lib/supabase/) | Browser, cookie, and admin clients; `env.ts` for publishable key |
 | [`src/proxy.ts`](../src/proxy.ts) | Locale + session. Skips Supabase if public env is missing so Vercel does not 500 |
 | [`src/app/layout.tsx`](../src/app/layout.tsx) | Root pass-through; `html`/`body` live in `[locale]/layout` |
-| [`src/app/[locale]/layout.tsx`](../src/app/%5Blocale%5D/layout.tsx) | Locale `html`/`body`; blocking theme script before paint |
+| [`src/app/[locale]/layout.tsx`](../src/app/%5Blocale%5D/layout.tsx) | Locale `html`/`body`; blocking theme script before paint. Public/auth/studio chrome live in route-group layouts |
 | [`src/components/escrowd-logo.tsx`](../src/components/escrowd-logo.tsx) | PNG mark for chrome and empty artwork. Renders the light and dark marks together and swaps them with `dark:hidden` / `hidden dark:block` |
 | [`public/brand/`](../public/brand/) | Illustrated mark and lockup. `escrowd-{mark,lockup}.png` are transparent, `*-dark.png` carry cream ink for dark mode, `*-on-paper.png` keep the cream plate for surfaces we do not control (GitHub, share cards) |
 | [`src/app/favicon.ico`](../src/app/favicon.ico) / [`icon.png`](../src/app/icon.png) / [`apple-icon.png`](../src/app/apple-icon.png) | Tab and touch icons — cropped lock mark. First two transparent; `apple-icon` stays opaque because iOS composites on black |
 | [`src/app/opengraph-image.png`](../src/app/opengraph-image.png) | Share image from the lockup |
 | [`supabase/migrations/0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql) | Escrowd `orders` + `deliveries` bucket |
-| [`supabase/migrations/0003_escrowd_orders_replace.sql`](../supabase/migrations/0003_escrowd_orders_replace.sql) | Replaces leftover Scope Guard `orders` on the hosted project |
+| [`supabase/migrations/0004_escrowd_orders_replace_again.sql`](../supabase/migrations/0004_escrowd_orders_replace_again.sql) | Re-replaces hosted `orders` after Scope Guard columns (`client_id`, …) came back |
 
 Env: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or legacy `ANON_KEY`), `SUPABASE_SECRET_KEY` (`sb_secret_…`, or legacy `SUPABASE_SERVICE_ROLE_KEY`), `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_HMAC_SECRET`, `PAYMOB_INTEGRATION_IDS`, optional `PAYMOB_API_KEY` for Inquiry. Secret key never in the client bundle (`NEXT_PUBLIC_`). Clients live in [`src/lib/supabase/`](../src/lib/supabase/) — session refresh is [`src/proxy.ts`](../src/proxy.ts) (Next.js 16), not a separate `middleware.ts`. Copy `.env.example` to `.env.local`; never commit real keys.
 
@@ -203,6 +207,6 @@ Env: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_P
 
 ## Out of architecture today
 
-Chat, client accounts, multi-artist, email, revision workflow, client uploads, websockets, AI pricing, Scope Guard, lead score, subscriptions, fake card UI. Roadmap only: paid change orders on the frozen brief.
+Chat, client accounts, multi-artist, email, revision workflow, client uploads, analytics product / extra tables, websockets, AI pricing, Scope Guard, lead score, subscriptions, fake card UI. Studio overview charts are derived from `orders`. Roadmap only: paid change orders on the frozen brief.
 
 If the event challenge is not 03: keep two-payment + webhook + secret status page; swap the form, not this payment model.

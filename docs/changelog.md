@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ### Fixed
 
+- Brief submit 500 `null value in column "client_id"`: hosted `orders` had Scope Guard columns again after `0003` (`client_id` NOT NULL, status `pending_payment|paid`). [`0004_escrowd_orders_replace_again.sql`](../supabase/migrations/0004_escrowd_orders_replace_again.sql) dropped leftover tables and recreated the Escrowd shape. Three unpaid test rows were dropped.
 - Intention 404 “Integration ID/Name does not exist”: `PAYMOB_INTEGRATION_IDS` was a card ID from a different Paymob account. This merchant’s test online card ID is `5853667` (same Test status as `egy_sk_test_…`).
 - Production `next build` typecheck: `order-panel` used an undeclared `Brief` name. `Order.brief` is already that type, so the cast is gone.
 - Stop the Vercel Turbopack build from treating `site-chrome` as a Client Component. `order-panel` imported `Price` from that file, which also uses `next/headers` for Nour’s session — so production `next build` failed. `Price` now lives in `src/components/price.tsx`.
@@ -16,12 +17,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ### Changed
 
+- Public storefront, studio login, and Nour’s studio are separate route groups. `/dashboard` no longer uses the marketing header/footer.
 - Brand PNGs are transparent and trimmed to the artwork: `escrowd-mark.png` (815², kept square so `EscrowdLogo`'s `size` still holds) and `escrowd-lockup.png` (1381×481). The cream plate was unmixed into alpha rather than keyed out, so the anti-aliased stroke edges survive; stroke interiors are forced opaque so the ink does not go translucent off-paper. Palette quantization keeps all four brand PNGs near 71 KB total. Originals kept as `escrowd-{mark,lockup}-on-paper.png`, and the README banner points at the on-paper lockup because the black wordmark would vanish on GitHub's dark theme.
 - `favicon.ico` (16/32/48, both copies) and `icon.png` are transparent, regenerated from the trimmed mark with a premultiplied resize so no cream fringe survives at 16px. `apple-icon.png` stays opaque — iOS composites touch icons onto black.
 - Favicon is a tight crop of the lock mark (`favicon.ico`, `icon.png`, `apple-icon.png`) so the clay shackle reads in the tab. Linked from the locale layout.
 - Form chrome: shared field/button primitives (`src/components/ui/`), labels with hints and errors, placeholders, LTR email/phone in Arabic, choice chips and steppers on the commission brief, sticky live price next to the deposit CTA, and a styled file picker in the studio.
+- Home: hero is a framed study (not the logo), a three-step deposit / work / unlock band, a matted work wall with Arabic titles, and a closing commission CTA. Header is sticky and shares the page max-width; the site name is no longer an extra `h1`.
 
 ### Added
+
+- Studio overview at `/dashboard`: order counts, webhook-only collected/outstanding totals, 14-day Cairo activity, status pipeline, type mix, and an attention queue. Board at `/dashboard/orders`. Order detail at `/dashboard/orders/[id]` (timeline + Paymob references). `/dashboard/[id]` redirects there.
 
 - Dark-mode logo variants `public/brand/escrowd-{mark,lockup}-dark.png`: the near-black ink is repainted `--ink` cream and the clay shackle is left alone (split on lightness, ink ≤0.26 and clay ≥0.42). `EscrowdLogo` and `EscrowdLogoFrame` render both and swap with `dark:hidden` / `hidden dark:block`, so exactly one variant is in the layout and the accessibility tree.
 - Production origin is `https://cursor-paymob-buildathon-five.vercel.app`. `NEXT_PUBLIC_SITE_URL` is set to that (Vercel Production/Preview + `.env.local`). Intention `notification_url` / `redirection_url` now point at a host Paymob can reach.

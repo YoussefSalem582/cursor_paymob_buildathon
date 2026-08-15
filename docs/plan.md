@@ -30,7 +30,7 @@ Instagram DMs can carry a conversation. They cannot carry a transaction. **One m
 
 - Public Arabic-first RTL brief form with a live price calculator
 - Order row created on submit as `awaiting_deposit`, **then** Paymob deposit checkout
-- Nour dashboard: list, advance one stage, upload preview + final
+- Nour studio (own chrome, not the public header): overview from `orders`, board, advance one stage, upload preview + final
 - Client order page at `/o/[token]` — status, frozen brief, preview, pay-balance
 - Paymob balance payment → `final_url` is returned only after `balance_paid_at`
 - Real Paymob Unified Checkout + HMAC-verified webhook
@@ -38,7 +38,7 @@ Instagram DMs can carry a conversation. They cannot carry a transaction. **One m
 
 **Out today (do not build)**
 
-Chat. Client accounts. Multi-artist. Email. Revisions workflow. Client file uploads. Analytics. Invoices. Websockets. AI pricing. Scope Guard. Lead score. Subscriptions. Fake card UI. ParkIt-style simulated checkout.
+Chat. Client accounts. Multi-artist. Email. Revisions workflow. Client file uploads. Analytics product / extra tables (studio overview is derived from `orders`). Invoices. Websockets. AI pricing. Scope Guard. Lead score. Subscriptions. Fake card UI. ParkIt-style simulated checkout.
 
 **Roadmap only (say it, don’t ship it):** paid change orders later.
 
@@ -277,7 +277,7 @@ The starter already has Next.js, Tailwind, next-intl RTL, Supabase clients, and 
 **Hour 2–4 · Two surfaces**
 
 - `/o/[token]` — timeline, frozen brief, preview, confirming-payment poll, pay-balance
-- `/dashboard` — Nour login, list + filter, advance, upload preview/final
+- `/dashboard` — Nour studio overview (orders-derived charts); `/dashboard/orders` board; `/dashboard/orders/[id]` detail. Login at `/sign-in` (no marketing chrome).
 
 **Hour 4–5 · Close the loop**
 
@@ -375,15 +375,16 @@ Paste `.cursor/rules` is already in the repo — read it before generating code.
 
 ### Stream 3 — Nour dashboard
 
-**OWNS:** `/dashboard/*`. Functional over polished.
+**OWNS:** `/dashboard/*` (studio chrome). Functional over polished.
 
 **DOES NOT OWN:** Paymob, client pages. Do not add routes that write `*_paid_at`.
 
 **Screens:**
 
-1. Login — one admin, genuinely gated.
-2. List — filter by status. Name, truncated brief, prices, status.
-3. Detail — full brief, prices, payment timestamps, preview/final upload, **one** “advance” button for the next legal step only.
+1. Login — one admin, genuinely gated; auth chrome only (no public Work/Commission nav).
+2. Overview (`/dashboard`) — counts and money from `orders`; collected follows `*_paid_at` only; 14-day activity, status pipeline, type mix, attention queue.
+3. Board (`/dashboard/orders`) — one column per status. Name, truncated brief, prices.
+4. Detail (`/dashboard/orders/:id`) — full brief, money, timeline, Paymob references, preview/final, **one** “advance” button for the next legal step only. `/dashboard/:id` redirects here.
 
 **Edge cases:** empty filter; advance without preview/final blocked with a visible error; cannot skip.
 
