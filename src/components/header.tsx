@@ -8,10 +8,16 @@ import { LocaleSwitcher } from "./locale-switcher";
 export async function Header() {
   const t = await getTranslations();
   const locale = await getLocale();
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user: { id: string } | null = null;
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user: sessionUser },
+    } = await supabase.auth.getUser();
+    user = sessionUser;
+  } catch (error) {
+    console.error("[escrowd] header auth skipped", error);
+  }
 
   return (
     <header className="border-b border-border">

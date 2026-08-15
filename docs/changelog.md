@@ -9,6 +9,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 ### Fixed
 
 - Remove `@next/swc-darwin-arm64` from `package.json`. It is a Mac-only optional binary; listing it as a required dependency made Vercel (`linux/x64`) fail `npm install` with `EBADPLATFORM`. Next installs the correct `@next/swc-*` package for the build machine.
+- Stop 500 Internal Server Error on Vercel when Supabase env vars are unset (`.env.local` is not deployed). `proxy.ts` and the header skip session refresh instead of throwing. Add a root `src/app/layout.tsx` so a missed locale rewrite cannot crash `/`.
 
 ### Added
 

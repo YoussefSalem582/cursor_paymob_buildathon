@@ -2,7 +2,7 @@ import createIntlMiddleware from "next-intl/middleware";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
-import { supabasePublishableKey, supabaseUrl } from "@/lib/supabase/env";
+import { supabasePublicConfig } from "@/lib/supabase/env";
 
 /**
  * Next.js 16 renamed `middleware` to `proxy`. Same job: runs before every
@@ -18,10 +18,17 @@ const handleI18n = createIntlMiddleware(routing);
 export async function proxy(request: NextRequest) {
   const response = handleI18n(request);
 
-  const supabase = createServerClient(
-    supabaseUrl(),
-    supabasePublishableKey(),
-    {
+  const supabaseEnv = supabasePublicConfig();
+  if (!supabaseEnv) {
+    // Vercel has no .env.local. Missing keys must not 500 the whole site.
+    console.error(
+      "[escrowd] NEXT_PUBLIC_SUPABASE_URL / PUBLISHABLE_KEY unset — skipping session refresh",
+    );
+    return response;
+  }
+
+  try {
+    const supabase = createServerClient(supabaseEnv.url, supabaseEnv.key, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -33,27 +40,26 @@ export async function proxy(request: NextRequest) {
           });
         },
       },
-    },
-  );
+    });
 
-  // Do not remove: this refreshes the session cookie. Without it users get
-  // signed out at random.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    // Refreshes the session cookie. Without this, users get signed out at random.
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  // Optimistic auth gate. The real check still happens in each protected page.
-  // TODO: add your own protected path prefixes here.
-  const protectedPaths = ["/dashboard", "/demo"];
-  const pathname = request.nextUrl.pathname;
-  const pathWithoutLocale =
-    "/" + pathname.split("/").slice(2).join("/").replace(/\/$/, "");
-  const locale = pathname.split("/")[1] || routing.defaultLocale;
+    const protectedPaths = ["/dashboard", "/demo"];
+    const pathname = request.nextUrl.pathname;
+    const pathWithoutLocale =
+      "/" + pathname.split("/").slice(2).join("/").replace(/\/$/, "");
+    const locale = pathname.split("/")[1] || routing.defaultLocale;
 
-  if (!user && protectedPaths.some((p) => pathWithoutLocale.startsWith(p))) {
-    const signInUrl = new URL(`/${locale}/sign-in`, request.url);
-    signInUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(signInUrl);
+    if (!user && protectedPaths.some((p) => pathWithoutLocale.startsWith(p))) {
+      const signInUrl = new URL(`/${locale}/sign-in`, request.url);
+      signInUrl.searchParams.set("next", pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+  } catch (error) {
+    console.error("[escrowd] supabase session refresh failed", error);
   }
 
   return response;

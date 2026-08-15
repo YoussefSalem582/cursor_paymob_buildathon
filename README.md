@@ -180,7 +180,9 @@ npx vercel
 npx vercel --prod
 ```
 
-Add every env var for Production. `NEXT_PUBLIC_SITE_URL` = `https://your-app.vercel.app` (no trailing slash). Redeploy. Register that origin’s `/api/paymob/webhook` in Paymob.
+Add every env var for Production (Vercel → Project → Settings → Environment Variables). `.env.local` is gitignored and **does not deploy**. Missing `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` used to 500 every page (proxy + header). The site now renders without them; auth and checkout still need those keys plus `SUPABASE_SERVICE_ROLE_KEY` on Vercel.
+
+`NEXT_PUBLIC_SITE_URL` = `https://your-app.vercel.app` (no trailing slash). Redeploy after adding vars. Register that origin’s `/api/paymob/webhook` in Paymob.
 
 Do not add `@next/swc-darwin-*` (or any platform SWC package) to `dependencies`. Next already pulls the right optional binary; a Darwin-only required dep makes Linux Vercel builds fail with `EBADPLATFORM`.
 

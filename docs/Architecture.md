@@ -172,7 +172,8 @@ One function, client (live UI) and server (Intention amount):
 | [`src/app/api/paymob/webhook/route.ts`](../src/app/api/paymob/webhook/route.ts) | Callback — extend for deposit vs balance |
 | [`src/app/api/checkout/route.ts`](../src/app/api/checkout/route.ts) | Replace: `{ token, kind }`, no login, server price |
 | [`src/lib/supabase/`](../src/lib/supabase/) | Browser, cookie, and admin clients; `env.ts` for publishable key |
-| [`src/proxy.ts`](../src/proxy.ts) | Locale + session |
+| [`src/proxy.ts`](../src/proxy.ts) | Locale + session. Skips Supabase if public env is missing so Vercel does not 500 |
+| [`src/app/layout.tsx`](../src/app/layout.tsx) | Root pass-through; `html`/`body` live in `[locale]/layout` |
 | [`src/app/[locale]/demo/`](../src/app/%5Blocale%5D/demo/) | Delete when Escrowd brief exists |
 | [`supabase/migrations/0001_orders.sql`](../supabase/migrations/0001_orders.sql) | Replace with Escrowd columns |
 
