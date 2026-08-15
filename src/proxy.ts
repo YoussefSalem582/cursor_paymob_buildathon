@@ -47,7 +47,7 @@ export async function proxy(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const protectedPaths = ["/dashboard", "/demo"];
+    const protectedPaths = ["/dashboard"];
     const pathname = request.nextUrl.pathname;
     const pathWithoutLocale =
       "/" + pathname.split("/").slice(2).join("/").replace(/\/$/, "");
