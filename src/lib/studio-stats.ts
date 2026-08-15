@@ -89,6 +89,23 @@ export function attentionKind(order: Order): AttentionKind | null {
   }
 }
 
+function briefType(brief: Order["brief"] | null | undefined): BriefType | null {
+  const type = brief && typeof brief === "object" ? brief.type : null;
+  if (
+    type === "portrait" ||
+    type === "character" ||
+    type === "logo-mascot" ||
+    type === "menu-set"
+  ) {
+    return type;
+  }
+  return null;
+}
+
+function money(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
 function shiftCairoDay(yyyyMmDd: string, delta: number): string {
   const [year, month, day] = yyyyMmDd.split("-").map(Number);
   return cairoDay(new Date(Date.UTC(year, month - 1, day + delta, 12)));
@@ -116,30 +133,35 @@ export function studioStats(orders: Order[], now = new Date()): StudioStats {
   const attention: AttentionItem[] = [];
 
   for (const order of orders) {
+    const total = money(order.price_total);
+    const deposit = money(order.price_deposit);
+    const balance = money(order.price_balance);
     const statusBucket = (byStatus[order.status] ??= {
       count: 0,
       totalPiastres: 0,
     });
     statusBucket.count += 1;
-    statusBucket.totalPiastres += order.price_total;
-    const type = order.brief.type;
-    const typeBucket = typeMap.get(type) ?? {
-      type,
-      count: 0,
-      totalPiastres: 0,
-    };
-    typeBucket.count += 1;
-    typeBucket.totalPiastres += order.price_total;
-    typeMap.set(type, typeBucket);
+    statusBucket.totalPiastres += total;
+    const type = briefType(order.brief);
+    if (type) {
+      const typeBucket = typeMap.get(type) ?? {
+        type,
+        count: 0,
+        totalPiastres: 0,
+      };
+      typeBucket.count += 1;
+      typeBucket.totalPiastres += total;
+      typeMap.set(type, typeBucket);
+    }
 
-    if (order.deposit_paid_at) collectedDeposit += order.price_deposit;
-    else outstandingDeposit += order.price_deposit;
+    if (order.deposit_paid_at) collectedDeposit += deposit;
+    else outstandingDeposit += deposit;
 
-    if (order.balance_paid_at) collectedBalance += order.price_balance;
-    else if (order.deposit_paid_at) outstandingBalance += order.price_balance;
+    if (order.balance_paid_at) collectedBalance += balance;
+    else if (order.deposit_paid_at) outstandingBalance += balance;
 
     if (order.deposit_paid_at && !order.balance_paid_at) {
-      escrowed += order.price_deposit;
+      escrowed += deposit;
     }
 
     const createdIndex = dayIndex.get(cairoDay(order.created_at));

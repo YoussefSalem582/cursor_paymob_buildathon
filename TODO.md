@@ -8,13 +8,13 @@ As of 2026-08-15. Canonical spec: [`docs/plan.md`](docs/plan.md). Architecture: 
 
 ## Where the repo is right now
 
-`main` is current. Rebase conflict is done. Hosted `orders` is the Escrowd shape (`0004_escrowd_orders_replace_again.sql`).
+`main` is current. Rebase conflict is done. Hosted `orders` is the Escrowd shape (`0005_escrowd_orders_replace_third.sql`).
 
 The **screens and payment model are in the tree**. The **demo is not proven** on a public URL (two HMAC-verified sandbox payments on one order). That is the remaining risk.
 
 | Layer | In tree | Gap |
 | --- | --- | --- |
-| Schema | `0002` + `0003` + `0004` on the hosted project | Do not re-apply `0001_orders.sql`. Do not re-add `clients` / `client_id` |
+| Schema | `0002` + `0003` + `0004` + `0005` on the hosted project | Do not re-apply `0001_orders.sql`. Do not re-add `clients` / `client_id` |
 | Pricing | Shared `priceBrief()`; commercial ×3 | — |
 | Client | Brief submit starts deposit checkout; `/o/[token]` timeline + poll + Inquiry reconcile | Prove on the public URL |
 | Nour | Gated `/dashboard` studio (own chrome): overview charts, board, uploads, Paymob ids on detail | Seed artwork |

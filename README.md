@@ -55,7 +55,7 @@ npm run dev
 ```
 
 1. Create a Supabase project → https://supabase.com/dashboard
-2. Apply [`supabase/migrations/0002_escrowd_orders.sql`](supabase/migrations/0002_escrowd_orders.sql) on a fresh project. The hosted project needed [`0003`](supabase/migrations/0003_escrowd_orders_replace.sql) then [`0004_escrowd_orders_replace_again.sql`](supabase/migrations/0004_escrowd_orders_replace_again.sql) (`0004` already applied) because Scope Guard columns (`client_id`, …) were put back on `orders`.
+2. Apply [`supabase/migrations/0002_escrowd_orders.sql`](supabase/migrations/0002_escrowd_orders.sql) on a fresh project. The hosted project needed [`0003`](supabase/migrations/0003_escrowd_orders_replace.sql), [`0004`](supabase/migrations/0004_escrowd_orders_replace_again.sql), then [`0005_escrowd_orders_replace_third.sql`](supabase/migrations/0005_escrowd_orders_replace_third.sql) (`0005` already applied) because Scope Guard columns (`client_id`, …) were put back on `orders` twice.
 3. Fill `.env.local` (copy from `.env.example`). Project URL and publishable key can live there; **service role and Paymob keys stay server-only and must not be committed**.
 4. Deploy or ngrok so Paymob can hit `/api/paymob/webhook`
 5. Open `/ar/commission` → deposit checkout → webhook sets `deposit_paid_at`

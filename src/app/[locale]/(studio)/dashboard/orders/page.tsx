@@ -1,37 +1,46 @@
-import { getTranslations } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { EscrowdLogoFrame } from "@/components/escrowd-logo";
 import { Price } from "@/components/price";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { STATUS_I18N, STATUS_ORDER, type Order } from "@/lib/orders";
+import { STATUS_I18N, STATUS_ORDER } from "@/lib/orders";
 import type { Brief } from "@/lib/pricing";
+import { loadStudioOrders } from "@/lib/studio-data";
 
-export default async function StudioBoardPage() {
-  const admin = createAdminClient();
-  const { data } = await admin
-    .from("orders")
-    .select("*")
-    .order("created_at", { ascending: false });
-  const orders = (data ?? []) as Order[];
+export default async function StudioBoardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const orders = await loadStudioOrders();
   const t = await getTranslations();
 
   return (
-    <main className="px-6 py-6 sm:px-10">
+    <main className="px-4 py-5 sm:px-10 sm:py-6">
       <div className="mb-8">
         <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
           {t("dashboard.kicker")}
         </p>
-        <h2 className="font-display text-4xl">{t("dashboard.boardTitle")}</h2>
+        <h2 className="font-display text-3xl sm:text-4xl">{t("dashboard.boardTitle")}</h2>
         <p className="mt-2 max-w-xl text-sm text-muted">
           {t("dashboard.boardSubtitle")}
         </p>
       </div>
-      <div className="grid gap-5 lg:grid-cols-5">
+      <div className="-mx-4 overflow-x-auto overscroll-x-contain px-4 pb-2 snap-x snap-mandatory sm:-mx-10 sm:px-10 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:snap-none">
+        <div className="flex gap-4 lg:grid lg:grid-cols-5">
         {STATUS_ORDER.map((status) => {
           const items = orders.filter((order) => order.status === status);
-          const total = items.reduce((sum, order) => sum + order.price_total, 0);
+          const total = items.reduce(
+            (sum, order) =>
+              sum + (typeof order.price_total === "number" ? order.price_total : 0),
+            0,
+          );
           return (
-            <section key={status}>
+            <section
+              key={status}
+              className="w-[min(80vw,17.5rem)] shrink-0 snap-start lg:w-auto"
+            >
               <h3 className="mb-1 text-xs uppercase tracking-widest text-muted">
                 {t(STATUS_I18N[status])}
               </h3>
@@ -43,7 +52,7 @@ export default async function StudioBoardPage() {
                   <li className="text-sm text-muted">{t("dashboard.empty")}</li>
                 ) : null}
                 {items.map((order) => {
-                  const brief = order.brief as Brief;
+                  const brief = order.brief as Brief | null;
                   return (
                     <li key={order.id}>
                       <Link
@@ -64,11 +73,11 @@ export default async function StudioBoardPage() {
                           {order.client_name}
                         </p>
                         <p className="mt-1 line-clamp-2 text-sm text-muted">
-                          {t(`brief.${brief.type}`)} · {brief.subjects} ·{" "}
-                          {t(`brief.${brief.detail_level}`)}
+                          {brief?.type ? t(`brief.${brief.type}`) : "—"}
+                          {brief ? ` · ${brief.subjects} · ${t(`brief.${brief.detail_level}`)}` : null}
                         </p>
                         <p className="mt-2 text-sm">
-                          <Price piastres={order.price_total} />
+                          <Price piastres={order.price_total ?? 0} />
                         </p>
                       </Link>
                     </li>
@@ -78,6 +87,7 @@ export default async function StudioBoardPage() {
             </section>
           );
         })}
+        </div>
       </div>
     </main>
   );

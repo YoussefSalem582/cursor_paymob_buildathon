@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
-import { getTranslations } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ActivityChart, StatusPipeline, TypeMix } from "@/components/studio-charts";
 import { Price } from "@/components/price";
 import { buttonBase, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { STATUS_I18N, STATUS_ORDER, type Order } from "@/lib/orders";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { STATUS_I18N, STATUS_ORDER } from "@/lib/orders";
+import { loadStudioOrders } from "@/lib/studio-data";
 import {
   formatStamp,
   studioStats,
@@ -26,12 +26,8 @@ export default async function StudioOverviewPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const admin = createAdminClient();
-  const { data } = await admin
-    .from("orders")
-    .select("*")
-    .order("created_at", { ascending: false });
-  const orders = (data ?? []) as Order[];
+  setRequestLocale(locale);
+  const orders = await loadStudioOrders();
   const stats = studioStats(orders);
   const t = await getTranslations();
   const statusLabels = Object.fromEntries(
@@ -45,20 +41,20 @@ export default async function StudioOverviewPage({
   };
 
   return (
-    <main className="px-6 py-6 sm:px-10">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+    <main className="px-4 py-5 sm:px-10 sm:py-6">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
         <div>
           <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
             {t("dashboard.overviewKicker")}
           </p>
-          <h2 className="font-display text-4xl">{t("dashboard.overviewTitle")}</h2>
+          <h2 className="font-display text-3xl sm:text-4xl">{t("dashboard.overviewTitle")}</h2>
           <p className="mt-2 max-w-xl text-sm text-muted">
             {t("dashboard.overviewSubtitle")}
           </p>
         </div>
         <Link
           href="/dashboard/orders"
-          className={cn(buttonBase, buttonVariants.secondary)}
+          className={cn(buttonBase, buttonVariants.secondary, "w-full sm:w-auto")}
         >
           {t("dashboard.openBoard")}
         </Link>
@@ -81,14 +77,14 @@ export default async function StudioOverviewPage({
           {stats.needsNour}
         </Stat>
       </section>
-      <p className="mt-4 text-sm text-muted">
+      <p className="mt-4 text-sm leading-relaxed text-muted">
         {t("dashboard.escrowed")}: <Price piastres={stats.escrowed} />
         <span className="mx-2 text-line">·</span>
         {t("dashboard.escrowedHint")}
       </p>
 
       <div className="mt-8 grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
-        <section className="border border-line p-5">
+        <section className="min-w-0 border border-line p-4 sm:p-5">
           <h3 className="mb-4 font-display text-2xl">{t("dashboard.activity")}</h3>
           <ActivityChart
             days={stats.days}
@@ -99,7 +95,7 @@ export default async function StudioOverviewPage({
             caption={t("dashboard.activityCaption")}
           />
         </section>
-        <section className="border border-line p-5">
+        <section className="min-w-0 border border-line p-4 sm:p-5">
           <h3 className="mb-4 font-display text-2xl">{t("dashboard.pipeline")}</h3>
           <StatusPipeline
             stats={stats}
@@ -111,7 +107,7 @@ export default async function StudioOverviewPage({
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         {stats.byType.length > 0 ? (
-          <section className="border border-line p-5">
+          <section className="min-w-0 border border-line p-4 sm:p-5">
             <h3 className="mb-4 font-display text-2xl">{t("dashboard.byType")}</h3>
             <TypeMix
               rows={stats.byType}
@@ -120,7 +116,7 @@ export default async function StudioOverviewPage({
             />
           </section>
         ) : null}
-        <section className="border border-line p-5">
+        <section className="min-w-0 border border-line p-4 sm:p-5">
           <h3 className="mb-4 font-display text-2xl">{t("dashboard.attention")}</h3>
           {stats.attention.length === 0 ? (
             <p className="text-sm text-muted">{t("dashboard.emptyAttention")}</p>
@@ -167,7 +163,9 @@ function Stat({
   return (
     <div className="border border-line p-4">
       <p className="text-[11px] uppercase tracking-[0.2em] text-muted">{label}</p>
-      <p className="mt-2 font-display text-3xl tabular-nums">{children}</p>
+      <p className="mt-2 font-display text-2xl leading-none tabular-nums sm:text-3xl">
+        {children}
+      </p>
       <p className="mt-1 text-xs text-muted">{hint}</p>
     </div>
   );

@@ -107,3 +107,20 @@ test("studioStats activity falls on Cairo calendar days", () => {
   assert.equal(sixteenth?.created, 1);
   assert.equal(sixteenth?.deposits, 1);
 });
+
+test("studioStats does not throw when brief is missing", () => {
+  const stats = studioStats(
+    [
+      order({
+        brief: null as unknown as Order["brief"],
+        price_total: undefined as unknown as number,
+        price_deposit: undefined as unknown as number,
+        price_balance: undefined as unknown as number,
+      }),
+    ],
+    noonCairo,
+  );
+  assert.equal(stats.totalOrders, 1);
+  assert.equal(stats.byType.length, 0);
+  assert.equal(stats.outstanding, 0);
+});
