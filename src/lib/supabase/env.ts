@@ -28,3 +28,15 @@ export function supabasePublishableKey(): string {
   }
   return config.key;
 }
+
+/** Server-only. New `sb_secret_…` key, or legacy JWT `service_role`. Never NEXT_PUBLIC_. */
+export function supabaseSecretKey(): string {
+  const key =
+    process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) {
+    throw new Error(
+      "Missing SUPABASE_SECRET_KEY (or legacy SUPABASE_SERVICE_ROLE_KEY). See .env.example",
+    );
+  }
+  return key;
+}
