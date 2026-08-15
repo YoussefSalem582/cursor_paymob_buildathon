@@ -4,7 +4,7 @@ Escrow for illustration commissions. Deposit starts work; balance unlocks the fi
 
 Agent files (keep in lockstep; always update docs in the same turn as code): [`../AGENTS.md`](../AGENTS.md), [`../CLAUDE.md`](../CLAUDE.md), [`../cursor.md`](../cursor.md), [`../grok.md`](../grok.md). Cursor rules include `docs-sync.mdc`.
 
-This file is the system shape: trust boundaries, data, payments, and how the pieces talk. It describes the **target** Escrowd architecture. The repo still contains a Paymob **demo starter** (signed-in 100 EGP checkout, `pending | paid | failed`). Replace that schema and the `/demo` path; do not rewrite [`src/lib/paymob.ts`](../src/lib/paymob.ts).
+This file is the system shape: trust boundaries, data, payments, and how the pieces talk. Deposit starts work; balance unlocks the file. HMAC lives in [`src/lib/paymob.ts`](../src/lib/paymob.ts) — do not rewrite it.
 
 ---
 
@@ -79,7 +79,7 @@ sequenceDiagram
   Note over C,S: Redirect is UX only. Poll until webhook lands.
 ```
 
-**Paid fields** (`deposit_paid_at`, `balance_paid_at`, status `in_progress` / `delivered`) are written only in the webhook handler (or Transaction Inquiry using the same `isPaid()` rules). HMAC mismatch → 401, no UPDATE.
+**Paid fields** (`deposit_paid_at`, `balance_paid_at`, status `in_progress` / `delivered`) are written only in `applyPaymobTransaction` after HMAC (webhook) or a live Inquiry pull. HMAC mismatch → 401, no UPDATE. Redirect query params never write paid fields.
 
 **Wallets:** Intention `notification_url` is documented as card-only. Also register `/api/paymob/webhook` on each Paymob dashboard integration (card and wallet). After return, `/o/[token]` polls. Do not skip HMAC; Inquiry is the fallback.
 
@@ -127,7 +127,7 @@ Target `orders` row (piastres are integers; no floats):
 
 Writes go through the service-role key. Public read is by token on the server, not a wide-open select.
 
-**Starter table (replace, do not keep both):** `user_id`, `amount`, `status pending|paid|failed`, one `paymob_order_id`. That is the demo, not Escrowd.
+Demo starter table (`user_id`, `pending|paid|failed`) is replaced by [`supabase/migrations/0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql).
 
 ---
 
@@ -160,8 +160,9 @@ One function, client (live UI) and server (Intention amount):
 | PATCH | `/api/dashboard/orders/:id` | Nour | Advance one legal step |
 | POST | `/api/dashboard/orders/:id/preview` | Nour | Set `preview_url` |
 | POST | `/api/dashboard/orders/:id/final` | Nour | Set `final_url` (not exposed yet) |
+| GET | `/api/health` | anyone | Liveness, no secrets |
 
-**Exists now (demo):** `POST /api/checkout` (signed-in, trusts `amountEgp`), `POST /api/paymob/webhook` (HMAC then `paid`), `POST /api/paymob/inquiry` (Inquiry fallback), redirect to `/{locale}/checkout/success|failure`.
+Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout=returning` (poll only). Inquiry is the fallback when the webhook cannot reach the server.
 
 ---
 
@@ -169,17 +170,21 @@ One function, client (live UI) and server (Intention amount):
 
 | Path | Role |
 | --- | --- |
-| [`src/lib/paymob.ts`](../src/lib/paymob.ts) | Intention, checkout URL, HMAC, `isPaid`, Inquiry — **keep**. Field order: [`.agents/skills/paymob-integration/references/hmac-verification.md`](../.agents/skills/paymob-integration/references/hmac-verification.md) |
-| [`src/lib/apply-paymob-transaction.ts`](../src/lib/apply-paymob-transaction.ts) | Shared persist after HMAC or Inquiry |
+| [`src/lib/paymob.ts`](../src/lib/paymob.ts) | Intention, checkout URL, HMAC, `isPaid`, Inquiry, `parseSpecialReference` — **keep**. Field order: [`.agents/skills/paymob-integration/references/hmac-verification.md`](../.agents/skills/paymob-integration/references/hmac-verification.md) |
+| [`src/lib/apply-paymob-transaction.ts`](../src/lib/apply-paymob-transaction.ts) | Shared deposit/balance persist after HMAC or Inquiry |
+| [`src/lib/pricing.ts`](../src/lib/pricing.ts) | Shared brief price; live UI + server Intention |
+| [`src/lib/orders.ts`](../src/lib/orders.ts) | Status machine; `publicOrder` hides `final_url` |
 | [`.cursor/mcp.json`](../.cursor/mcp.json) / [`.mcp.json`](../.mcp.json) | Paymob MCP URL only. Credentials via `set_api_credentials` in-session, never in git |
-| [`src/app/api/paymob/webhook/route.ts`](../src/app/api/paymob/webhook/route.ts) | Callback — extend for deposit vs balance |
+| [`src/app/api/paymob/webhook/route.ts`](../src/app/api/paymob/webhook/route.ts) | HMAC, then deposit or balance |
 | [`src/app/api/paymob/inquiry/route.ts`](../src/app/api/paymob/inquiry/route.ts) | Pull-based fallback when the callback is slow |
-| [`src/app/api/checkout/route.ts`](../src/app/api/checkout/route.ts) | Replace: `{ token, kind }`, no login, server price |
+| [`src/app/api/checkout/route.ts`](../src/app/api/checkout/route.ts) | `{ token, kind }`, no login, server price |
+| [`src/app/[locale]/commission/`](../src/app/%5Blocale%5D/commission/) | Public brief + live price |
+| [`src/app/[locale]/o/[token]/`](../src/app/%5Blocale%5D/o/%5Btoken%5D/) | Client status page; polls after Paymob return |
+| [`src/app/[locale]/dashboard/`](../src/app/%5Blocale%5D/dashboard/) | Nour wall + uploads |
 | [`src/lib/supabase/`](../src/lib/supabase/) | Browser, cookie, and admin clients; `env.ts` for publishable key |
 | [`src/proxy.ts`](../src/proxy.ts) | Locale + session. Skips Supabase if public env is missing so Vercel does not 500 |
 | [`src/app/layout.tsx`](../src/app/layout.tsx) | Root pass-through; `html`/`body` live in `[locale]/layout` |
-| [`src/app/[locale]/demo/`](../src/app/%5Blocale%5D/demo/) | Delete when Escrowd brief exists |
-| [`supabase/migrations/0001_orders.sql`](../supabase/migrations/0001_orders.sql) | Replace with Escrowd columns |
+| [`supabase/migrations/0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql) | Escrowd `orders` + `deliveries` bucket |
 
 Env: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or legacy `ANON_KEY`), `SUPABASE_SECRET_KEY` (`sb_secret_…`, or legacy `SUPABASE_SERVICE_ROLE_KEY`), `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_HMAC_SECRET`, `PAYMOB_INTEGRATION_IDS`, optional `PAYMOB_API_KEY` for Inquiry. Secret key never in the client bundle (`NEXT_PUBLIC_`). Clients live in [`src/lib/supabase/`](../src/lib/supabase/) — session refresh is [`src/proxy.ts`](../src/proxy.ts) (Next.js 16), not a separate `middleware.ts`. Copy `.env.example` to `.env.local`; never commit real keys.
 

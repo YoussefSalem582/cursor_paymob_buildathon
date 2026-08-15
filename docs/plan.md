@@ -4,7 +4,7 @@
 
 This is the **only** product spec for today. Do not implement Scope Guard, AI pricing, lead score, or change-order payments. Those live in the appendix as a pitch line, not as work.
 
-The repo already has a working Paymob starter (`src/lib/paymob.ts`, HMAC-verified webhook, Unified Checkout, Arabic/RTL). **Reuse that integration. Replace the demo checkout and the `orders` table. Do not rewrite HMAC from memory.**
+The repo has Paymob Intention + HMAC in `src/lib/paymob.ts`, Unified Checkout, Arabic/RTL, and the Escrowd brief → deposit → dashboard → balance flow. **Do not rewrite HMAC from memory. Do not port Scope Guard.**
 
 ---
 

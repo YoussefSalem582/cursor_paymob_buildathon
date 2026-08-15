@@ -17,17 +17,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 - `src/lib/supabase/env.ts` reads `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (falls back to `NEXT_PUBLIC_SUPABASE_ANON_KEY`). Browser, server, and `proxy.ts` session refresh all use it.
 - Admin client prefers `SUPABASE_SECRET_KEY` (`sb_secret_…`) and still accepts legacy `SUPABASE_SERVICE_ROLE_KEY`.
 - Official Paymob AI agent skill under `.cursor/skills/paymob-integration/` (and `.agents/skills/paymob-integration/` plus Cursor commands `/paymob-test-cards`, `/paymob-explain-error`, `/paymob-check-hmac`). Source: [PaymobAccept/Paymob-AI-Integration-Skill](https://github.com/PaymobAccept/Paymob-AI-Integration-Skill).
-- Transaction Inquiry client in `src/lib/paymob.ts` and `POST /api/paymob/inquiry` (API Key → auth token → lookup, then the same `isPaid()` persist path as the webhook).
+- Transaction Inquiry client in `src/lib/paymob.ts` and `POST /api/paymob/inquiry` (API Key → auth token → lookup). Shared persist is `src/lib/apply-paymob-transaction.ts` (deposit/balance columns, not the demo `paid` status).
 - Official Paymob MCP at `https://mcp.paymob.com/mcp` via [`.cursor/mcp.json`](../.cursor/mcp.json) and [`.mcp.json`](../.mcp.json). Credentials stay in-session (`set_api_credentials`); HMAC webhook remains the only paid signal.
+- Paymob sandbox Secret/Public/HMAC/API keys plus card Integration ID `5240449` in gitignored `.env.local` and Vercel (Production/Preview/Development). Values are not in git.
 - Supabase agent skills under `.agents/skills/` (`npx skills add supabase/agent-skills`).
+- Escrowd product surface from the teammate storefront (paper/ink/clay chrome) with this repo’s payment model: one `orders` table, live brief price, `/o/[token]`, Nour dashboard, deposit then balance. HMAC in `src/lib/paymob.ts` is unchanged. Did **not** port Scope Guard, lead score, AI quotes, or change-order payments.
+- `supabase/migrations/0002_escrowd_orders.sql` applied on the hosted project (replaces the demo `user_id` / `pending|paid|failed` table). Storage bucket `deliveries` for preview + final.
 
 ### Planned
 
-- Replace the demo `orders` table with the Escrowd schema (`token`, frozen `brief`, deposit/balance amounts and Paymob ids).
-- Public brief with live price; create the row as `awaiting_deposit` before checkout.
-- `POST /api/checkout` with `{ token, kind }` and server-side price (stop trusting `amountEgp`).
-- Webhook distinguishes `deposit` vs `balance`; `/o/[token]` polls after redirect.
-- Nour dashboard: one-step status advance, preview + final upload; hide `final_url` until `balance_paid_at`.
 - Register the webhook on card **and** wallet integrations.
 
 ### Not planned (today)

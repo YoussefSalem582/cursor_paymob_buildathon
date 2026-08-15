@@ -4,7 +4,7 @@ Escrow for illustration commissions. Nour puts one link in her Instagram bio. A 
 
 **One mechanism, five problems — not five features.** Spec: [`docs/plan.md`](docs/plan.md). Problem analysis: [`docs/problem-analysis-bilingual.pdf`](docs/problem-analysis-bilingual.pdf).
 
-This repo is a Next.js + Supabase + Paymob starter **being turned into Escrowd**. Reuse [`src/lib/paymob.ts`](src/lib/paymob.ts). Replace the 100 EGP demo checkout and the current `orders` table. Do not rewrite HMAC from memory. Do not build Scope Guard, AI pricing, or change-order payments.
+This repo is Next.js + Supabase + Paymob. Reuse [`src/lib/paymob.ts`](src/lib/paymob.ts). Do not rewrite HMAC from memory. Do not build Scope Guard, AI pricing, or change-order payments.
 
 ---
 
@@ -51,14 +51,12 @@ npm run dev
 ```
 
 1. Create a Supabase project → https://supabase.com/dashboard
-2. Run the **Escrowd** migration (replace the demo `orders` table in [`supabase/migrations/0001_orders.sql`](supabase/migrations/0001_orders.sql) — shape is in `docs/plan.md`)
+2. Apply [`supabase/migrations/0002_escrowd_orders.sql`](supabase/migrations/0002_escrowd_orders.sql) (already applied on the hosted project)
 3. Fill `.env.local` (copy from `.env.example`). Project URL and publishable key can live there; **service role and Paymob keys stay server-only and must not be committed**.
 4. Deploy or ngrok so Paymob can hit `/api/paymob/webhook`
-5. Brief → deposit checkout → webhook sets `deposit_paid_at`
+5. Open `/ar/commission` → deposit checkout → webhook sets `deposit_paid_at`
 
-`/` redirects to `/ar`. Arabic is the default locale.
-
-The leftover demo (`/demo`, sign-up to pay 100 EGP) is **not** the product. Clients must check out **without** an account.
+`/` redirects to `/ar`. Arabic is the default locale. Nour signs in at `/ar/sign-in` for `/dashboard`. Clients have no account — they use `/o/[token]`.
 
 ---
 
@@ -208,16 +206,18 @@ Hour 0 of the build: this URL must exist.
 
 ---
 
-## Layout (today vs target)
+## Layout
 
 ```
-src/lib/paymob.ts           keep — HMAC, Intention, billing_data "NA"
-src/app/api/paymob/webhook  keep — then distinguish deposit vs balance
-src/app/api/checkout        replace — { token, kind }, server price, no login
-src/app/[locale]/demo       delete — not the product
-src/app/[locale]/page.tsx   become the brief
-/o/[token]                  add — client order page (locale-prefixed as needed)
-/dashboard                  Nour only, not a list of the signed-in payer’s demo orders
+src/lib/paymob.ts                 HMAC, Intention, billing_data "NA", Inquiry
+src/lib/apply-paymob-transaction.ts  deposit/balance persist after HMAC or Inquiry
+src/lib/pricing.ts                live UI + server amount
+src/app/api/paymob/webhook        HMAC, then deposit or balance
+src/app/api/paymob/inquiry        Transaction Inquiry fallback
+src/app/api/checkout              { token, kind }, server price, no login
+src/app/[locale]/commission       public brief
+src/app/[locale]/o/[token]        client order page
+src/app/[locale]/dashboard        Nour only
 ```
 
 RTL is already real: `<html dir>` from locale, Tailwind logical utilities (`ms-*`, `ps-*`, `text-start`). Do not fake RTL with a `lang` attribute.
@@ -230,7 +230,7 @@ RTL is already real: `<html dir>` from locale, Tailwind logical utilities (`ms-*
 npm test
 ```
 
-HMAC field order, tampered-amount reject, `billing_data` → `"NA"`, piastres conversion, `isPaid` rules. Keep these green when you change checkout/webhook.
+HMAC field order, tampered-amount reject, `billing_data` → `"NA"`, piastres conversion, `isPaid`, `parseSpecialReference`, pricing ×3 commercial. Keep these green when you change checkout/webhook.
 
 ---
 
