@@ -4,7 +4,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { EscrowdLogoFrame } from "@/components/escrowd-logo";
 import { Price } from "@/components/price";
-import { STATUS_I18N } from "@/lib/orders";
+import { Stars } from "@/components/stars";
+import { STATUS_I18N, paymentStars } from "@/lib/orders";
 import type { Brief } from "@/lib/pricing";
 import { loadStudioOrder } from "@/lib/studio-data";
 import { formatStamp } from "@/lib/studio-stats";
@@ -35,6 +36,7 @@ export default async function StudioOrderPage({
   const brief = (order.brief ?? null) as Brief | null;
   const t = await getTranslations();
   const empty = t("dashboard.notYet");
+  const stars = paymentStars(order);
 
   return (
     <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-6 sm:gap-10 sm:px-10 sm:py-8 lg:grid-cols-2">
@@ -86,6 +88,20 @@ export default async function StudioOrderPage({
             /o/{order.token}
           </Link>
         </p>
+        <div className="mt-6 border border-line p-3">
+          <p className="text-xs uppercase tracking-widest text-muted">
+            {t("dashboard.rating")}
+          </p>
+          <p className="mt-2">
+            <Stars
+              value={stars}
+              label={t("dashboard.ratingStars", { stars })}
+            />
+          </p>
+          <p className="mt-2 text-sm text-muted">
+            {stars === 5 ? t("dashboard.ratingOnTime") : t("dashboard.ratingLate")}
+          </p>
+        </div>
 
         <h3 className="mt-8 font-display text-2xl">{t("order.frozen")}</h3>
         <dl className="mt-2">

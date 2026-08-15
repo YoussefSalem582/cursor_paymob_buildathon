@@ -19,4 +19,4 @@ Every behavior, schema, API, payment, or copy change must update docs **in the s
 - `AGENTS.md`, `CLAUDE.md`, `cursor.md`, `grok.md` — agent files stay identical in meaning
 - `.cursor/rules/*.mdc` — non-negotiables
 
-Reuse `src/lib/paymob.ts`. Official skill: `.cursor/skills/paymob-integration`. Do not rewrite HMAC. Do not skip webhook verification. Inquiry (`POST /api/paymob/inquiry`) is the fallback. Clients check out without accounts; Nour’s `/dashboard` is the only login (studio chrome, not the public header).
+Reuse `src/lib/paymob.ts`. Official skill: `.cursor/skills/paymob-integration`. Do not rewrite HMAC. Do not skip webhook verification. Inquiry (`POST /api/paymob/inquiry`) is the fallback. Clients check out without accounts; Nour’s `/dashboard` is the only login (studio chrome, not the public header). Payment rating is computed: 5 stars if the deposit webhook is within 72 hours of `created_at`, else 4 — alert the client, do not block checkout.

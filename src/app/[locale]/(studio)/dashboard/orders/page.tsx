@@ -2,7 +2,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { EscrowdLogoFrame } from "@/components/escrowd-logo";
 import { Price } from "@/components/price";
-import { STATUS_I18N, STATUS_ORDER } from "@/lib/orders";
+import { Stars } from "@/components/stars";
+import { STATUS_I18N, STATUS_ORDER, paymentStars } from "@/lib/orders";
 import type { Brief } from "@/lib/pricing";
 import { loadStudioOrders } from "@/lib/studio-data";
 
@@ -53,6 +54,7 @@ export default async function StudioBoardPage({
                 ) : null}
                 {items.map((order) => {
                   const brief = order.brief as Brief | null;
+                  const stars = paymentStars(order);
                   return (
                     <li key={order.id}>
                       <Link
@@ -78,6 +80,12 @@ export default async function StudioBoardPage({
                         </p>
                         <p className="mt-2 text-sm">
                           <Price piastres={order.price_total ?? 0} />
+                        </p>
+                        <p className="mt-2">
+                          <Stars
+                            value={stars}
+                            label={t("dashboard.ratingStars", { stars })}
+                          />
                         </p>
                       </Link>
                     </li>

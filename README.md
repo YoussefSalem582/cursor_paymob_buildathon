@@ -20,6 +20,7 @@ This repo is Next.js + Supabase + Paymob. Reuse [`src/lib/paymob.ts`](src/lib/pa
 - HMAC-verified webhook is the only source of truth for paid
 - Nour dashboard: overview + board + order detail (own chrome, not the public header)
 - `final_url` is returned only after `balance_paid_at`
+- Payment rating: 5 stars if the deposit is verified within 72 hours of the brief; 4 stars after that. The client is alerted before Paymob.
 
 **Out:** chat, client accounts, fake card UI, AI pricing, Scope Guard, lead score, subscriptions.
 

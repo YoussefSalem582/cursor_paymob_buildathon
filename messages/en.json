@@ -127,7 +127,10 @@
     "preview": "Preview",
     "download": "Download the finished file",
     "hiddenFinal": "The final file appears after the balance is paid.",
-    "trouble": "Having trouble loading status. Keep this page — payment is confirmed only by the signed webhook."
+    "trouble": "Having trouble loading status. Keep this page — payment is confirmed only by the signed webhook.",
+    "windowRule": "Pay the deposit within 72 hours of locking the brief. After that the payment rating is 4 stars, not 5. You can still pay.",
+    "windowOpen": "Pay within {hours}h {minutes}m for a 5-star rating. After 72 hours it becomes 4 stars. You can still pay.",
+    "windowClosed": "72 hours passed without a verified deposit. This commission is 4 stars, not 5. You can still pay."
   },
   "dashboard": {
     "kicker": "Working wall",
@@ -197,7 +200,11 @@
     "finalReady": "Final file",
     "uploaded": "Uploaded",
     "noFinal": "Final is hidden from the client until the balance is paid.",
-    "money": "Money"
+    "money": "Money",
+    "rating": "Payment rating",
+    "ratingStars": "{stars} of 5 stars",
+    "ratingOnTime": "Deposit verified within 72 hours.",
+    "ratingLate": "Deposit was not verified within 72 hours of the brief — 4 stars instead of 5."
   },
   "auth": {
     "email": "Email",

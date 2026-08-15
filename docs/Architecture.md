@@ -126,6 +126,8 @@ Target `orders` row (piastres are integers; no floats):
 - Paymob ids per kind (order id + transaction id)
 - `preview_url`, `final_url`
 
+Payment rating is **computed** from `created_at` vs `deposit_paid_at` (or now if unpaid): 5 stars inside 72 hours, 4 after. Not stored. See `paymentStars()` in [`src/lib/orders.ts`](../src/lib/orders.ts). Late payment does not block checkout.
+
 Writes go through the service-role key. Public read is by token on the server, not a wide-open select.
 
 Demo starter / Scope Guard `orders` is replaced by [`supabase/migrations/0005_escrowd_orders_replace_third.sql`](../supabase/migrations/0005_escrowd_orders_replace_third.sql) on the hosted project (canonical create: [`0002_escrowd_orders.sql`](../supabase/migrations/0002_escrowd_orders.sql); `0003` and `0004` were overwritten by leftover Scope Guard columns).
@@ -176,7 +178,9 @@ Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout
 | [`src/lib/pricing.ts`](../src/lib/pricing.ts) | Shared brief price; live UI + server Intention |
 | [`src/lib/validate.ts`](../src/lib/validate.ts) | Contact, Egyptian mobile, order token/id, delivery files, safe `next` paths |
 | [`messages/ar.json`](../messages/ar.json) / [`messages/en.json`](../messages/en.json) | UI copy. Arabic is spoken Cairene; keep العربون / الباقي / البرايف / باي موب |
-| [`src/lib/orders.ts`](../src/lib/orders.ts) | Status machine; `publicOrder` hides `final_url`; `inquiryLookup` for reconcile |
+| [`src/lib/orders.ts`](../src/lib/orders.ts) | Status machine; `publicOrder` hides `final_url`; `inquiryLookup` for reconcile; `paymentStars` (72h deposit window → 5 or 4) |
+| [`src/components/payment-window-alert.tsx`](../src/components/payment-window-alert.tsx) | Client `role="alert"` for the 72h / 4★ vs 5★ rule |
+| [`src/components/stars.tsx`](../src/components/stars.tsx) | 4 or 5 clay stars |
 | [`src/lib/theme-script.ts`](../src/lib/theme-script.ts) / [`src/components/theme-toggle.tsx`](../src/components/theme-toggle.tsx) | Blocking theme script + class-based dark mode (`html.dark`) |
 | [`.cursor/mcp.json`](../.cursor/mcp.json) / [`.mcp.json`](../.mcp.json) | Paymob MCP URL only. Credentials via `set_api_credentials` in-session, never in git |
 | [`src/app/api/paymob/webhook/route.ts`](../src/app/api/paymob/webhook/route.ts) | HMAC, then deposit or balance |

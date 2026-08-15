@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button, buttonBase, buttonVariants } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
+import { OrderPaymentWindowAlert } from "@/components/payment-window-alert";
 import { Price } from "@/components/price";
 import {
   STATUS_ORDER,
@@ -188,6 +189,11 @@ export function OrderPanel({
         <h2 className="mt-3 font-display text-4xl leading-none sm:text-5xl">{t("frozen")}</h2>
         {waiting ? <p className="mt-4 text-muted">{t("confirmingBody")}</p> : null}
         {trouble ? <p className="mt-4 text-sm text-clay-deep">{t("trouble")}</p> : null}
+        {order.status === "awaiting_deposit" ? (
+          <div className="mt-4">
+            <OrderPaymentWindowAlert order={order} />
+          </div>
+        ) : null}
 
         <Timeline current={order.status} />
 

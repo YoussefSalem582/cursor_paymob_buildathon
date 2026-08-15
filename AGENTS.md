@@ -47,6 +47,8 @@ Next.js App Router, TypeScript, Supabase, next-intl (Arabic default, real RTL), 
 
 `orders`: `id`, `token` (12-char nanoid, unique), `client_name/email/phone`, `brief` jsonb, `price_total/deposit/balance` (integer piastres), `status`, `deposit_paid_at`, `balance_paid_at`, `paymob_{deposit,balance}_reference` (last `{token}:{kind}:{attemptId}`), `paymob_{deposit,balance}_{order,transaction}_id`, `preview_url`, `final_url`.
 
+Payment rating is computed, not stored: 5 stars if `deposit_paid_at` is within 72 hours of `created_at` (or the window is still open); otherwise 4. Alert the client on the brief and `/o/[token]`. Do not block checkout.
+
 Create the row as `awaiting_deposit` **before** Intention. No `clients` / `payments` / `change_orders` tables.
 
 ## Status machine

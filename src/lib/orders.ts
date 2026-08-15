@@ -68,6 +68,35 @@ export function awaitingPayment(order: Order): boolean {
   );
 }
 
+/** Deposit must land within this window of `created_at` to keep 5 stars. */
+export const PAYMENT_WINDOW_MS = 72 * 60 * 60 * 1000;
+
+export type PaymentStars = 4 | 5;
+
+export type PaymentClock = Pick<Order, "created_at" | "deposit_paid_at">;
+
+/** 5 if the verified deposit is inside 72h of `created_at`; otherwise 4. Unpaid past the window is already 4. */
+export function paymentStars(order: PaymentClock, now = Date.now()): PaymentStars {
+  const start = new Date(order.created_at).getTime();
+  const paidAt = order.deposit_paid_at
+    ? new Date(order.deposit_paid_at).getTime()
+    : now;
+  return paidAt - start > PAYMENT_WINDOW_MS ? 4 : 5;
+}
+
+export function paymentWindowRemaining(
+  createdAt: string,
+  now = Date.now(),
+): { hours: number; minutes: number; expired: boolean } {
+  const left = new Date(createdAt).getTime() + PAYMENT_WINDOW_MS - now;
+  if (left <= 0) return { hours: 0, minutes: 0, expired: true };
+  return {
+    hours: Math.floor(left / 3_600_000),
+    minutes: Math.floor((left % 3_600_000) / 60_000),
+    expired: false,
+  };
+}
+
 /** Last Intention correlation for Transaction Inquiry. Prefer special_reference. */
 export function inquiryLookup(order: Order): {
   merchantOrderId?: string;

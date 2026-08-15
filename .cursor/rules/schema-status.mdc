@@ -36,3 +36,5 @@ Nour may PATCH only `in_progress → ready_for_review → awaiting_balance`. Rej
 Webhook may only apply deposit (`awaiting_deposit → in_progress`) and balance (`awaiting_balance → delivered`). Failed callbacks do not flip status. If the matching `*_paid_at` is already set, return 200 (idempotent).
 
 `GET` by token must omit `final_url` unless `balance_paid_at` is set. RLS: no browser insert/update; service role on the server only.
+
+Payment rating is computed, not a column: 5 stars if the deposit webhook is within 72 hours of `created_at`, else 4. Alert the client on the brief and `/o/[token]`. Do not block checkout.

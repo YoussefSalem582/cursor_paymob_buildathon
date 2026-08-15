@@ -35,6 +35,7 @@ Instagram DMs can carry a conversation. They cannot carry a transaction. **One m
 - Paymob balance payment → `final_url` is returned only after `balance_paid_at`
 - Real Paymob Unified Checkout + HMAC-verified webhook
 - Server-side price recomputation (browser never decides the Intention amount)
+- Payment rating: **5 stars** if the deposit webhook lands within **72 hours** of `created_at`; **4 stars** if it is late or still unpaid after that. The client is alerted on the brief and on `/o/[token]`. Computed, not a column.
 
 **Out today (do not build)**
 

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ChoiceGroup } from "@/components/ui/choice-group";
+import { BriefPaymentWindowAlert } from "@/components/payment-window-alert";
 import { FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Stepper } from "@/components/ui/stepper";
@@ -288,6 +289,7 @@ function PriceSummary({
   className?: string;
 }) {
   const t = useTranslations("commission");
+  const to = useTranslations("order");
   return (
     <div className={className}>
       <div className={compact ? undefined : "border border-line p-4"}>
@@ -326,6 +328,15 @@ function PriceSummary({
         {commercial ? (
           <p className="mt-2 text-sm text-clay-deep">{t("commercialNote")}</p>
         ) : null}
+        {compact ? (
+          <p className="mt-2 text-[11px] leading-snug text-clay-deep">
+            {to("windowRule")}
+          </p>
+        ) : (
+          <div className="mt-3">
+            <BriefPaymentWindowAlert />
+          </div>
+        )}
         {error ? (
           <div className="mt-3">
             <FieldError>{error}</FieldError>

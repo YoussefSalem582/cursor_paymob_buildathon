@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import {
   awaitingPayment,
   inquiryLookup,
+  paymentStars,
+  paymentWindowRemaining,
   publicOrder,
   type Order,
 } from "./orders.ts";
@@ -92,5 +94,45 @@ test("awaitingPayment is true only before the matching timestamp", () => {
       order({ status: "in_progress", deposit_paid_at: "2026-08-15T12:00:00.000Z" }),
     ),
     false,
+  );
+});
+
+test("paymentStars is 5 inside 72h and 4 after", () => {
+  const created = "2026-08-15T00:00:00.000Z";
+  const inside = Date.parse("2026-08-17T23:00:00.000Z");
+  const outside = Date.parse("2026-08-18T00:00:01.000Z");
+  assert.equal(paymentStars(order({ created_at: created }), inside), 5);
+  assert.equal(paymentStars(order({ created_at: created }), outside), 4);
+  assert.equal(
+    paymentStars(
+      order({
+        created_at: created,
+        deposit_paid_at: "2026-08-17T12:00:00.000Z",
+      }),
+      outside,
+    ),
+    5,
+  );
+  assert.equal(
+    paymentStars(
+      order({
+        created_at: created,
+        deposit_paid_at: "2026-08-18T01:00:00.000Z",
+      }),
+      outside,
+    ),
+    4,
+  );
+});
+
+test("paymentWindowRemaining expires at 72h", () => {
+  const created = "2026-08-15T00:00:00.000Z";
+  assert.deepEqual(
+    paymentWindowRemaining(created, Date.parse("2026-08-15T10:30:00.000Z")),
+    { hours: 61, minutes: 30, expired: false },
+  );
+  assert.deepEqual(
+    paymentWindowRemaining(created, Date.parse("2026-08-18T00:00:00.000Z")),
+    { hours: 0, minutes: 0, expired: true },
   );
 });

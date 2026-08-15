@@ -30,6 +30,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ### Added
 
+- Payment punctuality rating: 5 stars if the deposit webhook lands within 72 hours of `created_at`, otherwise 4. Client alert on the brief and on `/o/[token]` while the deposit is due. Studio board and order detail show the stars. Computed in `paymentStars()` — not a column, and late payment still checks out.
 - Studio overview at `/dashboard`: order counts, webhook-only collected/outstanding totals, 14-day Cairo activity, status pipeline, type mix, and an attention queue. Board at `/dashboard/orders`. Order detail at `/dashboard/orders/[id]` (timeline + Paymob references). `/dashboard/[id]` redirects there.
 
 - Dark-mode logo variants `public/brand/escrowd-{mark,lockup}-dark.png`: the near-black ink is repainted `--ink` cream and the clay shackle is left alone (split on lightness, ink ≤0.26 and clay ≥0.42). `EscrowdLogo` and `EscrowdLogoFrame` render both and swap with `dark:hidden` / `hidden dark:block`, so exactly one variant is in the layout and the accessibility tree.

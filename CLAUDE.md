@@ -17,4 +17,4 @@ Same turn as the code. Do not leave `docs/` stale.
 - Agent instructions → `AGENTS.md`, `CLAUDE.md`, `cursor.md`, `grok.md` together (no one-file drift)
 - Non-negotiables → `.cursor/rules/*.mdc`
 
-Reuse `src/lib/paymob.ts`. Official skill: `.cursor/skills/paymob-integration`. Never fake checkout. Never mark paid from a redirect. Inquiry is the HMAC fallback. Clients have no login. Nour’s `/dashboard` uses studio chrome, not the public header.
+Reuse `src/lib/paymob.ts`. Official skill: `.cursor/skills/paymob-integration`. Never fake checkout. Never mark paid from a redirect. Inquiry is the HMAC fallback. Clients have no login. Nour’s `/dashboard` uses studio chrome, not the public header. Payment rating is computed: 5 stars if the deposit webhook is within 72 hours of `created_at`, else 4 — alert the client, do not block checkout.
