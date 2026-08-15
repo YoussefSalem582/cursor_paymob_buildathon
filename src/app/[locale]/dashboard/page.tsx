@@ -3,18 +3,12 @@ import { Link } from "@/i18n/navigation";
 import { redirect } from "@/i18n/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireNour } from "@/lib/nour-auth";
+import { EscrowdLogo, EscrowdLogoFrame } from "@/components/escrowd-logo";
 import { Price } from "@/components/price";
-import { STATUS_ORDER, type Order, type OrderStatus } from "@/lib/orders";
+import { STATUS_I18N, STATUS_ORDER, type Order } from "@/lib/orders";
+import type { Brief } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
-
-const STATUS_I18N: Record<OrderStatus, string> = {
-  awaiting_deposit: "order.awaitingDeposit",
-  in_progress: "order.inProgress",
-  ready_for_review: "order.readyForReview",
-  awaiting_balance: "order.awaitingBalance",
-  delivered: "order.delivered",
-};
 
 export default async function DashboardPage({
   params,
@@ -36,8 +30,9 @@ export default async function DashboardPage({
 
   return (
     <main className="px-6 py-6 sm:px-10">
-      <div className="mb-8 flex items-end justify-between gap-4">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
+          <EscrowdLogo size={72} className="mb-3 size-12" alt="" />
           <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
             {t("dashboard.kicker")}
           </p>
@@ -60,29 +55,38 @@ export default async function DashboardPage({
                 {items.length === 0 ? (
                   <li className="text-sm text-muted">{t("dashboard.empty")}</li>
                 ) : null}
-                {items.map((order) => (
-                  <li key={order.id}>
-                    <Link
-                      href={`/dashboard/${order.id}`}
-                      className="block border border-line p-3"
-                    >
-                      {order.preview_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={order.preview_url}
-                          alt=""
-                          className="mb-3 aspect-[4/5] w-full object-cover"
-                        />
-                      ) : (
-                        <div className="mb-3 aspect-[4/5] bg-gradient-to-br from-clay to-ink" />
-                      )}
-                      <p className="font-display text-lg leading-tight">{order.client_name}</p>
-                      <p className="mt-2 text-sm">
-                        <Price piastres={order.price_total} />
-                      </p>
-                    </Link>
-                  </li>
-                ))}
+                {items.map((order) => {
+                  const brief = order.brief as Brief;
+                  return (
+                    <li key={order.id}>
+                      <Link
+                        href={`/dashboard/${order.id}`}
+                        className="block border border-line p-3"
+                      >
+                        {order.preview_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={order.preview_url}
+                            alt=""
+                            className="mb-3 aspect-[4/5] w-full object-cover"
+                          />
+                        ) : (
+                          <EscrowdLogoFrame className="mb-3 aspect-[4/5]" />
+                        )}
+                        <p className="font-display text-lg leading-tight">
+                          {order.client_name}
+                        </p>
+                        <p className="mt-1 line-clamp-2 text-sm text-muted">
+                          {t(`brief.${brief.type}`)} · {brief.subjects} ·{" "}
+                          {t(`brief.${brief.detail_level}`)}
+                        </p>
+                        <p className="mt-2 text-sm">
+                          <Price piastres={order.price_total} />
+                        </p>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
           );
