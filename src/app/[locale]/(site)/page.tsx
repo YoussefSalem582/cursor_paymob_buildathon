@@ -70,10 +70,10 @@ export default async function HomePage({
           <p className="text-[12px] uppercase tracking-[0.32em] text-clay">
             {t("kicker")}
           </p>
-          <h1 className="mt-4 max-w-xl font-display text-4xl leading-[0.95] tracking-tight sm:text-7xl">
+          <h1 className="mt-4 max-w-2xl font-display text-4xl font-semibold leading-[1.15] sm:text-6xl sm:leading-[1.12]">
             {t("title")}
           </h1>
-          <p className="mt-6 max-w-md text-base leading-relaxed text-muted sm:text-lg">
+          <p className="mt-6 max-w-lg text-base leading-relaxed text-muted sm:text-lg">
             {t("subtitle")}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">

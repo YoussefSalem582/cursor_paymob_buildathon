@@ -85,6 +85,13 @@ button {
   touch-action: manipulation;
 }
 
+/* Letter-spacing and uppercase split Arabic joining; keep them LTR-only. */
+[dir="rtl"] [class*="tracking-"],
+[dir="rtl"] .uppercase {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 input,
 select,
 textarea {

@@ -3,19 +3,23 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
-import { Cairo, Fraunces } from "next/font/google";
+import { El_Messiri, IBM_Plex_Sans_Arabic } from "next/font/google";
 import { routing, localeDirections, type Locale } from "@/i18n/routing";
 import { themeScript } from "@/lib/theme-script";
 import "../globals.css";
 
-const cairo = Cairo({
+const plexArabic = IBM_Plex_Sans_Arabic({
   variable: "--font-sans",
   subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700"],
+  adjustFontFallback: false,
 });
 
-const fraunces = Fraunces({
+const elMessiri = El_Messiri({
   variable: "--font-display",
-  subsets: ["latin"],
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700"],
+  adjustFontFallback: false,
 });
 
 export const viewport: Viewport = {
@@ -24,9 +28,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Escrowd — Creative Work, Clearly Agreed",
+  title: "Escrowd — A drawing made for you",
   description:
-    "Escrow for illustration commissions. Deposit starts work; balance unlocks the file.",
+    "Commission Nour in Garden City. Fill a brief, pay a deposit on Paymob, and unlock the file with the balance.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "48x48" },
@@ -56,7 +60,7 @@ export default async function LocaleLayout({
       lang={locale}
       dir={localeDirections[locale as Locale]}
       suppressHydrationWarning
-      className={`${cairo.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${plexArabic.variable} ${elMessiri.variable} h-full antialiased`}
     >
       <head>
         <link rel="icon" href="/favicon.ico" sizes="48x48" />
