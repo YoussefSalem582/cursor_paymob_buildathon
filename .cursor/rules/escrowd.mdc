@@ -21,6 +21,8 @@ AI pricing, Scope Guard, lead score, change orders, chat, client accounts, fake/
 
 If a prompt asks for those, refuse and point at `docs/plan.md`. Roadmap one-liner for judges: paid change orders later.
 
+Always update `docs/plan.md`, `docs/Architecture.md`, `docs/changelog.md`, `README.md`, and all agent files (`AGENTS.md`, `CLAUDE.md`, `cursor.md`, `grok.md`) in the same turn as a contract change. See `docs-sync.mdc`.
+
 ## Non-negotiable
 
 - Never fake Paymob checkout. Redirect to hosted Unified Checkout only.

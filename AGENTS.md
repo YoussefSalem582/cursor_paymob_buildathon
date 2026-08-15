@@ -10,11 +10,28 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Escrowd
 
-Canonical spec: [`docs/plan.md`](docs/plan.md). Cursor rules: [`.cursor/rules/`](.cursor/rules/). Human README: [`README.md`](README.md).
+Canonical spec: [`docs/plan.md`](docs/plan.md). Architecture: [`docs/Architecture.md`](docs/Architecture.md). Changelog: [`docs/changelog.md`](docs/changelog.md). Human README: [`README.md`](README.md). Cursor rules: [`.cursor/rules/`](.cursor/rules/).
+
+Same product lock for every agent file: [`CLAUDE.md`](CLAUDE.md), [`cursor.md`](cursor.md), [`grok.md`](grok.md). Do not let those files drift from this one.
 
 You are building **Escrowd** (escrow for illustration commissions) for the Cursor x Paymob Cairo Buildathon — not the leftover 100 EGP demo, not Scope Guard.
 
 Nour (illustrator) puts one link in her Instagram bio. Client fills a brief, pays a **deposit**, gets `/o/[token]`. Nour works from a dashboard. Client pays the **balance**; only then is `final_url` returned. One mechanism, five problems.
+
+## Always update docs
+
+Docs are part of the change, not a follow-up. In the **same turn** as any behavior, schema, API, payment, copy, or scope change, update every file that would otherwise lie:
+
+| If you changed | Also update |
+| --- | --- |
+| Product scope, status machine, streams, kill switches | `docs/plan.md` |
+| Trust boundaries, tables, HTTP surface, code map | `docs/Architecture.md` |
+| Anything user- or agent-visible | `docs/changelog.md` (Unreleased, Keep a Changelog) |
+| Setup, env, how to run | `README.md` |
+| Agent rules | `AGENTS.md`, `CLAUDE.md`, `cursor.md`, `grok.md` together |
+| Non-negotiables | `.cursor/rules/*.mdc` |
+
+Do not ship a feature with stale docs. Do not add a table or route that exists only in code. If you are unsure which doc, update the changelog at minimum and the spec if the contract changed.
 
 ## Do not build
 
@@ -60,3 +77,7 @@ One shared function (see `.cursor/rules/pricing.mdc`). Browser must not send the
 ## Kill switches
 
 2:30 no verified checkout → stop product work until one test-card payment flips a row. 4:00 no balance path → one payment of `price_total`, still webhook-only.
+
+## Next.js block above
+
+Keep the `BEGIN:nextjs-agent-rules` block at the top of this file. `next dev` re-adds it if you delete it. Put Escrowd instructions **below** the `END` marker.

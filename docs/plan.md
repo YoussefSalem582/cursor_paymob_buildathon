@@ -1,6 +1,6 @@
 # Escrowd — canonical build plan
 
-**Escrowd** is the product: escrow for illustration commissions. Deposit starts work; balance unlocks the file.
+**Escrowd** is the product: escrow for illustration commissions. Deposit starts work; balance unlocks the file. System shape: [`Architecture.md`](Architecture.md). History: [`changelog.md`](changelog.md). Agents: [`../AGENTS.md`](../AGENTS.md), [`../CLAUDE.md`](../CLAUDE.md), [`../cursor.md`](../cursor.md), [`../grok.md`](../grok.md).
 
 This is the **only** product spec for today. Do not implement Scope Guard, AI pricing, lead score, or change-order payments. Those live in the appendix as a pitch line, not as work.
 

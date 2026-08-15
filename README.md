@@ -28,8 +28,13 @@ Kill switches: **2:30** no verified checkout → drop everything until one test-
 | File | Role |
 | --- | --- |
 | [`docs/plan.md`](docs/plan.md) | Canonical product, schema, Paymob contract, streams |
-| [`AGENTS.md`](AGENTS.md) | Instructions for coding agents (keep the Next.js block at the top) |
-| [`.cursor/rules/`](.cursor/rules/) | Always-on Cursor rules (product, schema, Paymob, pricing) |
+| [`docs/Architecture.md`](docs/Architecture.md) | System shape, trust boundaries, status machine, code map |
+| [`docs/changelog.md`](docs/changelog.md) | What landed vs what is still the demo starter |
+| [`AGENTS.md`](AGENTS.md) | Canonical agent instructions (keep the Next.js block at the top) |
+| [`CLAUDE.md`](CLAUDE.md) | Claude Code — points at AGENTS.md; always update docs |
+| [`cursor.md`](cursor.md) | Cursor — points at AGENTS.md and `.cursor/rules` |
+| [`grok.md`](grok.md) | Grok — same lock as Cursor/Claude |
+| [`.cursor/rules/`](.cursor/rules/) | Always-on Cursor rules (product, schema, Paymob, pricing, docs-sync) |
 | [`docs/problem_to_solve_and_build.md`](docs/problem_to_solve_and_build.md) | Origin note — do not implement against it |
 
 ---

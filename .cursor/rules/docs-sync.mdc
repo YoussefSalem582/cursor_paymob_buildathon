@@ -1,0 +1,19 @@
+---
+description: Always update docs in the same turn as code — plan, architecture, changelog, agent files
+alwaysApply: true
+---
+
+# Docs stay current
+
+Docs are part of the change. Do not finish a turn that leaves `docs/` or agent files lying.
+
+| If you changed | Update |
+| --- | --- |
+| Scope, status machine, streams, Paymob contract | `docs/plan.md` |
+| Trust, schema, HTTP, code map | `docs/Architecture.md` |
+| Anything user- or agent-visible | `docs/changelog.md` (Unreleased) |
+| Setup, env, how to run | `README.md` |
+| Agent instructions | `AGENTS.md`, `CLAUDE.md`, `cursor.md`, `grok.md` together |
+| Hard product rules | `.cursor/rules/*.mdc` |
+
+Minimum: a changelog line. If the contract moved, the spec and architecture too. Do not add routes or tables that exist only in code.
