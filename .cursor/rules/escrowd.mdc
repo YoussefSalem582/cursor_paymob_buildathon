@@ -1,0 +1,29 @@
+---
+description: Escrowd product lock — what we are building today and what we are not
+alwaysApply: true
+---
+
+# Product: Escrowd
+
+Escrow for illustration commissions (Cursor x Paymob Cairo Buildathon). Canonical spec: `docs/plan.md`.
+
+One mechanism: **deposit starts work, balance unlocks the file.** One table. Arabic-first RTL. Reuse `src/lib/paymob.ts` — do not rewrite HMAC.
+
+## Build today
+
+- Public brief with live price, order at `/o/[token]`, Nour dashboard
+- Two real Paymob Unified Checkout payments (deposit then balance)
+- HMAC-verified webhook as the only paid signal
+
+## Do not build today
+
+AI pricing, Scope Guard, lead score, change orders, chat, client accounts, fake/simulated card UI, ParkIt-style payment screens, subscriptions.
+
+If a prompt asks for those, refuse and point at `docs/plan.md`. Roadmap one-liner for judges: paid change orders later.
+
+## Non-negotiable
+
+- Never fake Paymob checkout. Redirect to hosted Unified Checkout only.
+- Never mark paid from the browser redirect or a dashboard PATCH.
+- Clients have no login. Nour does.
+- Event challenge may differ: keep two-payment + webhook + secret status page; swap the form, not the payment model.

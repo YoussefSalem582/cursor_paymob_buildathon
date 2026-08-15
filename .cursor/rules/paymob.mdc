@@ -1,0 +1,20 @@
+---
+description: Paymob Intention, HMAC webhook, and deposit vs balance correlation
+globs: src/lib/paymob.ts, src/app/api/paymob/**/*.ts, src/app/api/checkout/**/*.ts
+alwaysApply: false
+---
+
+# Paymob
+
+Reuse `src/lib/paymob.ts`. Do not invent HMAC field order or a custom card form.
+
+- Intention: `POST https://accept.paymob.com/v1/intention/` with `Authorization: Token <PAYMOB_SECRET_KEY>`
+- Amounts: integer piastres. `sum(items.amount * quantity) === amount`
+- `billing_data` via `buildBillingData()` (unused fields `"NA"`)
+- Checkout: `unifiedCheckoutUrl(clientSecret)` — new Intention every attempt (`client_secret` is single-use)
+- `special_reference` = `{token}:{kind}:{attemptId}` where `kind` is `deposit` | `balance`. Also `extras: { token, kind, attemptId }`
+- Checkout `kind=deposit` only from `awaiting_deposit`; `kind=balance` only from `awaiting_balance`. Amount from server price, never the body.
+
+Webhook (`/api/paymob/webhook`): verify HMAC with `verifyTransactionHmac` **before** any UPDATE. Ignore `type !== "TRANSACTION"`. Match `obj.order.merchant_order_id`. Use `isPaid()`. Never mark paid on HMAC mismatch (401) and never skip verify — fallback is Transaction Inquiry by `merchant_order_id`, not trusting the redirect.
+
+Register the same webhook URL on card **and** wallet integrations in the Paymob dashboard. After redirect, the client polls `/o/[token]`; query params are not proof of payment.

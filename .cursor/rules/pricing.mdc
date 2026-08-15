@@ -1,0 +1,25 @@
+---
+description: Shared pricing function — live UI is display-only, Intention amount is server-side
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Pricing
+
+One function, used by the brief UI (live demo) and by `POST /api/orders` / `POST /api/checkout`. The browser must not choose the Paymob amount.
+
+EGP then `Math.round(egp * 100)` once. Store only integer piastres.
+
+```
+base = { portrait: 800, character: 1200, "logo-mascot": 3000, "menu-set": 2500 }[type]
+extra = max(0, subjects - 1) * 0.6 * base
+price = (base + extra)
+  * { sketch: 0.5, "flat colour": 1.0, "full render": 1.6 }[detail]
+  + { none: 0, simple: 300, "full scene": 900 }[background]
+price *= { personal: 1.0, commercial: 3.0 }[usage]
+
+deposit = round(totalPiastres / 2)
+balance = totalPiastres - deposit
+```
+
+Reject unknown enum values with 400. Checkout `deposit` uses `price_deposit`; `balance` uses `price_balance`. Do not trust `amount` / `amountEgp` from the client (the starter demo still does — replace that).

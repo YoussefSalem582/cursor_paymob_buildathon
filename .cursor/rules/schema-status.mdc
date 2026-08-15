@@ -1,0 +1,37 @@
+---
+description: Orders schema and status machine — webhook-only paid transitions
+alwaysApply: true
+---
+
+# Schema and status
+
+Use this `orders` shape. Do not add `clients`, `payments`, or `change_orders` tables.
+
+```
+id, token (unique 12-char nanoid), created_at
+client_name, client_email, client_phone
+brief jsonb  -- type, subjects, detail_level, background, usage, revisions
+price_total, price_deposit, price_balance  -- integer piastres
+status
+deposit_paid_at, balance_paid_at
+paymob_deposit_order_id, paymob_balance_order_id
+paymob_deposit_transaction_id, paymob_balance_transaction_id
+preview_url, final_url
+```
+
+Create the row on brief submit as `awaiting_deposit`, then start checkout. Do not create the order after payment.
+
+## Status machine
+
+```
+awaiting_deposit --webhook deposit--> in_progress
+in_progress --Nour + preview_url--> ready_for_review
+ready_for_review --Nour + final_url--> awaiting_balance
+awaiting_balance --webhook balance--> delivered
+```
+
+Nour may PATCH only `in_progress → ready_for_review → awaiting_balance`. Reject skips and backwards moves. Dashboard must not write `*_paid_at` or set `in_progress` / `delivered`.
+
+Webhook may only apply deposit (`awaiting_deposit → in_progress`) and balance (`awaiting_balance → delivered`). Failed callbacks do not flip status. If the matching `*_paid_at` is already set, return 200 (idempotent).
+
+`GET` by token must omit `final_url` unless `balance_paid_at` is set. RLS: no browser insert/update; service role on the server only.
