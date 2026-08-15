@@ -5,7 +5,6 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { Cairo, Fraunces } from "next/font/google";
 import { routing, localeDirections, type Locale } from "@/i18n/routing";
-import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { themeScript } from "@/lib/theme-script";
 import "../globals.css";
 
@@ -65,11 +64,7 @@ export default async function LocaleLayout({
         />
       </head>
       <body className="flex min-h-full flex-col">
-        <NextIntlClientProvider>
-          <SiteHeader />
-          {children}
-          <SiteFooter />
-        </NextIntlClientProvider>
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>
   );

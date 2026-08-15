@@ -1,25 +1,12 @@
-import { setRequestLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { redirect } from "@/i18n/navigation";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { requireNour } from "@/lib/nour-auth";
-import { EscrowdLogo, EscrowdLogoFrame } from "@/components/escrowd-logo";
+import { EscrowdLogoFrame } from "@/components/escrowd-logo";
 import { Price } from "@/components/price";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { STATUS_I18N, STATUS_ORDER, type Order } from "@/lib/orders";
 import type { Brief } from "@/lib/pricing";
 
-export const dynamic = "force-dynamic";
-
-export default async function DashboardPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  const user = await requireNour();
-  if (!user) redirect({ href: "/sign-in", locale });
-
+export default async function StudioBoardPage() {
   const admin = createAdminClient();
   const { data } = await admin
     .from("orders")
@@ -30,27 +17,27 @@ export default async function DashboardPage({
 
   return (
     <main className="px-6 py-6 sm:px-10">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <EscrowdLogo size={72} className="mb-3 size-12" alt="" />
-          <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
-            {t("dashboard.kicker")}
-          </p>
-          <h2 className="font-display text-4xl">{t("dashboard.title")}</h2>
-          <p className="mt-2 text-sm text-muted">
-            {t("dashboard.signedInAs", { email: user!.email ?? "" })}
-          </p>
-        </div>
-        <p className="max-w-sm text-sm text-muted">{t("dashboard.subtitle")}</p>
+      <div className="mb-8">
+        <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
+          {t("dashboard.kicker")}
+        </p>
+        <h2 className="font-display text-4xl">{t("dashboard.boardTitle")}</h2>
+        <p className="mt-2 max-w-xl text-sm text-muted">
+          {t("dashboard.boardSubtitle")}
+        </p>
       </div>
       <div className="grid gap-5 lg:grid-cols-5">
         {STATUS_ORDER.map((status) => {
-          const items = orders.filter((o) => o.status === status);
+          const items = orders.filter((order) => order.status === status);
+          const total = items.reduce((sum, order) => sum + order.price_total, 0);
           return (
             <section key={status}>
-              <h3 className="mb-3 text-xs uppercase tracking-widest text-muted">
+              <h3 className="mb-1 text-xs uppercase tracking-widest text-muted">
                 {t(STATUS_I18N[status])}
               </h3>
+              <p className="mb-3 text-xs text-muted">
+                {items.length} · <Price piastres={total} />
+              </p>
               <ul className="grid gap-3">
                 {items.length === 0 ? (
                   <li className="text-sm text-muted">{t("dashboard.empty")}</li>
@@ -60,7 +47,7 @@ export default async function DashboardPage({
                   return (
                     <li key={order.id}>
                       <Link
-                        href={`/dashboard/${order.id}`}
+                        href={`/dashboard/orders/${order.id}`}
                         className="block border border-line p-3 transition-colors hover:border-ink"
                       >
                         {order.preview_url ? (

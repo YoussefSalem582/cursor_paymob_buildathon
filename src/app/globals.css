@@ -42,6 +42,7 @@
 
 html {
   background: var(--paper);
+  scroll-padding-top: 5.5rem;
 }
 
 body {

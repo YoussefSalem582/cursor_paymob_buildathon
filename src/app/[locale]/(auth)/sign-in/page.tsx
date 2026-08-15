@@ -1,8 +1,10 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { AuthForm } from "@/components/auth-form";
 import { EscrowdLogo } from "@/components/escrowd-logo";
 import { signIn } from "@/lib/auth-actions";
+import { requireNour } from "@/lib/nour-auth";
 
 export default async function SignInPage({
   params,
@@ -13,6 +15,7 @@ export default async function SignInPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  if (await requireNour()) redirect({ href: "/dashboard", locale });
   const { next, "check-email": checkEmail } = await searchParams;
   const t = await getTranslations();
 
