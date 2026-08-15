@@ -3,12 +3,7 @@ import { applyPaymobTransaction } from "@/lib/apply-paymob-transaction";
 import { verifyTransactionHmac, type PaymobTransaction } from "@/lib/paymob";
 
 /**
- * Paymob "Transaction Processed Callback".
- *
- * THIS is the source of truth for payment success — not the browser redirect,
- * which a user can fake by typing the success URL.
- *
- * Paymob sends: { type: "TRANSACTION", obj: {...} } with ?hmac=... on the URL.
+ * Paymob Transaction Processed Callback. HMAC first. Never mark paid from redirect.
  */
 export async function POST(request: NextRequest) {
   const payload = (await request.json().catch(() => null)) as {
@@ -28,18 +23,11 @@ export async function POST(request: NextRequest) {
   }
 
   if (payload.type && payload.type !== "TRANSACTION") {
-    // Card-token and delivery callbacks use a different HMAC field order.
     return NextResponse.json({ ok: true, ignored: payload.type });
   }
 
   try {
     const result = await applyPaymobTransaction(payload.obj);
-    if (result.status === "paid") {
-      console.log("[paymob webhook] paid", {
-        orderId: result.orderId,
-        paymobOrderId: result.paymobOrderId,
-      });
-    }
     return NextResponse.json({ ok: true, ...result });
   } catch (error) {
     console.error("[paymob webhook] update failed", error);
