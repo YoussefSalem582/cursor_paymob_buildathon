@@ -3,7 +3,6 @@ import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/lib/auth-actions";
 import { LocaleSwitcher } from "./locale-switcher";
-import { piastresToEgp } from "@/lib/paymob";
 
 export async function SiteHeader() {
   const t = await getTranslations();
@@ -16,6 +15,11 @@ export async function SiteHeader() {
     } = await supabase.auth.getUser();
     signedIn = Boolean(user);
   } catch (error) {
+    const digest =
+      error && typeof error === "object" && "digest" in error
+        ? String((error as { digest?: string }).digest)
+        : "";
+    if (digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("[escrowd] header auth skipped", error);
   }
 
@@ -66,18 +70,5 @@ export async function SiteFooter() {
     <footer className="mt-auto border-t border-line px-6 py-8 text-sm text-muted sm:px-10">
       <p>{t("app.footer")}</p>
     </footer>
-  );
-}
-
-export function Price({ piastres }: { piastres: number }) {
-  const egp = piastresToEgp(piastres);
-  return (
-    <span className="font-display tabular-nums">
-      {new Intl.NumberFormat("en-EG", {
-        style: "currency",
-        currency: "EGP",
-        maximumFractionDigits: 0,
-      }).format(egp)}
-    </span>
   );
 }

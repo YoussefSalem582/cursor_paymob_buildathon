@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Price } from "@/components/site-chrome";
+import { Price } from "@/components/price";
 import type { Order } from "@/lib/orders";
 import type { CheckoutKind } from "@/lib/paymob";
 import type { Brief } from "@/lib/pricing";

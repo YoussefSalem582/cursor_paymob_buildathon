@@ -3,7 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { redirect } from "@/i18n/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireNour } from "@/lib/nour-auth";
-import { Price } from "@/components/site-chrome";
+import { Price } from "@/components/price";
 import { STATUS_ORDER, type Order, type OrderStatus } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";

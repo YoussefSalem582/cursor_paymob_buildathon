@@ -3,7 +3,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireNour } from "@/lib/nour-auth";
-import { Price } from "@/components/site-chrome";
+import { Price } from "@/components/price";
 import { StudioActions } from "../studio-actions";
 import type { Order } from "@/lib/orders";
 import type { Brief } from "@/lib/pricing";
