@@ -8,13 +8,13 @@ As of 2026-08-15. Canonical spec: [`docs/plan.md`](docs/plan.md). Architecture: 
 
 ## Where the repo is right now
 
-`main` is current. Rebase conflict is done. Hosted `orders` is the Escrowd shape (`0006_escrowd_orders_restore_fourth.sql`).
+`feat/apply-sibling-craft` has the judge sheet, receipt, and private deliveries. Hosted `orders` on the linked Supabase project is **Scope Guard again** (`client_id`, no `token` / `brief`). Restore [`0006_escrowd_orders_restore_fourth.sql`](supabase/migrations/0006_escrowd_orders_restore_fourth.sql) before a live demo. Private `deliveries` bucket exists.
 
-The **screens and payment model are in the tree**. The **demo is not proven** on a public URL (two HMAC-verified sandbox payments on one order). That is the remaining risk.
+The **screens and payment model are in the tree**. Public webhook is reachable (empty POST → 400). **HMAC deposit + balance on one live order is not recorded yet** — paste the production webhook on the card integration, then run the test card. Judge sheet: [`docs/demo-readiness.md`](docs/demo-readiness.md).
 
 | Layer | In tree | Gap |
 | --- | --- | --- |
-| Schema | `0002` + `0003` + `0004` + `0005` + `0006` on the hosted project | Do not re-apply `0001_orders.sql`. Do not re-add `clients` / `client_id` |
+| Schema | `0002`–`0007` in the repo | Hosted `orders` is Scope Guard columns again. Restore `0006`. Do not re-apply `0001_orders.sql` |
 | Pricing | Shared `priceBrief()`; commercial ×3 | — |
 | Client | Brief submit starts deposit checkout; `/o/[token]` timeline + poll + Inquiry reconcile | Prove on the public URL |
 | Nour | Gated `/dashboard` studio (own chrome): overview charts, board, uploads, Paymob ids on detail. Public Selected work is real studies. | Seed 2–3 orders with watermarked preview/final |
@@ -37,9 +37,9 @@ The **screens and payment model are in the tree**. The **demo is not proven** on
 Without this, the rest is a storefront. Spec “done when”: two real sandbox payments on **one** order, both HMAC-verified.
 
 - [x] `NEXT_PUBLIC_SITE_URL` = `https://cursor-paymob-buildathon-five.vercel.app` (no trailing slash)
-- [ ] Register `https://cursor-paymob-buildathon-five.vercel.app/api/paymob/webhook` as Transaction processed callback on **card and wallet** integrations
+- [ ] Register `https://cursor-paymob-buildathon-five.vercel.app/api/paymob/webhook` as Transaction processed callback on the **card** integration (empty POST already returns 400 on production)
 - [x] `PAYMOB_INTEGRATION_IDS` is this merchant’s test card `5853667` (not an ID from another account)
-- [ ] Add a wallet Integration ID to `PAYMOB_INTEGRATION_IDS` only if this merchant enables one in Test mode
+- [x] Wallet Integration ID: **none** on this test merchant (MCP listed Card Payment only). Add one only if Test mode enables a wallet
 - [ ] Test-card **deposit** on the public URL → `awaiting_deposit → in_progress` and `deposit_paid_at` set
 - [ ] **Kill switch 2:30:** if that has not happened, stop all other product work until it does
 - [ ] Test-card **balance** on the same order → `awaiting_balance → delivered`, file unlocks on `/o/[token]`

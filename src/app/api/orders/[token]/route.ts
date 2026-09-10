@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { reconcileEscrowdOrder } from "@/lib/apply-paymob-transaction";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { publicOrder, type Order } from "@/lib/orders";
+import { presentPublicOrder } from "@/lib/delivery";
+import type { Order } from "@/lib/orders";
 import { isOrderToken } from "@/lib/validate";
 
 export async function GET(
@@ -31,5 +32,5 @@ export async function GET(
     order = await reconcileEscrowdOrder(order);
   }
 
-  return NextResponse.json({ order: publicOrder(order) });
+  return NextResponse.json({ order: await presentPublicOrder(order) });
 }

@@ -19,7 +19,7 @@ This repo is Next.js + Supabase + Paymob. Reuse [`src/lib/paymob.ts`](src/lib/pa
 - Paymob Unified Checkout twice: **deposit** starts work, **balance** unlocks the file
 - HMAC-verified webhook is the only source of truth for paid
 - Nour dashboard: overview + board + order detail (own chrome, not the public header)
-- `final_url` is returned only after `balance_paid_at`
+- `final_url` is returned only after `balance_paid_at` (signed URL; the storage object is private)
 - Payment rating: 5 stars if the deposit is verified within 72 hours of the brief; 4 stars after that. The client is alerted before Paymob.
 
 **Out:** chat, client accounts, fake card UI, AI pricing, Scope Guard, lead score, subscriptions.
@@ -34,6 +34,7 @@ Kill switches: **2:30** no verified checkout → drop everything until one test-
 | --- | --- |
 | [`docs/plan.md`](docs/plan.md) | Canonical product, schema, Paymob contract, streams |
 | [`docs/Architecture.md`](docs/Architecture.md) | System shape, trust boundaries, status machine, code map |
+| [`docs/demo-readiness.md`](docs/demo-readiness.md) | Judge URLs, webhook paste, 90s script, troubleshooting |
 | [`docs/changelog.md`](docs/changelog.md) | What landed vs what is still the demo starter |
 | [`AGENTS.md`](AGENTS.md) | Canonical agent instructions (keep the Next.js block at the top) |
 | [`CLAUDE.md`](CLAUDE.md) | Claude Code — points at AGENTS.md; always update docs |
@@ -216,6 +217,10 @@ Hour 0 of the build: this URL must exist.
 ```
 public/brand/                     Mark and lockup: transparent, *-dark for dark mode, *-on-paper cream-backed
 src/lib/paymob.ts                 HMAC, Intention, billing_data "NA", Inquiry
+src/lib/delivery.ts               Private deliveries → signed URLs
+src/lib/delivery-upload.ts        Preview/final upload (stores object path)
+src/app/api/health                Liveness + Paymob configured / webhook path / origin
+docs/demo-readiness.md            Judge URLs, webhook paste, 90s script
 src/lib/apply-paymob-transaction.ts  deposit/balance persist after HMAC or Inquiry
 src/lib/pricing.ts                live UI + server amount
 src/app/api/paymob/webhook        HMAC, then deposit or balance
@@ -240,11 +245,13 @@ RTL is already real: `<html dir>` from locale, Tailwind logical utilities (`ms-*
 npm test
 ```
 
-HMAC field order, tampered-amount reject, `billing_data` → `"NA"`, piastres conversion, `isPaid`, `parseSpecialReference`, pricing ×3 commercial, studio totals from `*_paid_at`, Selected work locale captions. Keep these green when you change checkout/webhook.
+HMAC field order, tampered-amount reject, `billing_data` → `"NA"`, piastres conversion, `isPaid`, `parseSpecialReference`, pricing ×3 commercial, studio totals from `*_paid_at`, Selected work locale captions, deliveries path parsing. Keep these green when you change checkout/webhook.
 
 ---
 
 ## Demo script (90 seconds, deployed URL)
+
+Full judge packet: [`docs/demo-readiness.md`](docs/demo-readiness.md). Short version:
 
 Two windows: client left, Nour right.
 

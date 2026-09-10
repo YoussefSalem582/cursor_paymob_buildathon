@@ -135,7 +135,23 @@
     "trouble": "Having trouble loading status. Keep this page — payment is confirmed only by the signed webhook.",
     "windowRule": "Pay the deposit within 72 hours of locking the brief. After that the payment rating is 4 stars, not 5. You can still pay.",
     "windowOpen": "Pay within {hours}h {minutes}m for a 5-star rating. After 72 hours it becomes 4 stars. You can still pay.",
-    "windowClosed": "72 hours passed without a verified deposit. This commission is 4 stars, not 5. You can still pay."
+    "windowClosed": "72 hours passed without a verified deposit. This commission is 4 stars, not 5. You can still pay.",
+    "offline": "You’re offline. Checkout will wait until you’re back online."
+  },
+  "receipt": {
+    "kicker": "Receipt",
+    "title": "The locked brief",
+    "token": "Order link",
+    "opened": "Opened",
+    "deposit": "Deposit",
+    "balance": "Balance",
+    "revisions": "{count} revisions",
+    "pending": "Locks with the deposit",
+    "locked": "Locked at deposit · {when}",
+    "note": "Price and brief are frozen on the server. Returning from Paymob does not unlock the file."
+  },
+  "connection": {
+    "offline": "You’re offline. Keep this page — checkout will wait until you’re back online."
   },
   "dashboard": {
     "kicker": "Working wall",

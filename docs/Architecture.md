@@ -85,7 +85,7 @@ sequenceDiagram
 
 **Correlation:** `special_reference` = `{token}:{kind}:{attemptId}` (unique per Intention). `extras: { token, kind, attemptId }`. Webhook parses `obj.order.merchant_order_id`.
 
-**File unlock:** `GET /api/orders/:token` omits `final_url` unless `balance_paid_at` is set. Preview may show earlier. No watermark pipeline — Nour uploads two files.
+**File unlock:** `GET /api/orders/:token` omits `final_url` unless `balance_paid_at` is set. Preview may show earlier. The `deliveries` bucket is private ([`0007_private_deliveries.sql`](../supabase/migrations/0007_private_deliveries.sql)); columns store an object path; the server mints a one-hour signed URL. No watermark pipeline — Nour uploads two files.
 
 ---
 
@@ -155,15 +155,16 @@ One function, client (live UI) and server (Intention amount):
 | Method | Path | Who | Does |
 | --- | --- | --- | --- |
 | POST | `/api/orders` | Client | Create `awaiting_deposit`, server price, return `{ token }` |
-| GET | `/api/orders/:token` | Client | Order for `/o/[token]`; strip `final_url` until balance paid. `?reconcile=1` runs Inquiry then returns |
+| GET | `/api/orders/:token` | Client | Order for `/o/[token]`; strip `final_url` until balance paid, then sign remaining URLs. `?reconcile=1` runs Inquiry then returns |
 | POST | `/api/checkout` | Client | `{ token, kind }`; return hosted checkout URL |
+| GET | `/api/paymob/webhook` | anyone | Probe only (`accept: POST`, HMAC required) |
 | POST | `/api/paymob/webhook` | Paymob | HMAC, then paid fields |
 | POST | `/api/paymob/inquiry` | Server / poll | Transaction Inquiry fallback; same `isPaid()` persist as webhook |
-| GET | `/api/dashboard/orders` | Nour | List + status filter |
+| GET | `/api/dashboard/orders` | Nour | List + status filter (signed delivery URLs) |
 | PATCH | `/api/dashboard/orders/:id` | Nour | Advance one legal step |
-| POST | `/api/dashboard/orders/:id/preview` | Nour | Set `preview_url` |
-| POST | `/api/dashboard/orders/:id/final` | Nour | Set `final_url` (not exposed yet) |
-| GET | `/api/health` | anyone | Liveness, no secrets |
+| POST | `/api/dashboard/orders/:id/preview` | Nour | Set `preview_url` (storage path) |
+| POST | `/api/dashboard/orders/:id/final` | Nour | Set `final_url` path (not exposed yet) |
+| GET | `/api/health` | anyone | Liveness + `paymob.configured` / webhook path / public origin, no secrets |
 
 Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout=returning` (poll only). Inquiry is the fallback when the webhook cannot reach the server.
 
@@ -179,11 +180,17 @@ Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout
 | [`src/lib/validate.ts`](../src/lib/validate.ts) | Contact, Egyptian mobile, order token/id, delivery files, safe `next` paths |
 | [`messages/ar.json`](../messages/ar.json) / [`messages/en.json`](../messages/en.json) | UI copy. Arabic is spoken Cairene; keep العربون / الباقي / البرايف / باي موب |
 | [`src/lib/orders.ts`](../src/lib/orders.ts) | Status machine; `publicOrder` hides `final_url`; `inquiryLookup` for reconcile; `paymentStars` (72h deposit window → 5 or 4) |
+| [`src/lib/delivery.ts`](../src/lib/delivery.ts) / [`delivery-path.ts`](../src/lib/delivery-path.ts) | Private `deliveries` paths → signed URLs; `presentPublicOrder` / `presentStudioOrder` |
+| [`src/components/brief-receipt.tsx`](../src/components/brief-receipt.tsx) | Frozen brief + prices on `/o/[token]` (existing jsonb, no extra table) |
+| [`src/components/connection-guard.tsx`](../src/components/connection-guard.tsx) | Offline banner; Pay buttons disabled when `navigator.onLine` is false |
 | [`src/components/payment-window-alert.tsx`](../src/components/payment-window-alert.tsx) | Client `role="alert"` for the 72h / 4★ vs 5★ rule |
 | [`src/components/stars.tsx`](../src/components/stars.tsx) | 4 or 5 clay stars |
 | [`src/lib/theme-script.ts`](../src/lib/theme-script.ts) / [`src/components/theme-toggle.tsx`](../src/components/theme-toggle.tsx) | Blocking theme script + class-based dark mode (`html.dark`) |
 | [`.cursor/mcp.json`](../.cursor/mcp.json) / [`.mcp.json`](../.mcp.json) | Paymob MCP URL only. Credentials via `set_api_credentials` in-session, never in git |
-| [`src/app/api/paymob/webhook/route.ts`](../src/app/api/paymob/webhook/route.ts) | HMAC, then deposit or balance |
+| [`src/app/api/paymob/webhook/route.ts`](../src/app/api/paymob/webhook/route.ts) | GET probe; POST HMAC, then deposit or balance |
+| [`src/app/api/health/route.ts`](../src/app/api/health/route.ts) | Liveness + Paymob configured / webhook path / public origin |
+| [`docs/demo-readiness.md`](demo-readiness.md) | Judge URLs, webhook paste, 90s script, troubleshooting |
+| [`supabase/migrations/0007_private_deliveries.sql`](../supabase/migrations/0007_private_deliveries.sql) | `deliveries` bucket private; drop public-read policy |
 | [`src/app/api/paymob/inquiry/route.ts`](../src/app/api/paymob/inquiry/route.ts) | Pull-based fallback when the callback is slow |
 | [`src/app/api/checkout/route.ts`](../src/app/api/checkout/route.ts) | `{ token, kind }`, no login, server price |
 | [`src/app/[locale]/(site)/commission/`](../src/app/%5Blocale%5D/%28site%29/commission/) | Public brief + live price |
@@ -211,6 +218,7 @@ Redirect from Paymob is `/api/paymob/redirect/[locale]` → `/o/[token]?checkout
 | [`supabase/migrations/0004_escrowd_orders_replace_again.sql`](../supabase/migrations/0004_escrowd_orders_replace_again.sql) | Re-replaces hosted `orders` after Scope Guard columns (`client_id`, …) came back |
 | [`supabase/migrations/0005_escrowd_orders_replace_third.sql`](../supabase/migrations/0005_escrowd_orders_replace_third.sql) | Same replace after `0004` was recorded and Scope Guard columns returned again (studio 500) |
 | [`supabase/migrations/0006_escrowd_orders_restore_fourth.sql`](../supabase/migrations/0006_escrowd_orders_restore_fourth.sql) | Restore after Scope Guard renamed Escrowd `orders` to `orders_legacy_pre_escrowd_*`; copies leftover rows |
+| [`supabase/migrations/0007_private_deliveries.sql`](../supabase/migrations/0007_private_deliveries.sql) | `deliveries` bucket private; drop public-read policy |
 
 Env: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or legacy `ANON_KEY`), `SUPABASE_SECRET_KEY` (`sb_secret_…`, or legacy `SUPABASE_SERVICE_ROLE_KEY`), `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_HMAC_SECRET`, `PAYMOB_INTEGRATION_IDS`, optional `PAYMOB_API_KEY` for Inquiry. Secret key never in the client bundle (`NEXT_PUBLIC_`). Clients live in [`src/lib/supabase/`](../src/lib/supabase/) — session refresh is [`src/proxy.ts`](../src/proxy.ts) (Next.js 16), not a separate `middleware.ts`. Copy `.env.example` to `.env.local`; never commit real keys.
 

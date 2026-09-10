@@ -1,8 +1,7 @@
+import { DELIVERIES_BUCKET } from "@/lib/delivery-path";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Order } from "@/lib/orders";
 import { parseDeliveryFile, parseOrderId } from "@/lib/validate";
-
-const BUCKET = "deliveries";
 
 export async function uploadDelivery(
   id: string,
@@ -35,16 +34,15 @@ export async function uploadDelivery(
         ? "image/png"
         : "image/webp";
   const { error: uploadError } = await admin.storage
-    .from(BUCKET)
+    .from(DELIVERIES_BUCKET)
     .upload(path, parsed.value.file, { contentType });
   if (uploadError) return { error: uploadError.message, status: 500 as const };
 
-  const { data } = admin.storage.from(BUCKET).getPublicUrl(path);
   const column = kind === "preview" ? "preview_url" : "final_url";
   const { error } = await admin
     .from("orders")
-    .update({ [column]: data.publicUrl })
+    .update({ [column]: path })
     .eq("id", orderId);
   if (error) return { error: error.message, status: 500 as const };
-  return { url: data.publicUrl };
+  return { path };
 }

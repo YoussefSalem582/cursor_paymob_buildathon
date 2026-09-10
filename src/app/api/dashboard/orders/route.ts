@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { presentStudioOrder } from "@/lib/delivery";
 import { requireNour } from "@/lib/nour-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { Order } from "@/lib/orders";
 
 export async function GET() {
   if (!(await requireNour())) {
@@ -16,5 +18,8 @@ export async function GET() {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  return NextResponse.json({ orders: data ?? [] });
+  const orders = await Promise.all(
+    ((data ?? []) as Order[]).map((row) => presentStudioOrder(row)),
+  );
+  return NextResponse.json({ orders });
 }

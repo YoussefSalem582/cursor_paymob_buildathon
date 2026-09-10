@@ -59,7 +59,7 @@ If you do not get Challenge 03, keep Paymob two-payment + webhook + secret statu
 
 **Deploy the public URL in hour 0.** Paymob cannot hit localhost. Set `NEXT_PUBLIC_SITE_URL` to the Vercel (or ngrok) origin with no trailing slash, then register that webhook.
 
-**Watermarking:** do not write an image pipeline. Nour uploads two files. Preview is already marked in the file. Hide `final_url` until `balance_paid_at` is set. Prepare 2–3 seed artworks before the demo.
+**Watermarking:** do not write an image pipeline. Nour uploads two files. Preview is already marked in the file. Hide `final_url` until `balance_paid_at` is set. The `deliveries` bucket is **private**; `preview_url` / `final_url` store an object path (legacy public URLs are parsed). The server mints signed URLs. Prepare 2–3 seed artworks before the demo.
 
 ---
 
@@ -93,7 +93,7 @@ orders
   preview_url, final_url      text
 ```
 
-Writes to paid fields and to `in_progress` / `delivered` happen only in the webhook handler (service role). RLS: no browser insert/update. Public read of an order is by token through a server route that strips `final_url` unless `balance_paid_at` is set.
+Writes to paid fields and to `in_progress` / `delivered` happen only in the webhook handler (service role). RLS: no browser insert/update. Public read of an order is by token through a server route that strips `final_url` unless `balance_paid_at` is set, then signs remaining delivery URLs.
 
 ---
 
@@ -317,9 +317,12 @@ Last beat is the unlock. Brief is frozen at deposit, so scope is a record, not a
 | Method | Path | Who | Does |
 | --- | --- | --- | --- |
 | POST | `/api/orders` | client | Create `awaiting_deposit`. Server prices. Returns `{ token }`. |
-| GET | `/api/orders/:token` | client | Order for `/o/[token]`. Strip `final_url` unless balance paid. `?reconcile=1` runs Transaction Inquiry then returns. |
+| GET | `/api/orders/:token` | client | Order for `/o/[token]`. Strip `final_url` unless balance paid, then mint signed delivery URLs. `?reconcile=1` runs Transaction Inquiry then returns. |
 | POST | `/api/checkout` | client | Body `{ token, kind: "deposit" \| "balance" }`. Server amount. Returns `{ checkoutUrl }`. |
+| GET | `/api/paymob/webhook` | anyone | Probe: POST-only, HMAC required. Never writes paid. |
 | POST | `/api/paymob/webhook` | Paymob | HMAC, then paid fields. |
+| POST | `/api/paymob/inquiry` | Server / poll | Transaction Inquiry fallback; same persist as webhook. |
+| GET | `/api/health` | anyone | Liveness + whether Paymob env is present (no secrets). |
 | GET | `/api/dashboard/orders` | Nour | List + status filter. |
 | PATCH | `/api/dashboard/orders/:id` | Nour | Advance one allowed step only. |
 | POST | `/api/dashboard/orders/:id/preview` | Nour | Set `preview_url`. |

@@ -13,6 +13,8 @@ import {
   egpToPiastres,
   isPaid,
   parseSpecialReference,
+  paymobConfigured,
+  publicSiteOrigin,
   transactionHmacPayload,
   verifyTransactionHmac,
   type PaymobTransaction,
@@ -126,4 +128,31 @@ test("parseSpecialReference splits token:kind:attemptId", () => {
   );
   assert.equal(parseSpecialReference("order_abc"), null);
   assert.equal(parseSpecialReference("tok:change:1"), null);
+});
+
+test("paymobConfigured is false without keys and true with them", () => {
+  const keys = [
+    "PAYMOB_SECRET_KEY",
+    "PAYMOB_PUBLIC_KEY",
+    "PAYMOB_HMAC_SECRET",
+    "PAYMOB_INTEGRATION_IDS",
+    "NEXT_PUBLIC_SITE_URL",
+  ] as const;
+  const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  for (const key of keys) delete process.env[key];
+  assert.equal(paymobConfigured(), false);
+  assert.equal(publicSiteOrigin(), null);
+
+  process.env.PAYMOB_SECRET_KEY = "sk";
+  process.env.PAYMOB_PUBLIC_KEY = "pk";
+  process.env.PAYMOB_HMAC_SECRET = "hmac";
+  process.env.PAYMOB_INTEGRATION_IDS = "5853667";
+  process.env.NEXT_PUBLIC_SITE_URL = "https://cursor-paymob-buildathon-five.vercel.app/";
+  assert.equal(paymobConfigured(), true);
+  assert.equal(publicSiteOrigin(), "https://cursor-paymob-buildathon-five.vercel.app");
+
+  for (const key of keys) {
+    if (previous[key] === undefined) delete process.env[key];
+    else process.env[key] = previous[key];
+  }
 });

@@ -1,3 +1,4 @@
+import { presentStudioOrder } from "@/lib/delivery";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Order } from "@/lib/orders";
 
@@ -18,7 +19,10 @@ export async function loadStudioOrders(): Promise<StudioOrdersLoad> {
       console.error("[escrowd] studio orders", error.message);
       return { orders: [], error: error.message };
     }
-    return { orders: (data ?? []) as Order[], error: null };
+    const orders = await Promise.all(
+      ((data ?? []) as Order[]).map((row) => presentStudioOrder(row)),
+    );
+    return { orders, error: null };
   } catch (error) {
     console.error("[escrowd] studio orders", error);
     return { orders: [], error: "studio_load_failed" };
@@ -37,7 +41,8 @@ export async function loadStudioOrder(id: string): Promise<Order | null> {
       console.error("[escrowd] studio order", error.message);
       return null;
     }
-    return (data as Order | null) ?? null;
+    if (!data) return null;
+    return presentStudioOrder(data as Order);
   } catch (error) {
     console.error("[escrowd] studio order", error);
     return null;

@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ## Unreleased
 
+### Added
+
+- Judge sheet [`docs/demo-readiness.md`](demo-readiness.md): live URLs, webhook paste, 90-second script, troubleshooting. Production empty webhook POST returns 400 (no paid flip). This test merchant has card checkout only — no wallet Integration ID until Paymob Test mode lists one.
+- `GET /api/health` reports `paymob.configured`, webhook path, and `NEXT_PUBLIC_SITE_URL` origin. No secrets.
+- `GET /api/paymob/webhook` is a probe (`accept: POST`, HMAC required). POST still verifies HMAC before any UPDATE.
+- Frozen brief receipt on `/o/[token]` from existing `brief` jsonb (no Scope Guard table).
+- Offline guard on commission and Pay buttons (`navigator.onLine`).
+- `deliveries` bucket is private ([`0007_private_deliveries.sql`](../supabase/migrations/0007_private_deliveries.sql)). Uploads store an object path; public/studio reads mint a one-hour signed URL. `GET` still omits `final_url` until `balance_paid_at`.
+
 ### Fixed
 
 - Studio `/dashboard` empty/500 after client briefs: Scope Guard migrations ran on the hosted project again after `0005`, renamed Escrowd `orders` to `orders_legacy_pre_escrowd_*`, and put back `client_id` (no `token` / `brief`). [`0006_escrowd_orders_restore_fourth.sql`](../supabase/migrations/0006_escrowd_orders_restore_fourth.sql) restores Escrowd and copies leftover rows. Studio reads no longer cache an empty list; a load failure shows an error instead of zero income.
@@ -65,7 +74,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ### Planned
 
-- Register `https://cursor-paymob-buildathon-five.vercel.app/api/paymob/webhook` on card **and** wallet integrations.
+- Register `https://cursor-paymob-buildathon-five.vercel.app/api/paymob/webhook` on the **card** integration (wallet only if Test mode lists one).
+- Hosted `orders` on the linked Supabase project is Scope Guard again (`client_id`, no `token` / `brief`). Private `deliveries` bucket exists. Restore Escrowd with [`0006`](../supabase/migrations/0006_escrowd_orders_restore_fourth.sql) before a live demo — do not re-apply Scope Guard migrations.
 
 ### Not planned (today)
 
