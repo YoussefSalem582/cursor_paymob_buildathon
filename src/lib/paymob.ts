@@ -107,6 +107,33 @@ function requireEnv(name: string): string {
   return value;
 }
 
+export const PAYMOB_WEBHOOK_PATH = "/api/paymob/webhook";
+
+/** True when Intention + HMAC env is present. Does not throw. Never logs secrets. */
+export function paymobConfigured(): boolean {
+  const ids = (process.env.PAYMOB_INTEGRATION_IDS ?? "")
+    .split(",")
+    .map((id) => Number(id.trim()))
+    .filter((id) => Number.isInteger(id) && id > 0);
+  return Boolean(
+    process.env.PAYMOB_SECRET_KEY &&
+      process.env.PAYMOB_PUBLIC_KEY &&
+      process.env.PAYMOB_HMAC_SECRET &&
+      ids.length > 0,
+  );
+}
+
+/** Origin Paymob should call. Null if `NEXT_PUBLIC_SITE_URL` is missing. */
+export function publicSiteOrigin(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return raw.replace(/\/$/, "") || null;
+  }
+}
+
 /** PAYMOB_INTEGRATION_IDS="1234,5678" -> [1234, 5678] */
 export function integrationIds(): number[] {
   const ids = requireEnv("PAYMOB_INTEGRATION_IDS")

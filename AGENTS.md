@@ -60,7 +60,7 @@ ready_for_review --Nour + final_url--> awaiting_balance
 awaiting_balance --webhook balance--> delivered
 ```
 
-Nour PATCH may only walk `in_progress → ready_for_review → awaiting_balance`. Dashboard must not write `*_paid_at` or set `in_progress` / `delivered`. Webhook is the only paid signal. Redirect query params are not. Idempotent: if the matching `*_paid_at` is set, 200 and stop. `GET` by token omits `final_url` unless `balance_paid_at` is set.
+Nour PATCH may only walk `in_progress → ready_for_review → awaiting_balance`. Dashboard must not write `*_paid_at` or set `in_progress` / `delivered`. Webhook is the only paid signal. Redirect query params are not. Idempotent: if the matching `*_paid_at` is set, 200 and stop. `GET` by token omits `final_url` unless `balance_paid_at` is set. The `deliveries` bucket is private; mint signed URLs. Judge sheet: [`docs/demo-readiness.md`](docs/demo-readiness.md).
 
 ## Paymob
 

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { ConnectionGuard, useOnline } from "@/components/connection-guard";
 import { Button } from "@/components/ui/button";
 import { ChoiceGroup } from "@/components/ui/choice-group";
 import { BriefPaymentWindowAlert } from "@/components/payment-window-alert";
@@ -46,6 +47,7 @@ export function CommissionForm() {
   const tb = useTranslations("brief");
   const locale = useLocale();
   const router = useRouter();
+  const online = useOnline();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<ContactField, string>>>({});
@@ -78,6 +80,7 @@ export function CommissionForm() {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!online) return;
     setBusy(true);
     setError(null);
     setFieldErrors({});
@@ -141,6 +144,7 @@ export function CommissionForm() {
       className="grid gap-8 max-lg:pb-52"
       aria-busy={busy || undefined}
     >
+      <ConnectionGuard />
       <fieldset className="grid min-w-0 gap-5">
         <legend className="float-none w-full font-display text-2xl">{t("contactSection")}</legend>
         <Input
@@ -250,6 +254,7 @@ export function CommissionForm() {
         commercial={brief.usage === "commercial"}
         error={error}
         busy={busy}
+        online={online}
         className="hidden lg:block"
       />
       <PriceSummary
@@ -260,6 +265,7 @@ export function CommissionForm() {
         commercial={brief.usage === "commercial"}
         error={error}
         busy={busy}
+        online={online}
         compact
         className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-paper/95 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] backdrop-blur-sm lg:hidden"
       />
@@ -275,6 +281,7 @@ function PriceSummary({
   commercial,
   error,
   busy,
+  online,
   compact = false,
   className,
 }: {
@@ -285,6 +292,7 @@ function PriceSummary({
   commercial: boolean;
   error: string | null;
   busy: boolean;
+  online: boolean;
   compact?: boolean;
   className?: string;
 }) {
@@ -342,7 +350,12 @@ function PriceSummary({
             <FieldError>{error}</FieldError>
           </div>
         ) : null}
-        <Button type="submit" loading={busy} className="mt-3 w-full">
+        {!online ? (
+          <div className="mt-3">
+            <FieldError>{to("offline")}</FieldError>
+          </div>
+        ) : null}
+        <Button type="submit" loading={busy} disabled={!online} className="mt-3 w-full">
           {busy ? t("submitting") : t("submit")}
         </Button>
       </div>

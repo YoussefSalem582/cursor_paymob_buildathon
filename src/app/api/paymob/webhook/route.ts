@@ -1,6 +1,25 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { applyPaymobTransaction } from "@/lib/apply-paymob-transaction";
-import { verifyTransactionHmac, type PaymobTransaction } from "@/lib/paymob";
+import {
+  PAYMOB_WEBHOOK_PATH,
+  verifyTransactionHmac,
+  type PaymobTransaction,
+} from "@/lib/paymob";
+
+/**
+ * Judge / dashboard probe. Paid is never written here.
+ */
+export function GET() {
+  return NextResponse.json(
+    {
+      ok: true,
+      accept: "POST",
+      path: PAYMOB_WEBHOOK_PATH,
+      hmac: "required",
+    },
+    { headers: { "cache-control": "no-store" } },
+  );
+}
 
 /**
  * Paymob Transaction Processed Callback. HMAC first. Never mark paid from redirect.

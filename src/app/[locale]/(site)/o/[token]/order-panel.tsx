@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { BriefReceipt } from "@/components/brief-receipt";
+import { ConnectionGuard, useOnline } from "@/components/connection-guard";
 import { Button, buttonBase, buttonVariants } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
 import { OrderPaymentWindowAlert } from "@/components/payment-window-alert";
-import { Price } from "@/components/price";
 import {
   STATUS_ORDER,
   awaitingPayment,
@@ -13,7 +14,6 @@ import {
   type OrderStatus,
 } from "@/lib/orders";
 import type { CheckoutKind } from "@/lib/paymob";
-import type { Brief } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 const MAX_POLLS = 15;
@@ -44,10 +44,12 @@ export function PayButton({
 }) {
   const t = useTranslations("order");
   const locale = useLocale();
+  const online = useOnline();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function pay() {
+    if (!online) return;
     setBusy(true);
     setError(null);
     const res = await fetch("/api/checkout", {
@@ -66,9 +68,17 @@ export function PayButton({
 
   return (
     <div className="grid gap-3">
-      <Button type="button" variant="clay" loading={busy} className="w-full" onClick={pay}>
+      <Button
+        type="button"
+        variant="clay"
+        loading={busy}
+        disabled={!online}
+        className="w-full"
+        onClick={pay}
+      >
         {busy ? t("opening") : label}
       </Button>
+      {!online ? <FieldError>{t("offline")}</FieldError> : null}
       {error ? <FieldError>{error}</FieldError> : null}
     </div>
   );
@@ -116,7 +126,6 @@ export function OrderPanel({
   returning: boolean;
 }) {
   const t = useTranslations("order");
-  const tb = useTranslations("brief");
   const [order, setOrder] = useState(initial);
   const [trouble, setTrouble] = useState(false);
 
@@ -165,7 +174,6 @@ export function OrderPanel({
     };
   }, [returning, initial.token]);
 
-  const brief = order.brief as Brief;
   const waiting = returning && awaitingPayment(order);
 
   return (
@@ -183,6 +191,7 @@ export function OrderPanel({
         )}
       </div>
       <div className="order-1 min-w-0 lg:order-2">
+        <ConnectionGuard className="mb-4" />
         <p className="text-[12px] uppercase tracking-[0.28em] text-clay">
           {waiting ? t("confirming") : t(statusKey(order.status))}
         </p>
@@ -195,32 +204,9 @@ export function OrderPanel({
           </div>
         ) : null}
 
+        <BriefReceipt order={order} />
+
         <Timeline current={order.status} />
-
-        <dl className="mt-8 grid gap-3 border-t border-line pt-6 text-sm">
-          <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
-            <dt className="text-muted">{tb(brief.type)}</dt>
-            <dd className="min-w-0 sm:text-end">
-              {brief.subjects} · {tb(brief.detail_level)} · {tb(brief.background)}
-            </dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-muted">{tb(brief.usage)}</dt>
-            <dd>{brief.revisions}</dd>
-          </div>
-        </dl>
-
-        <p className="mt-8 font-display text-3xl sm:text-4xl">
-          <Price piastres={order.price_total} />
-        </p>
-        <p className="mt-2 flex flex-col gap-1 text-sm text-muted sm:flex-row sm:gap-0">
-          <span className="sm:me-3">
-            {t("deposit")}: <Price piastres={order.price_deposit} />
-          </span>
-          <span>
-            {t("balance")}: <Price piastres={order.price_balance} />
-          </span>
-        </p>
 
         {order.status === "awaiting_deposit" && !waiting ? (
           <div className="mt-8">

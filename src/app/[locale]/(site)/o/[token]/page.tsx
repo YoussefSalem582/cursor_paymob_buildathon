@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { publicOrder, type Order } from "@/lib/orders";
+import { presentPublicOrder } from "@/lib/delivery";
+import type { Order } from "@/lib/orders";
 import { isOrderToken } from "@/lib/validate";
 import { OrderPanel } from "./order-panel";
 
@@ -25,7 +26,7 @@ export default async function OrderPage({
 
   return (
     <OrderPanel
-      initial={publicOrder(data as Order)}
+      initial={await presentPublicOrder(data as Order)}
       returning={checkout === "returning"}
     />
   );
